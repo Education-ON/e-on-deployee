@@ -3,10 +3,10 @@ const mysql     = require('mysql2');
 const { Sequelize } = require('sequelize');
 
 // 공통 환경변수 설정
-const DB_HOST     = process.env.DB_HOST     || 'mysql';
+const DB_HOST     = process.env.DB_HOST     || 'localhost';
 const DB_PORT     = process.env.DB_PORT     || 3306;
-const DB_USER     = process.env.DB_USER     || 'eon';
-const DB_PASSWORD = process.env.DB_PASSWORD || 'eon';
+const DB_USER     = process.env.DB_USER     || 'root';
+const DB_PASSWORD = process.env.DB_PASSWORD || 'tmdeh3216';
 const DB_NAME     = process.env.DB_NAME     || 'eon_db';
 
 // 1) Raw MySQL 커넥션

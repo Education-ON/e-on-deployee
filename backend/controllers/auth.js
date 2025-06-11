@@ -52,7 +52,7 @@ exports.verifyEmailCode = (req, res) => {
 
 // 3단계: 실제 회원 생성
 exports.signupStep3 = async (req, res, next) => {
-  const { name, email, code, password, confirm } = req.body;
+  const { name, email, code, password, confirm, age } = req.body;
   const su = req.session.signup || {};
 
   // 1단계/2단계 확인
@@ -81,6 +81,7 @@ exports.signupStep3 = async (req, res, next) => {
     const newUser = await User.create({
       name,
       email,
+      age,
       password,
       nickname: name,
       type: su.type,                    // User 모델의 'type' 컬럼

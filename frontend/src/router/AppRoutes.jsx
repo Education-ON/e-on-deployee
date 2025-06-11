@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
-import Login from "../pages/Auth/Login";
+import Login from "../pages/Auth/LoginPage";
+import Signup from "../pages/Auth/SignupPage";
 import Calendar from "../pages/Calendar/Calendar";
 import Challenge from "../pages/Challenge/Challenge";
 import Suggestion from "../pages/Suggestion/Suggestion";
@@ -28,6 +29,7 @@ const AppRoutes = () => {
         <Routes>
             <Route path="/" element={<Calendar />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/challenge" element={<Challenge />} />
             <Route path="/challenge/create" element={<ChallengeCreate />} />

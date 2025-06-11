@@ -5,7 +5,7 @@ require('./models/InterestCategory');
 require('./models/Interests');
 require('./models/VisionCategory');
 require('./models/Visions');
-require('./models/Users');
+require('./models/User');
 require('./models/Challenge');  
 
 

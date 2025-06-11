@@ -4,8 +4,11 @@ import styles from "./../../styles/Common/Header.module.css";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 import notification from "../../assets/notification.svg";
+import { useAuth } from "../../hooks/useAuth";
 
 const Header = () => {
+    const { user } = useAuth();
+
     return (
         <header className={styles.header}>
             <div className={styles.logoContainer}>
@@ -35,11 +38,17 @@ const Header = () => {
                             커뮤니티
                         </Link>
                     </li>
+                    { user ?                    
                     <li className={styles.navItem}>
                         <Link to="/myPage/:userId" className={styles.navLink}>
                             마이페이지
+                        </Link>        
+                    </li> : 
+                        <li className={styles.navItem}>
+                        <Link to="/login" className={styles.navLink}>
+                            로그인/회원가입
                         </Link>
-                    </li>
+                    </li>}
                     <li>
                         <img
                             src={notification}

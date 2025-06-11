@@ -1,6 +1,6 @@
 // src/contexts/AuthContext.jsx
-import { createContext, useState } from 'react';
-
+import { createContext, useEffect, useState } from 'react';
+import api from "../api/api";
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
@@ -14,10 +14,12 @@ const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const isLoggedIn = !!user;
+  const signup = data => api.post('/auth/join/step3', data);
 
+  const isLoggedIn = !!user;
+  
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoggedIn }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );
