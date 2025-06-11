@@ -1,13 +1,22 @@
-// Header.jsx
-
+import React from 'react';
 import styles from "./../../styles/Common/Header.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 import notification from "../../assets/notification.svg";
 import { useAuth } from "../../hooks/useAuth";
 
-const Header = () => {
-    const { user } = useAuth();
+export default function Header() {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/');
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
 
     return (
         <header className={styles.header}>
@@ -38,20 +47,36 @@ const Header = () => {
                             커뮤니티
                         </Link>
                     </li>
-                    { user ?                    
-                    <li className={styles.navItem}>
-                        <Link to="/myPage/:userId" className={styles.navLink}>
-                            마이페이지
-                        </Link>        
-                    </li> : 
+
+                    {user ? (
+                        <>   
                         <li className={styles.navItem}>
-                        <Link to="/login" className={styles.navLink}>
-                            로그인/회원가입
-                        </Link>
-                    </li>}
-                    <li>
+                            <Link to={`/myPage/${user.id}`} className={styles.navLink}>
+                                마이페이지
+                            </Link>
+                        </li>
+                        <li className={styles.navItem}>
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className={`${styles.navItem} ${styles.navLink}`}
+                            >
+                                로그아웃
+                            </button>
+                        </li>
+                        </>
+                    ) : (
+                        <li className={styles.navItem}>
+                            <Link to="/login" className={styles.navLink}>
+                                로그인/회원가입
+                            </Link>
+                        </li>
+                    )}
+
+                    <li className={styles.navItem}>
                         <img
                             src={notification}
+                            alt="Notification"
                             className={styles.notification}
                         />
                     </li>
@@ -59,6 +84,4 @@ const Header = () => {
             </div>
         </header>
     );
-};
-
-export default Header;
+}
