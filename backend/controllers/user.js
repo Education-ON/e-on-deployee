@@ -34,6 +34,7 @@ exports.getMyInfo = async (req, res, next) => {
  */
 exports.updateMyInfo = async (req, res, next) => {
     const { name, emailNotification, currentPassword } = req.body;
+    console.log(emailNotification);
     if (!currentPassword) {
         return res
             .status(400)
@@ -65,14 +66,12 @@ exports.updateMyInfo = async (req, res, next) => {
         // 🛠️ 정보 업데이트
         await User.update(
             {
-                ...(name && { name }),
-                emailNotification:
-                    emailNotification === undefined
-                        ? user.emailNotification
-                        : emailNotification,
+                name,
+                emailNotification,
             },
             { where: { user_id: req.user.user_id } }
         );
+
         console.log("[2] 사용자 정보 업데이트 완료");
         return res.json({
             success: true,
@@ -124,11 +123,22 @@ exports.changePassword = async (req, res) => {
 exports.deactivateAccount = async (req, res, next) => {
     try {
         await User.update(
-            { accountStatus: "inactive", deactivatedAt: new Date() },
+            { state_code: "inactive", deactivatedAt: new Date() },
             { where: { user_id: req.user.user_id } }
         );
         req.logout(() => {}); // 세션 종료
         res.json({ success: true, message: "계정이 비활성화되었습니다." });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.deleteAccount = async (req, res, next) => {
+    try {
+        await User.destroy({ where: { user_id: req.user.user_id } });
+        req.logout(() => {}); // 세션 종료
+        res.json({ success: true, message: "계정이 탈퇴되었습니다." });
+        // console.log("탈퇴 완료ㅠㅠ");
     } catch (err) {
         next(err);
     }

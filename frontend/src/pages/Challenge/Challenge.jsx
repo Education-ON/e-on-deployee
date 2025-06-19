@@ -52,7 +52,7 @@ const Challenge = () => {
   };
 
   useEffect(() => {
-    console.log('[Challenge] 로그인한 유저:', user);  // user_id, name 등
+    // console.log('[Challenge] 로그인한 유저:', user);  // user_id, name 등
   }, [user]);
 
   useEffect(() => {
@@ -152,7 +152,7 @@ const Challenge = () => {
 
   // 참여 / 참여 취소 로직
   const handleApply = async ({ challenge_id, isJoined, participationId, participationState }) => {
-    console.log('[handleApply] user_id:', userId, 'challenge_id:', challenge_id, 'isJoined:', isJoined, 'participationId:', participationId, 'participationState:', participationState);
+    // console.log('[handleApply] user_id:', userId, 'challenge_id:', challenge_id, 'isJoined:', isJoined, 'participationId:', participationId, 'participationState:', participationState);
     if (actionLoading) return;
     setActionLoading(true);
 

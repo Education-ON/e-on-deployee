@@ -17,7 +17,7 @@ const TimeRecommendation = () => {
     const handleFetch = async () => {
         try {
             const result = await fetchTimeRecommendations(schoolType, month);
-            console.log("✅ 서버 응답 확인:", result);
+            // console.log("✅ 서버 응답 확인:", result);
 
             -setRecommendations(result);
         } catch (err) {

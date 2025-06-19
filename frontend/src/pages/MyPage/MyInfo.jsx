@@ -32,7 +32,7 @@ export default function MyInfo() {
                 emailNotification,
                 currentPassword,
             });
-            console.log("✅ 응답 메시지:", res.data); // 추가
+            // console.log("✅ 응답 메시지:", res.data); // 추가
 
             setMessage({ type: "success", text: res.data.message });
 
@@ -47,9 +47,9 @@ export default function MyInfo() {
 
             // 비밀번호 입력란 초기화
             setCurrentPassword("");
-            console.log("message 객체:", message); // 여기도 로그 추가
+            // console.log("message 객체:", message); // 여기도 로그 추가
         } catch (err) {
-            console.log("message 객체:", message); // 여기도 로그 추가
+            // console.log("message 객체:", message); // 여기도 로그 추가
 
             setMessage({
                 type: "error",
