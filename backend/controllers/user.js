@@ -138,7 +138,7 @@ exports.deleteAccount = async (req, res, next) => {
         await User.destroy({ where: { user_id: req.user.user_id } });
         req.logout(() => {}); // 세션 종료
         res.json({ success: true, message: "계정이 탈퇴되었습니다." });
-        console.log("탈퇴 완료ㅠㅠ");
+        // console.log("탈퇴 완료ㅠㅠ");
     } catch (err) {
         next(err);
     }
