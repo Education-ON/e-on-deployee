@@ -50,7 +50,7 @@ const CommunityList = () => {
             try {
                 const boardId = boardIdMap[activeTab];
                 const response = await getBoardPosts(boardId);
-                console.log("응답 확인:", response.data);
+                // console.log("응답 확인:", response.data);
 
                 setPosts(
                     response.data.map((post) => ({
