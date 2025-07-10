@@ -2,12 +2,13 @@
 
 const express = require("express");
 const router = express.Router();
-const SelectInterests = require('../models/SelectInterests');
-const SelectVisions = require('../models/SelectVisions');
-const InterestCategory = require('../models/InterestCategory');
-const VisionCategory = require('../models/VisionCategory');
-const Interests = require('../models/Interests');
-const Visions = require('../models/Visions');
+const db = require('../models');
+const SelectInterests = db.SelectInterests;
+const SelectVisions = db.SelectVisions;
+const InterestCategory = db.InterestCategory;
+const VisionCategory = db.VisionCategory;
+const Interests = db.Interests;
+const Visions = db.Visions;
 
 
 // 관심분야 저장

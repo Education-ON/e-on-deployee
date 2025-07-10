@@ -1,4 +1,5 @@
-const Region = require("../models/Region");
+const db = require('../models');
+const Region = db.Region;
 const { Op } = require("sequelize");
 
 // 1. DB 내 모든 지역 정보 조회 API

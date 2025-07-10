@@ -1,7 +1,8 @@
 const { sequelize, Sequelize } = require('../database/db');
 
-const RecommendationItemModel = require('../models/RecommendationItem');
-const RecommendationDashboardModel = require('../models/RecommendationDashboard');
+const db = require('../models');
+const RecommendationItemModel = db.RecommendationItem;
+const RecommendationDashboardModel = db.RecommendationDashboard;
 
 const RecommendationItem = RecommendationItemModel(sequelize, Sequelize.DataTypes);
 const RecommendationDashboard = RecommendationDashboardModel(sequelize, Sequelize.DataTypes);

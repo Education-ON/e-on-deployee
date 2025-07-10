@@ -1,29 +1,40 @@
-const fs = require("fs");
-const path = require("path");
-const Sequelize = require("sequelize");
-const { sequelize } = require("../database/db.js");
+'use strict';
 
-const dbModel = {};
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || 'development';
+const config = require(__dirname + '/../config/config.js')[env];
+
+const db = {};
+
+// Sequelize 인스턴스 생성
+const sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 // 모델 불러오기
 fs.readdirSync(__dirname)
-    .filter((file) => file !== "index.js" && file.endsWith(".js"))
-    .forEach((file) => {
-        const modelFile = require(path.join(__dirname, file));
-        const model = modelFile.model || modelFile;
-        const name = modelFile.name || model.name;
-
-        dbModel[name] = model;
-    });
+  .filter(file => {
+    return (
+      file.indexOf('.') !== 0 &&
+      file !== basename &&
+      file.slice(-3) === '.js'
+    );
+  })
+  .forEach(file => {
+    const modelDef = require(path.join(__dirname, file));
+    const model = modelDef(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  });
 
 // 관계 설정
-Object.keys(dbModel).forEach((modelName) => {
-    if (dbModel[modelName].associate) {
-        dbModel[modelName].associate(dbModel);
-    }
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
 });
 
-dbModel.sequelize = sequelize;
-dbModel.Sequelize = Sequelize;
+db.sequelize = sequelize;       // CLI에서 사용됨
+db.Sequelize = Sequelize;
 
-module.exports = dbModel;
+module.exports = db;

@@ -1,8 +1,9 @@
 const {
     createAverageSchedule,
 } = require("../utils/createAverageScheduleUtils");
-const AverageAcademicSchedule = require("../models/AverageAcademicSchedule");
-const Region = require("../models/Region");
+const db = require('../models');
+const AverageAcademicSchedule = db.AverageAcademicSchedule;
+const Region = db.Region;
 const { getRegionId } = require("../utils/getRegionId");
 
 // 1. 지역명으로 평균 학사일정 조회

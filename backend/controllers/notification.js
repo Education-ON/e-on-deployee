@@ -1,5 +1,6 @@
 // backend/controllers/notification.js
-const { NotificationSetting } = require('../models');
+const db = require('../models');
+const { NotificationSetting } = db;
 
 /**
  * [GET] /api/notification

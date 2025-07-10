@@ -1,18 +1,57 @@
+'use strict';
+
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('RecommendationItem', {
+  const RecommendationItem = sequelize.define('RecommendationItem', {
     item_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
-    title: DataTypes.STRING,
-    description: DataTypes.STRING,
-    month: DataTypes.INTEGER,
-    target_grade: DataTypes.INTEGER,
-    school_type: DataTypes.STRING,
-    dashboard_id: DataTypes.INTEGER
+    title: {
+      type: DataTypes.STRING,
+    },
+    description: {
+      type: DataTypes.STRING,
+    },
+    month: {
+      type: DataTypes.INTEGER,
+    },
+    target_grade: {
+      type: DataTypes.INTEGER,
+    },
+    school_type: {
+      type: DataTypes.ENUM('elementary', 'middle'),
+      allowNull: false,
+    },
+    dashboard_id: {
+      type: DataTypes.INTEGER,
+    },
+    challenge_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    },
+    image_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   }, {
-    tableName: 'RecommendationItem', // 실제 테이블 이름 명시 (선택 사항)
-    freezeTableName: true // 자동 복수화 방지
+    tableName: 'RecommendationItem',
+    freezeTableName: true,
+    timestamps: false,
   });
+
+  RecommendationItem.associate = (models) => {
+    RecommendationItem.belongsTo(models.RecommendationDashboard, {
+      foreignKey: 'dashboard_id',
+      as: 'dashboard',
+      onDelete: 'CASCADE',
+    });
+    RecommendationItem.belongsTo(models.Challenge, {
+      foreignKey: 'challenge_id',
+      as: 'challenge',
+      onDelete: 'SET NULL',
+    });
+  };
+
+  return RecommendationItem;
 };

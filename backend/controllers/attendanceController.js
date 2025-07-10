@@ -1,8 +1,9 @@
 const { Op } = require('sequelize');
-const ParticipatingChallenge  = require('../models/ParticipatingChallenge');
-const ParticipatingAttendance = require('../models/participatingAttendance');
-const Challenge               = require('../models/Challenge');
-const User = require('../models/User');
+const db = require('../models');
+const ParticipatingChallenge  = db.ParticipatingChallenge;
+const ParticipatingAttendance = db.participatingAttendance;
+const Challenge= db.Challenge;
+const User = db.User;
 
 
 /*  출석 추가 -------------------------------------------------- */

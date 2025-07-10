@@ -1,5 +1,6 @@
-const ParticipatingChallenge = require('../models/ParticipatingChallenge');
-const Challenge = require('../models/Challenge');
+const db = require('../models');
+const ParticipatingChallenge = db.ParticipatingChallenge;
+const Challenge = db.Challenge;
 
 // 챌린지 신청
 exports.join = async(req, res, next) => {
