@@ -49,7 +49,7 @@ async function searchSchools(query) {
                 atptCode: school.ATPT_OFCDC_SC_CODE,  // 시도교육청 코드
             }));
     } catch (error) {
-        console.error("학교 검색 API 호출 실패:", err);
+        console.error("학교 검색 API 호출 실패:", error);
         throw new Error("학교 검색 API 호출 실패");
     }
 }

@@ -44,7 +44,7 @@ const User = sequelize.define('User', {
   },
   my_school: {
     type: DataTypes.STRING(100),
-  },
+  },  // schoolCode 저장하도록 함
   email_notification: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

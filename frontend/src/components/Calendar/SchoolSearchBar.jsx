@@ -107,8 +107,8 @@ const SchoolSearchBar = () => {
                       )
                     : await searchAverageScheduleByName(region_name);
 
-                setSelectedValue(region_name); // 🧠 여기서만 selectedValue 직접 세팅
-                setSchedules(res.data.data); // 🧠 여기서만 schedules 직접 세팅
+                setSelectedValue(region_name); // 여기서만 selectedValue 직접 세팅
+                setSchedules(res.data.data); // 여기서만 schedules 직접 세팅
 
                 console.log("✅ 평균 학사일정: ", res.data);
             } catch (err) {
@@ -190,7 +190,7 @@ const SchoolSearchBar = () => {
                                     setSuggestions([]);
                                 }}>
                                 {searchType.type === "school"
-                                    ? item.name
+                                    ? `${item.name} (${item.address})`
                                     : item.region_name}
                             </li>
                         ))}
