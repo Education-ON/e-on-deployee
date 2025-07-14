@@ -1,5 +1,5 @@
 const db = require('../models');
-const schoolscheduleService = db.schoolScheduleService;
+const schoolscheduleService = require('../services/schoolScheduleService');
 
 exports.searchSchools = async (req, res) => {
     try {
