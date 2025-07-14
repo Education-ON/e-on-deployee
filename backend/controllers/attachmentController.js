@@ -1,5 +1,6 @@
-const Attachment = require('../models/Attachment');
-const Challenge  = require('../models/Challenge');
+const db = require('../models');
+const Attachment = db.Attachment;
+const Challenge  = db.Challenge;
 const fs         = require('fs');
 const path       = require('path');
 

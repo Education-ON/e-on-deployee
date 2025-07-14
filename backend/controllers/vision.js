@@ -1,5 +1,6 @@
 // controllers/vision.js
-const { Visions, SelectVisions } = require('../models'); // ✅ Visions와 SelectVisions 불러오기
+const db = require('../models');
+const { Visions, SelectVisions } = db;
 
 /**
  * [GET] /api/visions/my

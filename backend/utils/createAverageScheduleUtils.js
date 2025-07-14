@@ -5,7 +5,8 @@ const {
 const { groupSchoolsByType } = require("./groupedSchoolByTypeUtils");
 const { groupSimilarEvents } = require("./stringSimilarity");
 const extractDistrict = require("./addressUtils").extractDistrict;
-const { Region, AverageAcademicSchedule } = require("../models");
+const db = require('../models');
+const { Region, AverageAcademicSchedule } = db;
 
 // 1. 지역별 학교 조회
 async function getSchoolByRegion(region) {

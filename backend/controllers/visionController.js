@@ -1,5 +1,6 @@
 //visionController.js
-const Visions = require('../models/Visions');
+const db = require('../models');
+const Visions = db.Visions;
 
 // 비전 전체 조회
 exports.getAll = async (req, res, next) => {

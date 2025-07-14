@@ -1,4 +1,5 @@
-const Bookmark = require('../models/Bookmark');
+const db = require('../models');
+const Bookmark = db.Bookmark;
 
 /* 17) 북마크 추가 -------------------------------------------- */
 exports.add = async (req, res, next) => {

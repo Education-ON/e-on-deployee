@@ -3,7 +3,8 @@ const VALID_USER_TYPES = ["student", "parent"];
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const transporter = require("../config/mail");
-const User = require("../models/User");
+const db = require('../models');
+const User = db.User;
 
 // 1단계: 회원 구분 저장
 exports.signupStep1 = (req, res) => {

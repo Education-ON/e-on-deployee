@@ -1,5 +1,6 @@
 // region 이름을 입력하면 해당 지역의 ID를 반환하는 util 함수
-const Region = require("../models/Region");
+const db = require('../models');
+const Region = db.Region;
 
 async function getRegionId(regionName) {
     try {
