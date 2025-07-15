@@ -40,8 +40,16 @@ export default function SignupForm({ onFinish }) {
 
     const finish = async (e) => {
         e.preventDefault();
+
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
+
         if (data.password !== data.confirm) {
             setError("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        if (!passwordRegex.test(data.password)) {
+            setError("비밀번호는 영문, 숫자, 특수문자를 각각 최소 1개 이상 포함해야 합니다.");
             return;
         }
 
@@ -210,6 +218,9 @@ export default function SignupForm({ onFinish }) {
                             }
                             required
                         />
+                        <p className={styles.hintText}>
+                            비밀번호는 영문, 숫자, 특수문자를 각각 최소 1개 이상 포함해야 합니다.
+                        </p>
                     </div>
 
                     <div className={styles.formGroup}>
