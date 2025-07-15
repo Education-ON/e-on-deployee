@@ -133,3 +133,18 @@
   color : #e74c3c;
   margin-top: 6px;
 }
+
+.termsBox {
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  margin-bottom: 24px;
+}
+
+.link {
+  font-size: 12px;
+  color: #f55b5b;
+  margin-left: 8px;
+  text-decoration: underline;
+}
