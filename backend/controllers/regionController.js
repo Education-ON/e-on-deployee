@@ -1,4 +1,4 @@
-// const db = require('../models');
+const db = require('../models');
 // const regionService = db.regionSearchService;
 const regionService = require('../services/regionSearchService');
 
