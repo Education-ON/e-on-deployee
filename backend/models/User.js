@@ -10,6 +10,18 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       allowNull: false,
     },
+
+    provider: {
+      type : DataTypes.ENUM('local', 'kakao'),
+      allowNull : false,
+      defaultValue : 'local',
+    },
+
+    sns_id : {
+      type :DataTypes.STRING,
+      allowNull : true, //local은 null임 
+    },
+
     name: {
       type: DataTypes.STRING(50),
       allowNull: false,
