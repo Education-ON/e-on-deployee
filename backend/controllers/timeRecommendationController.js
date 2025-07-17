@@ -1,5 +1,6 @@
 // timeRecommendationController.js
-const timeRecommendationService = require('../services/timeRecommendationService');
+const db = require('../models');
+const timeRecommendationService = db.timeRecommendationService;
 
 exports.getRecommendationsByTime = async (req, res) => {
   try {

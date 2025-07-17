@@ -1,31 +1,28 @@
-// models/regionModel.js
-const { DataTypes } = require("sequelize");
-const { sequelize } = require("../database/db.js");
+'use strict';
 
-const Region = sequelize.define(
-    "Region",
-    {
-        region_id: {
-            type: DataTypes.BIGINT,
-            primaryKey: true,
-            allowNull: false,
-        },
-        region_name: {
-            type: DataTypes.STRING(255),
-            allowNull: false,
-        },
+module.exports = (sequelize, DataTypes) => {
+  const Region = sequelize.define('Region', {
+    region_id: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      allowNull: false,
     },
-    {
-        tableName: "Region",
-        timestamps: false, // createdAt, updatedAt 자동 생성 방지
-    }
-);
+    region_name: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+  }, {
+    tableName: 'Region',
+    timestamps: false,
+  });
 
-Region.associate = (models) => {
+  Region.associate = (models) => {
     Region.hasMany(models.AverageAcademicSchedule, {
-        foreignKey: "region_id",
+      foreignKey: 'region_id',
+      as: 'schedules',
+      onDelete: 'CASCADE',
     });
-};
+  };
 
-Region.name = "Region"; // 👈 name 수동으로 설정
-module.exports = Region; // 👈 객체 말고 model만 export
+  return Region;
+};

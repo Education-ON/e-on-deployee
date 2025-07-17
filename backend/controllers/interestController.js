@@ -1,5 +1,6 @@
 //interestController.js
-const Interests = require('../models/Interests');
+const db = require('../models');
+const Interests = db.Interests;
 
 // 관심사 전체 조회
 exports.getAll = async (req, res, next) => {

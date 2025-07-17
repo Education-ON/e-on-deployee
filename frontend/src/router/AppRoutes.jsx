@@ -26,6 +26,9 @@ import TimeRecommendation from "../pages/Suggestion/TimeRecommendation";
 import PreferenceInterest from "../pages/Suggestion/PreferenceInterest";
 import PreferenceVision from "../pages/Suggestion/PreferenceVision";
 import RecommendationResult from "../pages/Suggestion/RecommendationResult";
+import TermsPage from "../pages/Auth/TermsPage";
+import PrivacyPage from "../pages/Auth/PrivacyPage";
+import MarketingPage from "../pages/Auth/MarketingPage";
 
 const AppRoutes = () => {
     return (
@@ -34,6 +37,11 @@ const AppRoutes = () => {
             <Route path="/" element={<Calendar />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+
+            {/* Signup 라우트 */}
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/marketing" element={<MarketingPage />} />
 
             {/* Calendar 라우트 */}
             <Route path="/calendar" element={<Calendar />} />

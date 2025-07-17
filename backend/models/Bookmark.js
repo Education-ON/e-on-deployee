@@ -1,31 +1,33 @@
-// models/Bookmark.js
-const { sequelize } = require('../database/db');
-const { DataTypes } = require('sequelize');
-const User = require('./User');
-const Challenge = require('./Challenge');
+'use strict';
 
-const Bookmark = sequelize.define('Bookmark', {
-  // 필요하다면 컬럼 스키마를 직접 정의해 주세요.
-}, {
-  tableName: 'Bookmarks',    // ← 실제 테이블명과 정확히 맞추기 (대문자 B!)
-  freezeTableName: true,
-  timestamps: false,
-});
+module.exports = (sequelize, DataTypes) => {
+  const Bookmark = sequelize.define('Bookmark', {
+    // 필요하다면 추가 필드 정의
+    // is_edited: { type: DataTypes.BOOLEAN, defaultValue: false }
+  }, {
+    tableName: 'Bookmarks',
+    freezeTableName: true,
+    timestamps: false,
+  });
 
-Bookmark.belongsTo(User,      { foreignKey: 'user_id' });
-Bookmark.belongsTo(Challenge, { foreignKey: 'challenge_id' });
+  Bookmark.associate = (models) => {
+    Bookmark.belongsTo(models.User, { foreignKey: 'user_id' });
+    Bookmark.belongsTo(models.Challenge, { foreignKey: 'challenge_id' });
 
-User.belongsToMany(Challenge, {
-  through: Bookmark,
-  foreignKey: 'user_id',
-  otherKey:   'challenge_id',
-  as: 'bookmarkedChallenges'
-});
-Challenge.belongsToMany(User, {
-  through: Bookmark,
-  foreignKey: 'challenge_id',
-  otherKey:   'user_id',
-  as: 'bookmarkedUsers'
-});
+    models.User.belongsToMany(models.Challenge, {
+      through: Bookmark,
+      foreignKey: 'user_id',
+      otherKey: 'challenge_id',
+      as: 'bookmarkedChallenges',
+    });
 
-module.exports = Bookmark;
+    models.Challenge.belongsToMany(models.User, {
+      through: Bookmark,
+      foreignKey: 'challenge_id',
+      otherKey: 'user_id',
+      as: 'bookmarkedUsers',
+    });
+  };
+
+  return Bookmark;
+};

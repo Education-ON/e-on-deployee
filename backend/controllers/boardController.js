@@ -1,9 +1,10 @@
 const boardService = require("../services/boardService");
-const { Post } = require('../models/Post');
-const { Board } = require('../models/Board');
-const { Comment } = require('../models/Comment');
-const BoardRequest = require('../models/BoardRequest');
-const User = require('../models/User');
+const db = require('../models');
+const User = db.User;
+const Board = db.Board;
+const Post = db.Post;
+const Comment = db.Comment;
+const BoardRequest = db.BoardRequest;
 
 // 게시판 조회 1
 exports.getBoardList = async (req, res) => {

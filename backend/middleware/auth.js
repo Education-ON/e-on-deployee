@@ -1,4 +1,5 @@
-const { User } = require('../models');
+const db = require('../models');
+const User = db.User;
 
 exports.isLoggedIn = async (req, res, next) => {
   if (!req.isAuthenticated()) {

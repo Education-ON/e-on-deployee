@@ -1,5 +1,6 @@
 // controllers/interest.js
-const { InterestCategory, Interest, SelectInterest } = require('../models');
+const db = require('../models');
+const { InterestCategory, Interest, SelectInterest } = db;
 
 /**
  * [GET] /api/interests/categories

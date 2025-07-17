@@ -1,5 +1,6 @@
 // controllers/activity.js
-const { ActivityHistory } = require('../models');
+const db = require('../models');
+const ActivityHistory = db.ActivityHistory;
 const { Op } = require('sequelize');
 
 /**

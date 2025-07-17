@@ -1,6 +1,7 @@
-const Review    = require('../models/Review');
-const Challenge = require('../models/Challenge');
-const User = require('../models/User');
+const db = require('../models');
+const Review    = db.Review;
+const Challenge = db.Challenge;
+const User = db.User;
 
 /* 13) 리뷰 작성 ----------------------------------------------- */
 exports.create = async (req, res, next) => {

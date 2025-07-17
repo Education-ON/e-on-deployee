@@ -1,9 +1,8 @@
-const { Board } = require('../models/Board');
-const { Post } = require('../models/Post');
-const User = require('../models/User');
-const { Comment } = require('../models/Comment');
-const { Se } = require('sequelize');
-const axios = require("axios");
+const db = require('../models');
+const User = db.User;
+const Board = db.Board;
+const Post = db.Post;
+const Comment = db.Comment;
 
 // 게시판 상세 조회
 async function getBoardList(board_id) {
