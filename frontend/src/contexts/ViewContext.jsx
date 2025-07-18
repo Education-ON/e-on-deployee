@@ -11,6 +11,7 @@ const ViewProvider = ({ children }) => {
     const [currentView, setCurrentView] = useState("monthly");
     const [selectedValue, setSelectedValue] = useState("");
     const [schedules, setSchedules] = useState(null);
+    const [currentSchoolCode, setCurrentSchoolCode] = useState(null);
 
     const isInitialMount = useRef(true); // 최초 마운트 여부
 
@@ -33,6 +34,7 @@ const ViewProvider = ({ children }) => {
 
                     const school = await searchSchoolsByName(schoolName);
                     const schoolCode = school.data[0].schoolCode;
+                    setCurrentSchoolCode(schoolCode);
 
                     const res = await getAllSchoolSchedule(
                         schoolCode,
@@ -75,7 +77,7 @@ const ViewProvider = ({ children }) => {
         };
 
         fetchDefaultSchedule();
-    }, [searchType.type, searchType.year, searchType.grade]);
+    }, [searchType.type, searchType.year, searchType.grade, selectedValue]);
 
     return (
         <ViewContext.Provider
@@ -86,6 +88,7 @@ const ViewProvider = ({ children }) => {
                 setSelectedValue,
                 schedules,
                 setSchedules,
+                currentSchoolCode,
             }}>
             {children}
         </ViewContext.Provider>

@@ -3,7 +3,7 @@ const mySchoolService = require("../services/mySchoolService");
 exports.saveMySchool = async (req, res) => {
     try {
         const userId = req.user.user_id;
-        const schoolCode = req.body;
+        const schoolCode = req.body.schoolCode;
 
         // 필수 파라미터 확인
         if (!userId || !schoolCode) {

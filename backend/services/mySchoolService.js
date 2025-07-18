@@ -1,4 +1,5 @@
-const User = require("../models/User");
+const db = require("../models");
+const User = db.User;
 
 // 1. mySchool에 선택한 schoolCode를 저장
 async function saveMySchool(userId, schoolCode) {
@@ -16,9 +17,9 @@ async function saveMySchool(userId, schoolCode) {
             throw new Error("사용자를 찾을 수 없습니다.");
         }
 
-        // DB에 이미 mySchool이 존재하는지 확인
-        if (user.mySchool) {
-            deleteMySchool(userId);
+        // DB에 이미 my_school이 존재하는지 확인
+        if (user.my_school) {
+            await deleteMySchool(userId); // await 추가
             console.log("기존 mySchool 정보가 삭제되었습니다.");
         }
 
@@ -28,7 +29,8 @@ async function saveMySchool(userId, schoolCode) {
             { where: { user_id: userId } }
         );
     } catch (error) {
-        console.error("나의 학교 저장 API 호출 실패:", error);
+        console.error("나의 학교 저장 API 호출 실패:", error.message);
+        console.error(error);
         throw new Error("나의 학교 저장 API 호출 실패");
     }
 }
@@ -50,15 +52,12 @@ async function deleteMySchool(userId) {
         }
 
         // DB에 mySchool이 존재하는지 확인
-        if (!user.mySchool) {
-            throw new Error("삭제할 mySchool이 존재하지 않습니다.");
+        if (!user.my_school) {
+            throw new Error("삭제할 my_school이 존재하지 않습니다.");
         }
 
         // my_school 정보 삭제
-        await User.update(
-            { my_school: null },
-            { where: { user_id: userId } }
-        );
+        await User.update({ my_school: null }, { where: { user_id: userId } });
     } catch (error) {
         console.error("나의 학교 삭제 API 호출 실패:", error);
         throw new Error("나의 학교 삭제 API 호출 실패");
@@ -93,3 +92,9 @@ async function getMySchool(userId) {
         throw new Error("나의 학교 조회 API 호출 실패");
     }
 }
+
+module.exports = {
+    saveMySchool,
+    deleteMySchool,
+    getMySchool,
+};

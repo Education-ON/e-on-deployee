@@ -9,6 +9,6 @@ router.post('/save', mySchoolController.saveMySchool);
 router.post('/delete', mySchoolController.deleteMySchool);
 
 // 3. 나의 학교 조회
-router.get('/', mySchoolController.getMySchool);
+router.get('/get', mySchoolController.getMySchool);
 
 module.exports = router;

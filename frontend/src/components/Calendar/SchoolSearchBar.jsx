@@ -190,7 +190,7 @@ const SchoolSearchBar = () => {
                                     setSuggestions([]);
                                 }}>
                                 {searchType.type === "school"
-                                    ? `${item.name} (${item.address})`
+                                    ? `${item.name} ${item.address ? `(${item.address})`: ""}`
                                     : item.region_name}
                             </li>
                         ))}
