@@ -61,6 +61,7 @@ app.use("/api/notification", require("./routes/notification"));
 app.use("/schoolSchedule", require("./routes/schoolScheduleRoute"));
 app.use("/averageSchedule", require("./routes/averageScheduleRouter"));
 app.use("/regions", require("./routes/regionRouter"));
+app.use("/mySchool", require("./routes/mySchoolRoute"))
 app.use("/boards", require("./routes/boardRoute"));
 
 app.use("/api/recommendations", require("./routes/recommendations"));
