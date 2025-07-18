@@ -18,14 +18,10 @@ const CommunityWrite = () => {
         if (!title || !content) {
             toast("제목과 내용을 모두 입력해주세요.", {
                 icon: "💜",
-                style: {
-                    background: "#f7f8fc", // 연보라 배경
-                    color: "#2d2d2d",
-                    borderLeft: "4px solid #b37bd6", // 포인트 보라
-                    fontWeight: "bold",
-                },
+                className: "my-toast",
                 progressClassName: "custom-progress-bar",
             });
+
             return;
         }
 
