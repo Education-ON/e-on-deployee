@@ -7,13 +7,16 @@ import DeactivateAccount from "../pages/MyPage/DeactivateAccount";
 import Calendar from "../pages/Calendar/Calendar";
 import Challenge from "../pages/Challenge/Challenge";
 import Suggestion from "../pages/Suggestion/Suggestion";
+
+//커뮤니티 라우터
 import CommunityList from "../pages/Community/CommunityList";
 import CommunityWrite from "../pages/Community/CommunityWrite";
 import CommunityEdit from "../pages/Community/CommunityEdit";
 import BoardRequestPage from "../pages/Community/BoardRequestPage";
 import PostDetail from "../pages/Community/PostDetail";
-import MyPage from "../pages/MyPage/MyPage";
 import BoardRequestList from "../pages/MyPage/BoardRequestList";
+
+import MyPage from "../pages/MyPage/MyPage";
 import PrivateRoutes from "./PrivateRoutes";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
 import ChallengeDetail from "../pages/Challenge/ChallengeDetail";
@@ -29,6 +32,7 @@ import RecommendationResult from "../pages/Suggestion/RecommendationResult";
 import TermsPage from "../pages/Auth/TermsPage";
 import PrivacyPage from "../pages/Auth/PrivacyPage";
 import MarketingPage from "../pages/Auth/MarketingPage";
+import MyBoardRequest from "../pages/MyPage/MyBoardRequest";
 
 const AppRoutes = () => {
     return (
@@ -126,6 +130,15 @@ const AppRoutes = () => {
                 element={
                     <PrivateRoutes>
                         <DeactivateAccount />
+                    </PrivateRoutes>
+                }
+            />
+            {/* 내 게시판 개설 신청 확인 */}
+            <Route
+                path="/mypage/board-requests"
+                element={
+                    <PrivateRoutes>
+                        <MyBoardRequest />
                     </PrivateRoutes>
                 }
             />

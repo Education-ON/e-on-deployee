@@ -4,7 +4,8 @@ const {
   getMyInfo,
   updateMyInfo,
   changePassword,
-  deactivateAccount
+  deactivateAccount,
+  getMyBoardRequests
 } = require('../controllers/user');
 const { isLoggedIn } = require('../middleware/auth');
 
@@ -21,5 +22,8 @@ router.put('/me/password', isLoggedIn, changePassword);
 
 // 계정 탈퇴
 router.delete('/me', isLoggedIn, deactivateAccount);
+
+// 내 게시판 개설 신청 조회
+router.get('/board-requests/me', isLoggedIn, getMyBoardRequests);
 
 module.exports = router;
