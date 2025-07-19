@@ -2,6 +2,7 @@
 const bcrypt = require("bcrypt");
 const db = require('../models');
 const User = db.User;
+const BoardRequest = db.BoardRequest;
 
 /**
  * [GET] /api/user/me
@@ -134,3 +135,20 @@ exports.deactivateAccount = async (req, res, next) => {
         next(err);
     }
 };
+
+//게시판 개설 신청 확인
+exports.getMyBoardRequests = async (req, res) => {
+    try {
+        const user_id = req.user.user_id;
+
+        const requests = await BoardRequest.findAll({
+            where: { user_id : user_id },
+            order: [['request_date', 'DESC']],
+        })
+        res.json(requests);
+        
+    } catch (error) {
+        console.error('게시판 요청 조회 실패:', error);
+        res.status(500).json({ message: '서버 오류' });
+    }
+}
