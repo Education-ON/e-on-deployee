@@ -33,6 +33,8 @@ import TermsPage from "../pages/Auth/TermsPage";
 import PrivacyPage from "../pages/Auth/PrivacyPage";
 import MarketingPage from "../pages/Auth/MarketingPage";
 import MyBoardRequest from "../pages/MyPage/MyBoardRequest";
+import ChallengeRequests from "../pages/MyPage/ChallengeRequests";
+import AdminChallengeDetail from "../pages/MyPage/AdminChallengeDetail";
 
 const AppRoutes = () => {
     return (
@@ -150,7 +152,25 @@ const AppRoutes = () => {
                     </PrivateRoutes>
                 }
             />
+            {/* 관리자 챌린지 개설 요청 확인 */}
+            <Route
+                path="/admin/challenge-requests"
+                element={
+                    <PrivateRoutes>
+                        <ChallengeRequests />
+                    </PrivateRoutes>
+                }
+            />
+            <Route
+                path="/admin/challenge-requests/:id"
+                element={
+                    <PrivateRoutes>
+                    <AdminChallengeDetail />
+                    </PrivateRoutes>
+                }
+            />
         </Routes>
+        
     );
 };
 

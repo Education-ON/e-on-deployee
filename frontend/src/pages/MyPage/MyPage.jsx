@@ -42,6 +42,12 @@ export default function MyPage() {
                         게시판 개설 요청 확인하기
                     </Link>
                 )}
+                {user.type == "admin" && (
+                    <Link
+                        to="/admin/challenge-requests" className={styles.menuBox}>
+                            챌린지 개설 요청 확인하기
+                    </Link>
+                )}
                 {user.type !== "admin" && (
                     <Link
                         to="/mypage/board-requests"
