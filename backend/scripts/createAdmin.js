@@ -1,8 +1,9 @@
 // backend/scripts/createAdmin.js
 // 관리자 계정을 생성하는 스크립트
 const bcrypt = require("bcrypt");
-const User = require("../models/User");
-const { sequelize } = require("../database/db");
+// const User = require("../models/User");
+// const { sequelize } = require("../database/db");
+const { sequelize, User } = require("../models");
 
 (async () => {
     try {

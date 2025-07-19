@@ -32,3 +32,18 @@ exports.isNotLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) return next();
   res.status(403).json({ message: '이미 로그인 상태' });
 };
+
+/**
+ * 관리자 권한 확인
+ */
+exports.isAdmin = (req, res, next) => {
+  const user = req.user;
+  if (!user) {
+    return res.status(401).json({ message: '로그인이 필요합니다.' });
+  }
+  // User 모델의 type 필드가 'admin' 인지 검사
+  if (user.type !== 'admin') {
+    return res.status(403).json({ message: '관리자 권한이 필요합니다.' });
+  }
+  next();
+};
