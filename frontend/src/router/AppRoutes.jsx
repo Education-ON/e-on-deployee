@@ -13,7 +13,8 @@ import CommunityEdit from "../pages/Community/CommunityEdit";
 import BoardRequestPage from "../pages/Community/BoardRequestPage";
 import PostDetail from "../pages/Community/PostDetail";
 import MyPage from "../pages/MyPage/MyPage";
-import BoardRequestList from "../pages/MyPage/BoardRequestList";
+// import BoardRequestList from "../pages/MyPage/BoardRequestList";
+import BoardRequestList from "../pages/Admin/BoardRequestList";
 import PrivateRoutes from "./PrivateRoutes";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
 import ChallengeDetail from "../pages/Challenge/ChallengeDetail";
@@ -26,6 +27,9 @@ import TimeRecommendation from "../pages/Suggestion/TimeRecommendation";
 import PreferenceInterest from "../pages/Suggestion/PreferenceInterest";
 import PreferenceVision from "../pages/Suggestion/PreferenceVision";
 import RecommendationResult from "../pages/Suggestion/RecommendationResult";
+import AdminPage from "../pages/Admin/AdminPage";
+import UserManagement from "../pages/Admin/UserManagement";
+import MySchoolManagement from "../pages/MyPage/MySchoolManagement";
 
 const AppRoutes = () => {
     return (
@@ -83,10 +87,10 @@ const AppRoutes = () => {
                 element={<CommunityWrite />}
             />
             <Route path="/posts/:post_id" element={<PostDetail />} />
-            <Route
+            {/* <Route
                 path="/community/board-requests"
                 element={<BoardRequestPage />}
-            />
+            /> */}
 
             {/* MyPage 라우트 */}
             <Route
@@ -106,6 +110,14 @@ const AppRoutes = () => {
                 }
             />
             <Route
+                path="/mypage/my-school"
+                element={
+                    <PrivateRoutes>
+                        <MySchoolManagement />
+                    </PrivateRoutes>
+                }
+            />
+            <Route
                 path="/mypage/password"
                 element={
                     <PrivateRoutes>
@@ -118,6 +130,24 @@ const AppRoutes = () => {
                 element={
                     <PrivateRoutes>
                         <DeactivateAccount />
+                    </PrivateRoutes>
+                }
+            />
+
+            {/* 관리자 페이지 라우트 */}
+            <Route
+                path="/admin"
+                element={
+                    <PrivateRoutes>
+                        <AdminPage />
+                    </PrivateRoutes>
+                }
+            />
+            <Route
+                path="/admin/user-management"
+                element={
+                    <PrivateRoutes>
+                        <UserManagement />
                     </PrivateRoutes>
                 }
             />

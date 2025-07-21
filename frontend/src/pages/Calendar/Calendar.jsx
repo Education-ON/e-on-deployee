@@ -1,5 +1,3 @@
-// Calendar/Calendar.jsx
-
 import styles from "../../styles/Pages/Calendar.module.css";
 import Header from "../../components/Common/Header";
 import SchoolSearchBar from "../../components/Calendar/SchoolSearchBar";

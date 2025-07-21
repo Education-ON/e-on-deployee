@@ -24,8 +24,7 @@ const ViewNavigator = () => {
     const navigate = useNavigate();
 
     // 로그인된 경우에만 userId 사용
-    const userId = user?.user_id; // 또는 user?.userId, user?.uid 등 구조에 따라
-
+    const userId = user?.user_id;
     // console.log(userId);
 
     const handleViewTypeChange = (event) => {

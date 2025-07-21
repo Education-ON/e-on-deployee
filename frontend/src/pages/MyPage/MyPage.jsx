@@ -11,7 +11,7 @@ export default function MyPage() {
 
     return (
         <div className={styles.container}>
-          {user.type === "admin" ? <h2>관리자 페이지</h2> : <h2>마이페이지</h2>}
+            <h2>마이페이지</h2>
             <div className={styles.userInfo}>
                 <p>
                     <strong>{user.name}</strong>
@@ -20,28 +20,18 @@ export default function MyPage() {
             </div>
 
             <div className={styles.menuGrid}>
-                {user.type !== "admin" && (
-                    <Link to="/mypage/info" className={styles.menuBox}>
-                        내 정보 수정
-                    </Link>
-                )}{" "}
-                {user.type !== "admin" && (
-                    <Link to="/mypage/password" className={styles.menuBox}>
-                        비밀번호 변경
-                    </Link>
-                )}{" "}
-                {user.type !== "admin" && (
-                    <Link to="/mypage/deactivate" className={styles.menuBox}>
-                        계정 탈퇴 / 비활성화
-                    </Link>
-                )}
-                {user.type === "admin" && (
-                    <Link
-                        to="/admin/board-requests"
-                        className={styles.menuBox}>
-                        게시판 개설 요청 확인하기
-                    </Link>
-                )}
+                <Link to="/mypage/info" className={styles.menuBox}>
+                    내 정보 수정
+                </Link>
+                <Link to="/mypage/my-school" className={styles.menuBox}>
+                    나의 학교 관리
+                </Link>
+                <Link to="/mypage/password" className={styles.menuBox}>
+                    비밀번호 변경
+                </Link>
+                <Link to="/mypage/deactivate" className={styles.menuBox}>
+                    계정 탈퇴 / 비활성화
+                </Link>
             </div>
         </div>
     );
