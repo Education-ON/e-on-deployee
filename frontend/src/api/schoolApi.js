@@ -41,3 +41,21 @@ export const getAllSchoolSchedule = async (schoolId, atptCode, year, grade) => {
         { params }
     );
 };
+
+// 7. 나의 학교 저장
+export const saveMySchool = async (userId, schoolCode) => {
+    return axios.post("/mySchool/save", {
+        userId,
+        schoolCode: String(schoolCode),
+    });
+};
+
+// 8. 나의 학교 삭제
+export const deleteMySchool = async (userId) => {
+    return axios.post("/mySchool/delete", { userId });
+};
+
+// 9. 나의 학교 조회
+export const getMySchool = async (userId) => {
+    return axios.get("/mySchool/get", { userId });
+};

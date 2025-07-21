@@ -14,9 +14,8 @@ import CommunityWrite from "../pages/Community/CommunityWrite";
 import CommunityEdit from "../pages/Community/CommunityEdit";
 import BoardRequestPage from "../pages/Community/BoardRequestPage";
 import PostDetail from "../pages/Community/PostDetail";
-import BoardRequestList from "../pages/MyPage/BoardRequestList";
-
 import MyPage from "../pages/MyPage/MyPage";
+import BoardRequestList from "../pages/Admin/BoardRequestList";
 import PrivateRoutes from "./PrivateRoutes";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
 import ChallengeDetail from "../pages/Challenge/ChallengeDetail";
@@ -29,6 +28,9 @@ import TimeRecommendation from "../pages/Suggestion/TimeRecommendation";
 import PreferenceInterest from "../pages/Suggestion/PreferenceInterest";
 import PreferenceVision from "../pages/Suggestion/PreferenceVision";
 import RecommendationResult from "../pages/Suggestion/RecommendationResult";
+import AdminPage from "../pages/Admin/AdminPage";
+import UserManagement from "../pages/Admin/UserManagement";
+import MySchoolManagement from "../pages/MyPage/MySchoolManagement";
 import TermsPage from "../pages/Auth/TermsPage";
 import PrivacyPage from "../pages/Auth/PrivacyPage";
 import MarketingPage from "../pages/Auth/MarketingPage";
@@ -95,10 +97,10 @@ const AppRoutes = () => {
                 element={<CommunityWrite />}
             />
             <Route path="/posts/:post_id" element={<PostDetail />} />
-            <Route
+            {/* <Route
                 path="/community/board-requests"
                 element={<BoardRequestPage />}
-            />
+            /> */}
 
             {/* MyPage 라우트 */}
             <Route
@@ -118,6 +120,14 @@ const AppRoutes = () => {
                 }
             />
             <Route
+                path="/mypage/my-school"
+                element={
+                    <PrivateRoutes>
+                        <MySchoolManagement />
+                    </PrivateRoutes>
+                }
+            />
+            <Route
                 path="/mypage/password"
                 element={
                     <PrivateRoutes>
@@ -133,12 +143,21 @@ const AppRoutes = () => {
                     </PrivateRoutes>
                 }
             />
-            {/* 내 게시판 개설 신청 확인 */}
+
+            {/* 관리자 페이지 라우트 */}
             <Route
-                path="/mypage/board-requests"
+                path="/admin"
                 element={
                     <PrivateRoutes>
-                        <MyBoardRequest />
+                        <AdminPage />
+                    </PrivateRoutes>
+                }
+            />
+            <Route
+                path="/admin/user-management"
+                element={
+                    <PrivateRoutes>
+                        <UserManagement />
                     </PrivateRoutes>
                 }
             />

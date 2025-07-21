@@ -56,11 +56,19 @@ export default function Header() {
                     {user ? (
                         <>
                             <li className={styles.navItem}>
-                                <Link to="/mypage" className={styles.navLink}>
-                                    {user.type === "admin"
-                                        ? "관리자 페이지"
-                                        : "마이페이지"}
-                                </Link>
+                                {user.type !== "admin" ? (
+                                    <Link
+                                        to="/mypage"
+                                        className={styles.navLink}>
+                                        마이페이지
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        to="/admin"
+                                        className={styles.navLink}>
+                                        관리자 페이지
+                                    </Link>
+                                )}
                             </li>
                             <li className={styles.navItem}>
                                 <button

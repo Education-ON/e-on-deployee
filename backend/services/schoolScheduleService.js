@@ -9,7 +9,6 @@ if (!apiKey) {
 // 사용자가 입력한 키워드(query)를 포함하는 학교 목록만 조회
 async function searchSchools(query) {
     const url = "https://open.neis.go.kr/hub/schoolInfo"; // 학교기본정보 조회 API URL
-
     try {
         const params = {
             KEY: apiKey,
@@ -49,7 +48,7 @@ async function searchSchools(query) {
                 atptCode: school.ATPT_OFCDC_SC_CODE,  // 시도교육청 코드
             }));
     } catch (error) {
-        console.error("학교 검색 API 호출 실패:", err);
+        console.error("학교 검색 API 호출 실패:", error);
         throw new Error("학교 검색 API 호출 실패");
     }
 }
