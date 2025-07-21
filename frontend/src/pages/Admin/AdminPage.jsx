@@ -37,6 +37,18 @@ export default function AdminPage() {
                         게시판 개설 요청 확인하기
                     </Link>
                 )}
+                {user.type === "admin" && (
+                    <Link to="/admin/board-requests" className={styles.menuBox}>
+                        게시판 개설 요청 확인하기
+                    </Link>
+                )}
+                {user.type !== "admin" && (
+                    <Link
+                        to="/mypage/board-requests"
+                        className={styles.menuBox}>
+                        내 게시판 개설 요청 확인하기
+                    </Link>
+                )}
             </div>
         </div>
     );

@@ -4,7 +4,9 @@ const {
   getMyInfo,
   updateMyInfo,
   changePassword,
-  deactivateAccount
+  deactivateAccount,
+  deleteAccount,
+  getMyBoardRequests,
 } = require('../controllers/user');
 const { isLoggedIn } = require('../middleware/auth');
 
@@ -19,9 +21,10 @@ router.put("/me", isLoggedIn, updateMyInfo);
 // 비밀번호 변경
 router.put("/me/password", isLoggedIn, changePassword);
 
-// 계정 탈퇴
+// 계정 비활성화
 router.delete("/me", isLoggedIn, deleteAccount);
 
+// 계정 탈퇴
 router.patch("/me/deactivate", isLoggedIn, deactivateAccount);
 
 // 내 게시판 개설 신청 조회
