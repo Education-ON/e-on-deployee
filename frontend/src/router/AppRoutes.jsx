@@ -7,13 +7,14 @@ import DeactivateAccount from "../pages/MyPage/DeactivateAccount";
 import Calendar from "../pages/Calendar/Calendar";
 import Challenge from "../pages/Challenge/Challenge";
 import Suggestion from "../pages/Suggestion/Suggestion";
+
+//커뮤니티 라우터
 import CommunityList from "../pages/Community/CommunityList";
 import CommunityWrite from "../pages/Community/CommunityWrite";
 import CommunityEdit from "../pages/Community/CommunityEdit";
 import BoardRequestPage from "../pages/Community/BoardRequestPage";
 import PostDetail from "../pages/Community/PostDetail";
 import MyPage from "../pages/MyPage/MyPage";
-// import BoardRequestList from "../pages/MyPage/BoardRequestList";
 import BoardRequestList from "../pages/Admin/BoardRequestList";
 import PrivateRoutes from "./PrivateRoutes";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
@@ -30,6 +31,10 @@ import RecommendationResult from "../pages/Suggestion/RecommendationResult";
 import AdminPage from "../pages/Admin/AdminPage";
 import UserManagement from "../pages/Admin/UserManagement";
 import MySchoolManagement from "../pages/MyPage/MySchoolManagement";
+import TermsPage from "../pages/Auth/TermsPage";
+import PrivacyPage from "../pages/Auth/PrivacyPage";
+import MarketingPage from "../pages/Auth/MarketingPage";
+import MyBoardRequest from "../pages/MyPage/MyBoardRequest";
 
 const AppRoutes = () => {
     return (
@@ -38,6 +43,11 @@ const AppRoutes = () => {
             <Route path="/" element={<Calendar />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+
+            {/* Signup 라우트 */}
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/marketing" element={<MarketingPage />} />
 
             {/* Calendar 라우트 */}
             <Route path="/calendar" element={<Calendar />} />

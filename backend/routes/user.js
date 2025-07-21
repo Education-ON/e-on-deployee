@@ -1,13 +1,12 @@
 // backend/routes/user.js
 const express = require("express");
 const {
-    getMyInfo,
-    updateMyInfo,
-    changePassword,
-    deactivateAccount,
-    deleteAccount,
-} = require("../controllers/user");
-const { isLoggedIn } = require("../middleware/auth");
+  getMyInfo,
+  updateMyInfo,
+  changePassword,
+  deactivateAccount
+} = require('../controllers/user');
+const { isLoggedIn } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -24,5 +23,8 @@ router.put("/me/password", isLoggedIn, changePassword);
 router.delete("/me", isLoggedIn, deleteAccount);
 
 router.patch("/me/deactivate", isLoggedIn, deactivateAccount);
+
+// 내 게시판 개설 신청 조회
+router.get('/board-requests/me', isLoggedIn, getMyBoardRequests);
 
 module.exports = router;
