@@ -161,3 +161,55 @@ exports.getMyBoardRequests = async (req, res) => {
         res.status(500).json({ message: "서버 오류" });
     }
 };
+
+// 사용자 계정 상태 조회
+exports.getAllUserStatus = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: [
+                "user_id",
+                "name",
+                "state_code",
+                "createdAt",
+                "deactivatedAt",
+            ],
+            order: [["createdAt", "DESC"]],
+        });
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("사용자 상태 조회 실패:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+};
+
+// 사용자 계정 상태 변경
+exports.updateUserStatus = async (req, res) => {
+    const isAdmin = req.user?.type === "admin";
+
+    if (!isAdmin) {
+        return res.status(403).json({ error: "관리자 권한이 필요합니다." });
+    }
+
+    const { user_id, state_code } = req.body;
+    if (!user_id || !state_code) {
+        return res
+            .status(400)
+            .json({ error: "user_id와 state_code는 필수입니다." });
+    }
+
+    try {
+        const user = await User.findByPk(user_id);
+        if (!user) {
+            return res
+                .status(404)
+                .json({ error: "사용자를 찾을 수 없습니다." });
+        }
+        await User.update({ state_code }, { where: { user_id } });
+        res.status(200).json({ message: "사용자 상태가 업데이트되었습니다." });
+    } catch (err) {
+        res.status(500).json({
+            error: "사용자 상태 업데이트 중 오류가 발생했습니다.",
+        });
+        console.error("사용자 상태 업데이트 오류:", err);
+    }
+};
