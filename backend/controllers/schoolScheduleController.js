@@ -19,6 +19,20 @@ exports.searchSchools = async (req, res) => {
     }
 };
 
+exports.searchSchoolBySchoolCode = async (req, res) => {
+    try {
+        const query = req.query.query;
+        if (!query) {
+            return res.status(400).json({ error: "학교 코드를 입력해주세요" });
+        }
+        const result = await schoolscheduleService.searchSchoolBySchoolCode(query);
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "행정표준코드로 학교 검색 실패" });
+    } 
+}
+
 exports.getSchedule = async (req, res) => {
     try {
         const { schoolId } = req.params;

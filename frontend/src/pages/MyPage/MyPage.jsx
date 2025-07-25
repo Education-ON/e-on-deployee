@@ -2,6 +2,8 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "../../styles/MyPage/Mypage.module.css";
+import Header from "../../components/Common/Header";
+import MyPageComponent from "../../components/MyPage/MyPageComponent"
 
 export default function MyPage() {
     const { user, loading } = useAuth();
@@ -11,27 +13,11 @@ export default function MyPage() {
 
     return (
         <div className={styles.container}>
-            <h2>마이페이지</h2>
-            <div className={styles.userInfo}>
-                <p>
-                    <strong>{user.name}</strong>
-                </p>
-                <p>{user.email}</p>
+            <div class={styles.header}>
+                <Header />
             </div>
-
-            <div className={styles.menuGrid}>
-                <Link to="/mypage/info" className={styles.menuBox}>
-                    내 정보 수정
-                </Link>
-                <Link to="/mypage/my-school" className={styles.menuBox}>
-                    나의 학교 관리
-                </Link>
-                <Link to="/mypage/password" className={styles.menuBox}>
-                    비밀번호 변경
-                </Link>
-                <Link to="/mypage/deactivate" className={styles.menuBox}>
-                    계정 탈퇴 / 비활성화
-                </Link>
+            <div className={styles.content}>
+                <MyPageComponent />
             </div>
         </div>
     );

@@ -8,14 +8,12 @@
 
 .content {
     font-family: "Pretendard", sans-serif;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* 최소 높이: 화면 높이 */
-    /* 내부 내용물 높이에 따라 자동으로 늘어남 */
-    width: 980px;
-    padding: 0px;
-    margin: 0 25px;
-    /* border: 2px solid #ccc; */
+    max-width: 900px;
+    margin: 0 auto;
+    /* padding: 40px 30px; */
+    background-color: #fff;
+    border-radius: 12px;
+    /* border: 2px 8px rgba(0, 0, 0, 0.2); */
 }
 
 .title {
@@ -24,4 +22,47 @@
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
+}
+
+.table {
+    margin-top: 30px;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    /* margin-top: 10px; */
+}
+
+.table th,
+.table td {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 1rem;
+    color: #333;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+}
+
+.button {
+    padding: 8px 16px;
+    background-color: #d63939;
+    color: white;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover:enabled {
+    background-color: #e06f6f;
+}
+
+.button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
 }

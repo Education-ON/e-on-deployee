@@ -1,83 +1,173 @@
 // ViewContext.js
 import { createContext, useContext, useEffect, useState, useRef } from "react";
-import { searchSchoolsByName, getAllSchoolSchedule } from "../api/schoolApi";
-import { searchAverageScheduleByGrade } from "../api/regionApi";
+import {
+    searchSchoolsByName,
+    searchSchoolBySchoolCode,
+    getAllSchoolSchedule,
+    getMySchool,
+} from "../api/schoolApi";
+import {
+    searchRegionById,
+    searchAverageScheduleByGrade,
+} from "../api/regionApi";
 import { SearchTypeContext } from "./SearchTypeContext";
+import { AuthContext } from "./AuthContext";
 
 export const ViewContext = createContext();
 
 const ViewProvider = ({ children }) => {
     const { searchType, setSchoolAdress } = useContext(SearchTypeContext);
-    const [currentView, setCurrentView] = useState("monthly");
-    const [selectedValue, setSelectedValue] = useState("");
-    const [schedules, setSchedules] = useState(null);
-    const [currentSchoolCode, setCurrentSchoolCode] = useState(null);
+    const { user } = useContext(AuthContext);
 
-    const isInitialMount = useRef(true); // 최초 마운트 여부
+    const [currentView, setCurrentView] = useState("monthly");
+    // const [selectedValue, setSelectedValue] = useState("");
+    // 선택된 값을 type 별로 분리
+    const [selectedSchoolName, setSelectedSchoolName] = useState("");
+    const [selectedRegionName, setSelectedRegionName] = useState("");
+    const [schedules, setSchedules] = useState(null);
+    const [currentSchoolCode, setCurrentSchoolCode] = useState({
+        code: null,
+        type: searchType.type,
+    });
+
+    // 로딩 기다림
+    const [isInitialized, setIsInitialized] = useState(false);
+    const hasInitialized = useRef(false); // 초기화 여부
+    // const isInitialMount = useRef(true);
+
+    const selectedValue =
+        searchType.type === "school" ? selectedSchoolName : selectedRegionName;
+
+    const setSelectedValue =
+        searchType.type === "school"
+            ? setSelectedSchoolName
+            : setSelectedRegionName;
+
+    useEffect(() => {
+        // console.log("🔥 타입 바뀜 → 초기화 재시작");
+        hasInitialized.current = false;
+    }, [searchType.type]);
 
     useEffect(() => {
         const fetchDefaultSchedule = async () => {
+            const { type, year, grade } = searchType;
+
             try {
-                if (searchType.type === "school") {
-                    const defaultSchoolName = "가락중학교";
-                    const shouldReset =
-                        isInitialMount.current ||
-                        selectedValue === "" ||
-                        (searchType.type === "school" &&
-                            !selectedValue.includes("학교"));
+                // 이미 초기화된 경우 진행하지 않음
+                if (hasInitialized.current) return;
 
-                    const schoolName = shouldReset
-                        ? defaultSchoolName
-                        : selectedValue;
+                // 1. 로그인 상태이고, 나의 학교 설정이 존재할 경우
+                if (user?.user_id) {
+                    console.log(type);
+                    const mySchoolRes = await getMySchool(type);
 
-                    if (shouldReset) setSelectedValue(defaultSchoolName);
+                    if (mySchoolRes?.data?.code) {
+                        console.log(mySchoolRes.data.code);
+                        setCurrentSchoolCode({
+                            code: mySchoolRes.data.code,
+                            type,
+                        });
+                        console.log("나의 학교 코드:", mySchoolRes.data.code);
 
-                    const school = await searchSchoolsByName(schoolName);
-                    const schoolCode = school.data[0].schoolCode;
-                    setCurrentSchoolCode(schoolCode);
+                        if (type === "school") {
+                            const schoolData = await searchSchoolBySchoolCode(
+                                mySchoolRes.data.code
+                            );
 
-                    const res = await getAllSchoolSchedule(
-                        schoolCode,
-                        school.data[0].atptCode, // 💡 atptCode도 같이 넘겨야 함
-                        searchType.year,
-                        searchType.grade
-                    );
+                            // console.log("data: ", schoolData);
 
-                    setSchedules(res.data);
-                } else {
-                    setSchoolAdress("서울특별시 송파구 송이로 45");
-                    const defaultRegion = "서울특별시 강남구";
-                    const shouldReset =
-                        isInitialMount.current ||
-                        selectedValue === "" ||
-                        (searchType.type === "region" &&
-                            selectedValue.includes("학교"));
+                            const schoolName = schoolData.data[0].name;
+                            const atptCode = schoolData.data[0].atptCode;
 
-                    const regionName = shouldReset
-                        ? defaultRegion
-                        : selectedValue;
+                            const scheduleRes = await getAllSchoolSchedule(
+                                mySchoolRes.data.code,
+                                atptCode,
+                                year,
+                                grade
+                            );
 
-                    if (shouldReset) setSelectedValue(defaultRegion);
+                            setSelectedSchoolName(schoolName);
+                            setSchedules(scheduleRes.data);
+                        } else {
+                            const region = await searchRegionById(
+                                mySchoolRes.data.code
+                            );
+                            const regionName = region?.data.data.region_name;
 
-                    const res = searchType.grade
-                        ? await searchAverageScheduleByGrade(
-                              regionName,
-                              searchType.grade
-                          )
-                        : await searchAverageScheduleByGrade(regionName);
+                            // console.log("regionName: ", regionName);
 
-                    setSchedules(res.data.data);
+                            const scheduleRes = grade
+                                ? await searchAverageScheduleByGrade(
+                                      regionName,
+                                      grade
+                                  )
+                                : await searchAverageScheduleByGrade(
+                                      regionName
+                                  );
+
+                            setSelectedRegionName(regionName);
+                            setSchedules(scheduleRes.data.data);
+                        }
+
+                        hasInitialized.current = true; // 초기화 완료
+                        setIsInitialized(true);
+                        return; // 나의 학교 정보로 세팅 완료했으니 종료
+                    }
+                    // console.log("code 없음, 기본값으로 대체");
                 }
             } catch (err) {
-                console.error("❌ 학사일정 불러오기 실패", err);
-                setSchedules([]);
-            } finally {
-                isInitialMount.current = false;
+                console.warn("나의 학교 조회 실패, 기본값으로 대체합니다", err);
             }
+
+            // console.log("============기본 대체 중===========");
+            // 2. 로그인 안 했거나, 나의 학교 정보 없을 때 기본값 세팅
+            if (type === "school") {
+                const defaultSchoolName = "가락중학교";
+                setSelectedSchoolName(defaultSchoolName);
+                const school = await searchSchoolsByName(defaultSchoolName);
+                const schoolCode = school.data[0].schoolCode;
+                const atptCode = school.data[0].atptCode;
+
+                setCurrentSchoolCode({
+                    code: schoolCode,
+                    type,
+                });
+
+                const scheduleRes = await getAllSchoolSchedule(
+                    schoolCode,
+                    atptCode,
+                    year,
+                    grade
+                );
+
+                setSchedules(scheduleRes.data);
+            } else if (type === "region") {
+                const defaultRegion = "서울특별시 강남구";
+                setSelectedRegionName(defaultRegion);
+                // console.log("초기 지역 설정:", defaultRegion);
+                setSchoolAdress("서울특별시 송파구 송이로 45");
+
+                setCurrentSchoolCode({
+                    code: 1,
+                    type,
+                });
+
+                const scheduleRes = grade
+                    ? await searchAverageScheduleByGrade(defaultRegion, grade)
+                    : await searchAverageScheduleByGrade(defaultRegion);
+                setSchedules(scheduleRes.data.data);
+            }
+
+            hasInitialized.current = true; // 초기화 완료
+            setIsInitialized(true);
         };
 
         fetchDefaultSchedule();
-    }, [searchType.type, searchType.year, searchType.grade, selectedValue]);
+    }, [searchType.type, searchType.grade, searchType.year, user]);
+
+    useEffect(() => {
+        console.log("🔁 currentSchoolCode 변경됨:", currentSchoolCode);
+    }, [currentSchoolCode]);
 
     return (
         <ViewContext.Provider
@@ -89,145 +179,11 @@ const ViewProvider = ({ children }) => {
                 schedules,
                 setSchedules,
                 currentSchoolCode,
+                setCurrentSchoolCode,
             }}>
-            {children}
+            {!isInitialized ? <div>로딩 중...</div> : children}
         </ViewContext.Provider>
     );
 };
 
 export default ViewProvider;
-
-// import { useContext, createContext, useState, useEffect } from "react";
-// import {
-//     searchSchoolsByName,
-//     getSchoolScheduleByGrade,
-//     getPrevSchoolScheduleByGrade,
-// } from "../api/schoolApi";
-// import { searchAverageScheduleByGrade } from "../api/regionApi";
-// import { SearchTypeContext } from "./SearchTypeContext";
-
-// export const ViewContext = createContext();
-
-// const ViewProvider = ({ children }) => {
-//     const { searchType, setSearchType } = useContext(SearchTypeContext);
-//     // 현재 뷰 상태 관리
-//     const [currentView, setCurrentView] = useState("monthly");
-//     // 선택한 학교 혹은 지역명
-//     const [selectedValue, setSelectedValue] = useState(
-//         searchType.type === "school" ? "가락중학교" : "서울특별시 강남구"
-//     );
-//     // 불러온 학사일정 데이터
-//     const [schedules, setSchedules] = useState(null);
-
-//     const schoolCode = 7130165; // 초기 학교 코드
-//     const regionName = "서울특별시 강남구";
-
-//     useEffect(() => {
-//         if (searchType.type === "school") {
-//             setSearchType((prev) => ({
-//                 ...prev,
-//                 schoolType: "middle",
-//             }));
-//         } else {
-//             setSearchType((prev) => ({
-//                 ...prev,
-//                 schoolType: "elementary",
-//             }));
-//         }
-//     }, [searchType.type]);
-
-//     useEffect(() => {
-//         const fetchSchedules = async () => {
-//             try {
-//                 if (searchType.type === "school") {
-//                     const response = await getSchoolScheduleByGrade(
-//                         schoolCode,
-//                         searchType.grade
-//                     );
-//                     setSelectedValue("가락중학교");
-//                     setSchedules(response.data);
-//                 } else {
-//                     const response = await searchAverageScheduleByGrade(
-//                         regionName,
-//                         searchType.grade
-//                     );
-//                     setSelectedValue(regionName);
-//                     setSchedules(response.data.data);
-//                 }
-//             } catch (error) {
-//                 console.error("학사일정 불러오기 실패:", error);
-//                 setSchedules([]);
-//             }
-//         };
-
-//         fetchSchedules();
-//     }, [searchType.type]);
-
-//     useEffect(() => {
-//         // console.log("학년 또는 학교 타입이 변경되어 재렌더링");
-//         const fetchSchedules = async () => {
-//             try {
-//                 if (searchType.type === "school") {
-//                     if (!searchType.year) {
-//                         const school = await searchSchoolsByName(selectedValue);
-//                         // console.log("schoolCode = ", school.data[0].schoolCode);
-//                         const response = await getSchoolScheduleByGrade(
-//                             school.data[0].schoolCode,
-//                             searchType.grade
-//                         );
-//                         setSelectedValue(selectedValue);
-//                         setSchedules(response.data);
-//                     } else {
-//                         const school = await searchSchoolsByName(selectedValue);
-//                         // console.log("schoolCode = ", school.data[0].schoolCode);
-//                         const response = await getPrevSchoolScheduleByGrade(
-//                             school.data[0].schoolCode,
-//                             searchType.grade
-//                         );
-//                         setSelectedValue(selectedValue);
-//                         setSchedules(response.data);
-//                         console.log("작년 학사 일정: ", response.data);
-//                     }
-//                 } else {
-//                     console.log(selectedValue);
-//                     setSearchType((prev) => ({
-//                         ...prev,
-//                         year: null,
-//                     }));
-//                     const response = await searchAverageScheduleByGrade(
-//                         selectedValue,
-//                         searchType.grade
-//                     );
-//                     setSelectedValue(selectedValue);
-//                     setSchedules(response.data.data);
-//                 }
-//             } catch (error) {
-//                 console.error("학사일정 불러오기 실패:", error);
-//                 setSchedules([]);
-//             }
-//         };
-
-//         fetchSchedules();
-//     }, [
-//         searchType.grade,
-//         searchType.schoolType,
-//         searchType.year,
-//         selectedValue,
-//     ]);
-
-//     return (
-//         <ViewContext.Provider
-//             value={{
-//                 currentView,
-//                 setCurrentView,
-//                 selectedValue,
-//                 setSelectedValue,
-//                 schedules,
-//                 setSchedules,
-//             }}>
-//             {children}
-//         </ViewContext.Provider>
-//     );
-// };
-
-// export default ViewProvider;

@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Auth/LoginPage";
 import Signup from "../pages/Auth/SignupPage";
 import MyInfo from "../pages/MyPage/MyInfo";
@@ -109,6 +109,20 @@ const AppRoutes = () => {
                     <PrivateRoutes>
                         <MyPage />
                     </PrivateRoutes>
+                }>
+                    <Route index element={<Navigate to="info" replace />} /> {/* 기본 페이지 설정 */}
+                <Route path="info" element={<MyInfo />} />
+                <Route path="my-school" element={<MySchoolManagement />} />
+                <Route path="password" element={<ChangePassword />} />
+                <Route path="deactivate" element={<DeactivateAccount />} />
+            </Route>
+
+            {/* <Route
+                path="/mypage"
+                element={
+                    <PrivateRoutes>
+                        <MyPage />
+                    </PrivateRoutes>
                 }
             />
             <Route
@@ -142,7 +156,7 @@ const AppRoutes = () => {
                         <DeactivateAccount />
                     </PrivateRoutes>
                 }
-            />
+            /> */}
 
             {/* 관리자 페이지 라우트 */}
             <Route

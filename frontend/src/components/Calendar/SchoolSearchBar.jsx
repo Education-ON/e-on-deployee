@@ -15,7 +15,8 @@ import debounce from "lodash.debounce";
 const SchoolSearchBar = () => {
     const { searchType, setSearchType, schoolAddress, setSchoolAdress } =
         useContext(SearchTypeContext);
-    const { setSelectedValue, setSchedules } = useContext(ViewContext);
+    const { setSelectedValue, setSchedules, setCurrentSchoolCode } =
+        useContext(ViewContext);
     const [inputValue, setInputValue] = useState("");
     const [isFocused, setIsFocused] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
@@ -59,6 +60,21 @@ const SchoolSearchBar = () => {
         // console.log("inputValue: ", inputValue);
     }, [inputValue, debouncedSearch]);
 
+    // 핸들러 함수: 학교별/지역별 라디오 버튼 클릭 시
+    const handleSearchTypeChange = (type) => {
+        if (type === "school") {
+            setSearchType((prev) => {
+                return { ...prev, type: "region" };
+            });
+            setCurrentSchoolCode();
+        } else if (type === "region") {
+            setSearchType((prev) => {
+                return { ...prev, type: "school" };
+            });
+            setCurrentSchoolCode();
+        }
+    };
+
     // 핸들러 함수: 검색 버튼 클릭 시
     const handleSearch = async () => {
         if (searchType.type === "school") {
@@ -86,10 +102,13 @@ const SchoolSearchBar = () => {
                     grade
                 );
 
-                setSelectedValue(name); // 🧠 여기서만 selectedValue 직접 세팅
-                setSchedules(res.data); // 🧠 여기서만 schedules 직접 세팅
-
-                console.log("✅ 학교 학사일정: ", res.data);
+                setSelectedValue(name);
+                setSchedules(res.data);
+                setCurrentSchoolCode({
+                    code: selectedSchool.schoolCode,
+                    type: "school",
+                });
+                // console.log("currentSchoolCode: ", currentSchoolCode);
             } catch (err) {
                 console.error("❌ 학교 학사일정 조회 실패", err);
             }
@@ -109,6 +128,10 @@ const SchoolSearchBar = () => {
 
                 setSelectedValue(region_name); // 여기서만 selectedValue 직접 세팅
                 setSchedules(res.data.data); // 여기서만 schedules 직접 세팅
+
+                const regionCode = res.data.data[0].region_id;
+                console.log("regionCode: ", regionCode);
+                setCurrentSchoolCode({ code: regionCode, type: "region" });
 
                 console.log("✅ 평균 학사일정: ", res.data);
             } catch (err) {
@@ -190,7 +213,11 @@ const SchoolSearchBar = () => {
                                     setSuggestions([]);
                                 }}>
                                 {searchType.type === "school"
-                                    ? `${item.name} ${item.address ? `(${item.address})`: ""}`
+                                    ? `${item.name} ${
+                                          item.address
+                                              ? `(${item.address})`
+                                              : ""
+                                      }`
                                     : item.region_name}
                             </li>
                         ))}

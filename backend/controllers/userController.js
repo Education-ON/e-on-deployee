@@ -163,17 +163,20 @@ exports.getMyBoardRequests = async (req, res) => {
 };
 
 // 사용자 계정 상태 조회
-exports.getAllUserStatus = async (req, res) => {
+exports.getAllUserState = async (req, res) => {
     try {
         const users = await User.findAll({
             attributes: [
                 "user_id",
                 "name",
+                "age",
+                "email",
+                "type",
                 "state_code",
-                "createdAt",
-                "deactivatedAt",
+                // "createdAt",
+                // "deactivatedAt",
             ],
-            order: [["createdAt", "DESC"]],
+            order: [["user_id", "ASC"]],
         });
         res.status(200).json(users);
     } catch (error) {
@@ -183,7 +186,7 @@ exports.getAllUserStatus = async (req, res) => {
 };
 
 // 사용자 계정 상태 변경
-exports.updateUserStatus = async (req, res) => {
+exports.updateUserState = async (req, res) => {
     const isAdmin = req.user?.type === "admin";
 
     if (!isAdmin) {

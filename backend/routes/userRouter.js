@@ -7,8 +7,8 @@ const {
   deactivateAccount,
   deleteAccount,
   getMyBoardRequests,
-  getAllUserStatus,
-  updateUserStatus,
+  getAllUserState,
+  updateUserState,
 } = require('../controllers/userController');
 const { isLoggedIn } = require('../middleware/auth');
 
@@ -33,9 +33,9 @@ router.patch("/me/deactivate", isLoggedIn, deactivateAccount);
 router.get('/board-requests/me', isLoggedIn, getMyBoardRequests);
 
 // 전체 사용자 계정 상태 조회 (관리자용)
-router.get('/status', isLoggedIn, getAllUserStatus);
+router.get('/state', isLoggedIn, getAllUserState);
 
 // 사용자 계정 상태 업데이트 (관리자용)
-router.patch('/status/:user_id', isLoggedIn, updateUserStatus);
+router.patch('/state/:user_id', isLoggedIn, updateUserState);
 
 module.exports = router;

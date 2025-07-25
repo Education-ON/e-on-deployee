@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../../api/axiosInstance";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "../../styles/Auth/SignupForm.module.css";
+import { toast } from "react-toastify";
 
 export default function SignupForm({ onFinish }) {
     const { signup } = useAuth();
@@ -36,12 +37,17 @@ export default function SignupForm({ onFinish }) {
     const sendCode = async () => {
         await api.post("/auth/join/email", { email: data.email });
         setMsg("인증번호가 발송되었습니다.");
+        toast("인증번호를 요청했습니다.", {
+            className: "my-toast",
+            progressClassName: "custom-progress-bar",
+        });
     };
 
     const finish = async (e) => {
         e.preventDefault();
 
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
+        const passwordRegex =
+            /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
 
         if (data.password !== data.confirm) {
             setError("비밀번호가 일치하지 않습니다.");
@@ -49,7 +55,9 @@ export default function SignupForm({ onFinish }) {
         }
 
         if (!passwordRegex.test(data.password)) {
-            setError("비밀번호는 영문, 숫자, 특수문자를 각각 최소 1개 이상 포함해야 합니다.");
+            setError(
+                "비밀번호는 영문, 숫자, 특수문자를 각각 최소 1개 이상 포함해야 합니다."
+            );
             return;
         }
 
@@ -77,8 +85,9 @@ export default function SignupForm({ onFinish }) {
                 {[1, 2, 3, 4].map((n) => (
                     <div
                         key={n}
-                        className={`${styles.step} ${step === n ? styles.active : ""}`}
-                    >
+                        className={`${styles.step} ${
+                            step === n ? styles.active : ""
+                        }`}>
                         {n}
                     </div>
                 ))}
@@ -94,8 +103,9 @@ export default function SignupForm({ onFinish }) {
                         <select
                             className={styles.input}
                             value={data.type}
-                            onChange={(e) => setData({ ...data, type: e.target.value })}
-                        >
+                            onChange={(e) =>
+                                setData({ ...data, type: e.target.value })
+                            }>
                             <option value="student">학생</option>
                             <option value="parent">부모</option>
                         </select>
@@ -111,32 +121,33 @@ export default function SignupForm({ onFinish }) {
             {step === 2 && (
                 <>
                     <h3 className={styles.title}>E-ON 회원가입</h3>
-                    
+
                     {/* 전체 약관 동의 */}
 
                     <div className={styles.formGroup}>
                         <label className={styles.checkboxGroup}>
-                
-                                <input
-                                    type="checkbox"
-
-                                    checked={
-                                        data.agreements.includes("terms") &&
-                                        data.agreements.includes("privacy") &&
-                                        data.agreements.includes("marketing") 
-                                    }
-                                    onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        const all = ["terms", "privacy", "marketing"];
-                                        setData({
-                                            ...data,
-                                            agreements: checked ? all : [],
-                                        });
-                                    }}
-                                />
-                                전체 약관에 동의합니다.
-                            </label>
-    
+                            <input
+                                type="checkbox"
+                                checked={
+                                    data.agreements.includes("terms") &&
+                                    data.agreements.includes("privacy") &&
+                                    data.agreements.includes("marketing")
+                                }
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    const all = [
+                                        "terms",
+                                        "privacy",
+                                        "marketing",
+                                    ];
+                                    setData({
+                                        ...data,
+                                        agreements: checked ? all : [],
+                                    });
+                                }}
+                            />
+                            전체 약관에 동의합니다.
+                        </label>
                     </div>
 
                     {/* 개별
@@ -148,60 +159,85 @@ export default function SignupForm({ onFinish }) {
                                 value="terms"
                                 checked={data.agreements.includes("terms")}
                                 onChange={() => {
-                                    const arr = data.agreements.includes("terms")
-                                    ? data.agreements.filter((x) => x !== "terms")
-                                    : [...data.agreements, "terms"];
-                                    setData({...data, agreements: arr});
+                                    const arr = data.agreements.includes(
+                                        "terms"
+                                    )
+                                        ? data.agreements.filter(
+                                              (x) => x !== "terms"
+                                          )
+                                        : [...data.agreements, "terms"];
+                                    setData({ ...data, agreements: arr });
                                 }}
-                        />
-                        [필수] 서비스 이용약관 동의{" "}
-                        <a href="/terms" target="_blank" className={styles.link}>보기</a>
+                            />
+                            [필수] 서비스 이용약관 동의{" "}
+                            <a
+                                href="/terms"
+                                target="_blank"
+                                className={styles.link}>
+                                보기
+                            </a>
                         </label>
 
-                    <label className={styles.checkboxGroup}>
-                        <input
-                            type="checkbox"
-                            value="privacy"
-                            checked={data.agreements.includes("privacy")}
-                            onChange={() => {
-                                const arr = data.agreements.includes("privacy")
-                                ? data.agreements.filter((x) => x !== "privacy")
-                                : [...data.agreements, "privacy"];
-                                setData({ ...data, agreements: arr });
-                            }}
-                        />
-                        [필수] 개인정보 수집 및 이용 동의{" "}
-                        <a href="/privacy" target="_blank" className={styles.link}>보기</a>
-                    </label>
+                        <label className={styles.checkboxGroup}>
+                            <input
+                                type="checkbox"
+                                value="privacy"
+                                checked={data.agreements.includes("privacy")}
+                                onChange={() => {
+                                    const arr = data.agreements.includes(
+                                        "privacy"
+                                    )
+                                        ? data.agreements.filter(
+                                              (x) => x !== "privacy"
+                                          )
+                                        : [...data.agreements, "privacy"];
+                                    setData({ ...data, agreements: arr });
+                                }}
+                            />
+                            [필수] 개인정보 수집 및 이용 동의{" "}
+                            <a
+                                href="/privacy"
+                                target="_blank"
+                                className={styles.link}>
+                                보기
+                            </a>
+                        </label>
 
-                    <label className={styles.checkboxGroup}>
-                        <input
-                            type="checkbox"
-                            value="marketing"
-                            checked={data.agreements.includes("marketing")}
-                            onChange={() => {
-                                const arr = data.agreements.includes("marketing")
-                                ? data.agreements.filter((x) => x !== "marketing")
-                                : [...data.agreements, "marketing"];
-                                setData({ ...data, agreements: arr });
-                            }}
-                        />
-                        [선택] 마케팅 수신 동의{" "}
-                        <a href="/marketing" target="_blank" className={styles.link}>보기</a>
-                    </label>
-                </div>
+                        <label className={styles.checkboxGroup}>
+                            <input
+                                type="checkbox"
+                                value="marketing"
+                                checked={data.agreements.includes("marketing")}
+                                onChange={() => {
+                                    const arr = data.agreements.includes(
+                                        "marketing"
+                                    )
+                                        ? data.agreements.filter(
+                                              (x) => x !== "marketing"
+                                          )
+                                        : [...data.agreements, "marketing"];
+                                    setData({ ...data, agreements: arr });
+                                }}
+                            />
+                            [선택] 마케팅 수신 동의{" "}
+                            <a
+                                href="/marketing"
+                                target="_blank"
+                                className={styles.link}>
+                                보기
+                            </a>
+                        </label>
+                    </div>
 
-                {error && <p className={styles.error}>{error}</p>}
+                    {error && <p className={styles.error}>{error}</p>}
 
-                <div className={styles.buttonGroup}>
-                    <button className={styles.submitButton} onClick={next2}>
-                        다음
-                    </button>
-                </div>
-            </>
-        )}
-
-
+                    <div className={styles.buttonGroup}>
+                        <button className={styles.submitButton} onClick={next2}>
+                            다음
+                        </button>
+                    </div>
+                </>
+            )}
 
             {step === 3 && (
                 <form onSubmit={finish}>
@@ -224,8 +260,7 @@ export default function SignupForm({ onFinish }) {
                             <button
                                 type="button"
                                 className={styles.inlineBtn}
-                                onClick={sendCode}
-                            >
+                                onClick={sendCode}>
                                 인증요청
                             </button>
                         </div>
@@ -282,7 +317,8 @@ export default function SignupForm({ onFinish }) {
                             required
                         />
                         <p className={styles.hintText}>
-                            비밀번호는 영문, 숫자, 특수문자를 각각 최소 1개 이상 포함해야 합니다.
+                            비밀번호는 영문, 숫자, 특수문자를 각각 최소 1개 이상
+                            포함해야 합니다.
                         </p>
                     </div>
 
@@ -310,9 +346,13 @@ export default function SignupForm({ onFinish }) {
             {step === 4 && (
                 <div>
                     <h3 className={styles.title}>E-ON 회원가입</h3>
-                    <p className={styles.completeText}>가입이 완료되었습니다. 환영합니다!</p>
+                    <p className={styles.completeText}>
+                        가입이 완료되었습니다. 환영합니다!
+                    </p>
                     <div className={styles.buttonGroup}>
-                        <button className={styles.submitButton}>로그인하러 가기</button>
+                        <button className={styles.submitButton}>
+                            로그인하러 가기
+                        </button>
                     </div>
                 </div>
             )}

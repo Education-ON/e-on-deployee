@@ -9,14 +9,14 @@ import SearchTypeProvider from "./contexts/SearchTypeContext.jsx";
 
 createRoot(document.getElementById("root")).render(
     <BrowserRouter>
-        <SearchTypeProvider>
-            <ViewProvider>
-                <CurrentDateProvider>
-                    <AuthProvider>
+        <AuthProvider>
+            <SearchTypeProvider>
+                <ViewProvider>
+                    <CurrentDateProvider>
                         <App />
-                    </AuthProvider>
-                </CurrentDateProvider>
-            </ViewProvider>
-        </SearchTypeProvider>
+                    </CurrentDateProvider>
+                </ViewProvider>
+            </SearchTypeProvider>
+        </AuthProvider>
     </BrowserRouter>
 );
