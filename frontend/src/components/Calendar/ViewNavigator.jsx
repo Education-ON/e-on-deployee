@@ -46,8 +46,9 @@ const ViewNavigator = () => {
             if (!userId) return; // 로그인하지 않은 경우에는 조회하지 않음
 
             try {
-                const res = await getMySchool(userId);
-                setMySchoolCode(res.data?.schoolCode);
+                const type = searchType.type;
+                const res = await getMySchool(type);
+                setMySchoolCode(res.data?.code);
             } catch (err) {
                 console.error("나의 학교 조회 실패", err);
             }
@@ -57,8 +58,8 @@ const ViewNavigator = () => {
     }, [searchType, selectedValue, userId]);
 
     const isMySchool = useMemo(() => {
-        return mySchoolCode === currentSchoolCode;
-    }, [mySchoolCode, currentSchoolCode]);
+        return mySchoolCode === currentSchoolCode.code;
+    }, [mySchoolCode, currentSchoolCode.code]);
 
     const cityName =
         searchType.type === "school" && schoolAddress
@@ -74,76 +75,91 @@ const ViewNavigator = () => {
             return;
         }
 
-        if (!currentSchoolCode) {
-            console.warn("currentSchoolCode가 없습니다.");
+        console.log("핸들러의 currentSchoolCode: ", currentSchoolCode);
+
+        if (
+            !currentSchoolCode?.code ||
+            currentSchoolCode.type !== searchType.type
+        ) {
+            toast.warn(`학교 정보가 로딩 중입니다.
+                잠시만 기다려주세요.`);
             return;
         }
 
-        // console.log(
-        //     "clickStarHandler 호출 - userId:",
-        //     userId,
-        //     "schoolCode:",
-        //     currentSchoolCode
-        // );
-
         try {
+            const type = searchType.type;
+
             if (isMySchool) {
                 // 현재 학교가 나의 학교인 경우 삭제
-                await deleteMySchool(userId);
+                await deleteMySchool(userId, type);
                 setMySchoolCode(null);
-                toast("나의 학교를 삭제했습니다.", {
-                    icon: "💜",
-                    className: "my-toast",
-                    progressClassName: "custom-progress-bar",
-                });
+                toast(
+                    `${
+                        type === "school" ? "학교별" : "지역별"
+                    } 나의 학교를 삭제했습니다.`,
+                    {
+                        className: "my-toast",
+                        progressClassName: "custom-progress-bar",
+                    }
+                );
             } else if (mySchoolCode) {
                 // 다른 학교가 나의 학교인 경우
                 const confirmed = window.confirm(
-                    `다른 학교가 이미 나의 학교로 저장되어 있습니다. 나의 학교를 ${selectedValue}로 변경하시겠습니까?`
+                    `다른 학교가 이미 ${
+                        type === "school" ? "학교별" : "지역별"
+                    } 나의 학교로 저장되어 있습니다. ${
+                        type === "school" ? "학교별" : "지역별"
+                    } 나의 학교를 ${selectedValue}로 변경하시겠습니까?`
                 );
                 if (confirmed) {
-                    await deleteMySchool(userId);
-                    await saveMySchool(userId, currentSchoolCode);
-                    setMySchoolCode(currentSchoolCode);
-                    toast(`나의 학교가 ${selectedValue}로 변경되었습니다.`, {
-                        icon: "💜",
-                        className: "my-toast",
-                        progressClassName: "custom-progress-bar",
-                    });
+                    await deleteMySchool(userId, type);
+                    await saveMySchool(userId, type, currentSchoolCode.code);
+                    setMySchoolCode(currentSchoolCode.code);
+                    toast(
+                        `${
+                            type === "school" ? "학교별" : "지역별"
+                        } 나의 학교가 ${selectedValue}로 변경되었습니다.`,
+                        {
+                            className: "my-toast",
+                            progressClassName: "custom-progress-bar",
+                        }
+                    );
                 }
             } else {
-                await saveMySchool(userId, currentSchoolCode);
-                setMySchoolCode(currentSchoolCode);
-                toast("나의 학교를 저장했습니다.", {
-                    icon: "💜",
-                    className: "my-toast",
-                    progressClassName: "custom-progress-bar",
-                });
+                // 나의 학교 미존재 시, 현재의 학교 코드를 타입에 맞춰 데이터베이스에 저장
+                await saveMySchool(userId, type, currentSchoolCode.code);
+                setMySchoolCode(currentSchoolCode.code);
+                toast(
+                    `${
+                        type === "school" ? "학교별" : "지역별"
+                    } 나의 학교를 저장했습니다.`,
+                    {
+                        className: "my-toast",
+                        progressClassName: "custom-progress-bar",
+                    }
+                );
+                console.log(`${type}: ${currentSchoolCode.code} 저장 성공`);
             }
+
+            // console.log(`${type}: ${currentSchoolCode.code} 저장/삭제 성공`);
         } catch (err) {
             console.error("내 학교 저장/삭제 실패", err);
         }
     };
 
-    console.log("searchType:", searchType);
+    // console.log("searchType:", searchType);
 
     return (
         <div className={styles.viewNavigator}>
             <div className={styles.left}>
-                {searchType.type === "school" ? (
-                    <img
-                        src={isMySchool ? star_filled : star}
-                        alt="star"
-                        className={styles.star}
-                        onClick={clickStarHandler}
-                    />
-                ) : null}
-                <div
-                    className={
-                        searchType.type === "school"
-                            ? styles.name
-                            : styles.name_region
-                    }>
+                <img
+                    src={isMySchool ? star_filled : star}
+                    alt="star"
+                    className={styles.star}
+                    onClick={clickStarHandler}
+                />
+
+                <div className={styles.name}>
                     {selectedValue} {cityName && ` (${cityName})`}
                 </div>
                 <div className={styles.text}>학사일정</div>

@@ -58,3 +58,41 @@ exports.getRegionByName = async (req, res) => {
         });
     }
 };
+
+// 3. id로 지역 이름 조회 API
+exports.getRegionById = async (req, res) => {
+    console.log("req.params:", req.params);
+    const region_id = req.params.region_id;
+
+    if (!region_id) {
+        return res.status(400).json({
+            status: "fail",
+            message: "region_id 쿼리 파라미터가 필요합니다.",
+        });
+    }
+
+    try {
+        const region = await regionService.getRegionById(region_id);
+
+        // 지역이 존재하지 않는 경우 처리
+        if (!region) {
+            return res.status(404).json({
+                status: "fail",
+                message: "해당 ID의 지역을 찾을 수 없습니다.",
+            });
+        }
+
+        res.status(200).json({
+            status: "success",
+            data: {
+                region_name: region.region_name,
+            },
+        });
+    } catch (error) {
+        console.error("❌ 지역 조회 실패:", error.message);
+        res.status(500).json({
+            status: "error",
+            message: error.message,
+        });
+    }
+}
