@@ -1,4 +1,3 @@
-import Header from "../../components/Common/Header";
 import styles from "../../styles/Pages/MySchoolManagement.module.css";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";

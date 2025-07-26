@@ -8,21 +8,30 @@ export default function Login() {
 
     return (
         <div className={styles.loginWrapper}>
-            <div className={styles.header}>
-                <Header />
-            </div>
-            <div className={styles.loginBox}>
-                <div className={styles.logoText}>E-ON</div>
-                <div className={styles.loginTitle}>로그인</div>
-                <LoginForm onSuccess={() => navigate("/")} />
-                {/* <div className={styles.loginBottom}>
-                    <Link to="/find-email">이메일 찾기</Link>
-                    <span className={styles.divider}>|</span>
-                    <Link to="/find-password">비밀번호 찾기</Link>
-                </div> */}
-                <Link to="/signup" className={styles.signupButton}>
-                    회원가입
-                </Link>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <Header />
+                </div>
+                <div className={styles.content}>
+                    <div className={styles.loginBox}>
+                        <div className={styles.logoText}>E-ON</div>
+                        <div className={styles.loginTitle}>로그인</div>
+                        <LoginForm
+                            onSuccess={() => {
+                                setTimeout(() => {
+                                    navigate("/");
+                                    window.location.reload(); // 로그인 후 새로고침 (1)
+                                    window.location.reload(); // 로그인 후 새로고침 (2)
+                                    // star_filled 렌더링 문제 해결 전까지는 임시로 설정
+                                }, 200);
+                            }}
+                        />
+
+                        <Link to="/signup" className={styles.signupButton}>
+                            회원가입
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     );

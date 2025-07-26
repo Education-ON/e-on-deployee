@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Auth/LoginPage";
 import Signup from "../pages/Auth/SignupPage";
-import MyInfo from "../pages/MyPage/MyInfo";
-import ChangePassword from "../pages/MyPage/ChangePassword";
-import DeactivateAccount from "../pages/MyPage/DeactivateAccount";
+import MyInfo from "../pages/MyPage/MyInfoPage";
+import ChangePasswordPage from "../pages/MyPage/ChangePasswordPage";
+import DeactivateAccountPage from "../pages/MyPage/DeactivateAccountPage";
 import Calendar from "../pages/Calendar/Calendar";
 import Challenge from "../pages/Challenge/Challenge";
 import Suggestion from "../pages/Suggestion/Suggestion";
@@ -113,8 +113,8 @@ const AppRoutes = () => {
                     <Route index element={<Navigate to="info" replace />} /> {/* 기본 페이지 설정 */}
                 <Route path="info" element={<MyInfo />} />
                 <Route path="my-school" element={<MySchoolManagement />} />
-                <Route path="password" element={<ChangePassword />} />
-                <Route path="deactivate" element={<DeactivateAccount />} />
+                <Route path="password" element={<ChangePasswordPage />} />
+                <Route path="deactivate" element={<DeactivateAccountPage />} />
             </Route>
 
             {/* <Route

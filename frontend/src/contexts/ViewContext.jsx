@@ -12,6 +12,7 @@ import {
 } from "../api/regionApi";
 import { SearchTypeContext } from "./SearchTypeContext";
 import { AuthContext } from "./AuthContext";
+import styles from "../styles/Common/ViewContext.module.css"
 
 export const ViewContext = createContext();
 
@@ -58,16 +59,16 @@ const ViewProvider = ({ children }) => {
 
                 // 1. 로그인 상태이고, 나의 학교 설정이 존재할 경우
                 if (user?.user_id) {
-                    console.log(type);
+                    // console.log(type);
                     const mySchoolRes = await getMySchool(type);
 
                     if (mySchoolRes?.data?.code) {
-                        console.log(mySchoolRes.data.code);
+                        // console.log(mySchoolRes.data.code);
                         setCurrentSchoolCode({
                             code: mySchoolRes.data.code,
                             type,
                         });
-                        console.log("나의 학교 코드:", mySchoolRes.data.code);
+                        // console.log("나의 학교 코드:", mySchoolRes.data.code);
 
                         if (type === "school") {
                             const schoolData = await searchSchoolBySchoolCode(
@@ -165,9 +166,9 @@ const ViewProvider = ({ children }) => {
         fetchDefaultSchedule();
     }, [searchType.type, searchType.grade, searchType.year, user]);
 
-    useEffect(() => {
-        console.log("🔁 currentSchoolCode 변경됨:", currentSchoolCode);
-    }, [currentSchoolCode]);
+    // useEffect(() => {
+    //     console.log("🔁 currentSchoolCode 변경됨:", currentSchoolCode);
+    // }, [currentSchoolCode]);
 
     return (
         <ViewContext.Provider
@@ -181,7 +182,7 @@ const ViewProvider = ({ children }) => {
                 currentSchoolCode,
                 setCurrentSchoolCode,
             }}>
-            {!isInitialized ? <div>로딩 중...</div> : children}
+            {!isInitialized ? <div className={styles.loading}>로딩 중...</div> : children}
         </ViewContext.Provider>
     );
 };
