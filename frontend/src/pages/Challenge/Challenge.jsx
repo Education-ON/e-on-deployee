@@ -24,6 +24,7 @@ const Challenge = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const { user, loading: authLoading } = useAuth();
     const userId = user?.user_id;
+    console.log(user);
 
     // 로그인 모달 상태
     const [showLoginModal, setShowLoginModal] = useState(false);

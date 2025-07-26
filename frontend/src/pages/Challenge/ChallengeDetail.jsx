@@ -28,6 +28,8 @@ const ChallengeDetail = () => {
 
     try {
         const participationRes = await getParticipationDetailForUser(id, userId);
+        console.log("참여 fetch 후 서버 응답:", participationRes.data);
+        console.log("userId:", userId, "challengeId:", id);
         const mp = participationRes.data?.my_participation || null;
         if (mp) {
           setParticipationState(mp.participating_state);

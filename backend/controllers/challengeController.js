@@ -197,9 +197,11 @@ exports.detail = async (req, res, next) => {
 
     const is_bookmarked = userId ? !!(await Bookmark.findOne({ where: { challenge_id: id, user_id: Number(userId) } })) : false;
     let myParticipation = null;
-    if (userId && challenge.participants) {
-      const pc = challenge.participants[0];
-      myParticipation = pc ? { participating_id: pc.participating_id, participating_state: pc.participating_state } : null;
+    if (userId) {
+      const pc = await ParticipatingChallenge.findOne({
+        where: { challenge_id: id, user_id: Number(userId) }
+      });
+      myParticipation = pc ? pc.toJSON() : null;
     }
 
     res.json({

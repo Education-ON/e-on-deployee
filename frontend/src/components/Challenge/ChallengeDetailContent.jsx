@@ -64,6 +64,7 @@ const ChallengeDetailContent = ({
   const [actionLoading, setActionLoading] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  console.log("상세페이지 버튼 상태 확인", isJoined, participationId, participationState);
 
   // ─────────────────────────────
   // 0) 나이 조건 추출
@@ -426,14 +427,14 @@ const ChallengeDetailContent = ({
               background: !canJoinByAge
                 ? "#eee"
                 : isJoined
-                ? "#f3f3f3"
+                ? "#fef2f2" 
                 : "#e5e7eb",
               color: !canJoinByAge
                 ? "#bbb"
                 : isJoined
                 ? "#e11d48"
                 : "#222",
-              border: "none",
+              border: isJoined ? "1.5px solid #fca5a5" : "none",
               borderRadius: 8,
               padding: "9px 28px",
               fontWeight: "bold",

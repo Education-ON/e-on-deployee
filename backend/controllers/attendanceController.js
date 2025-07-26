@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const db = require('../models');
 const ParticipatingChallenge  = db.ParticipatingChallenge;
-const ParticipatingAttendance = db.participatingAttendance;
+const ParticipatingAttendance = db.ParticipatingAttendance;
 const Challenge= db.Challenge;
 const User = db.User;
 

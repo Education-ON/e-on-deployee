@@ -1,5 +1,6 @@
-// src/pages/MyPage/MyPage.jsx
-import { Link } from "react-router-dom";
+// src/pages/MyPage/MyPage.jsx (관리자 페이지)
+
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "../../styles/MyPage/Mypage.module.css";
 import { toast } from "react-toastify";
@@ -9,13 +10,14 @@ export default function AdminPage() {
 
     if (loading) return <p>로딩 중...</p>;
     if (!user) return <Navigate to="/login" />;
+
     if (user.type !== "admin") {
-        <Navigate to="/calendar" />;
         toast("일반 사용자는 관리자 페이지에 접근할 수 없습니다.", {
             icon: "💜",
             className: "my-toast",
             progressClassName: "custom-progress-bar",
         });
+        return <Navigate to="/calendar" />; // return 추가!
     }
 
     return (
@@ -32,23 +34,12 @@ export default function AdminPage() {
                 <Link to="/admin/user-management" className={styles.menuBox}>
                     사용자 관리
                 </Link>
-                {user.type === "admin" && (
-                    <Link to="/admin/board-requests" className={styles.menuBox}>
-                        게시판 개설 요청 확인하기
-                    </Link>
-                )}
-                {user.type === "admin" && (
-                    <Link to="/admin/board-requests" className={styles.menuBox}>
-                        게시판 개설 요청 확인하기
-                    </Link>
-                )}
-                {user.type !== "admin" && (
-                    <Link
-                        to="/mypage/board-requests"
-                        className={styles.menuBox}>
-                        내 게시판 개설 요청 확인하기
-                    </Link>
-                )}
+                <Link to="/admin/board-requests" className={styles.menuBox}>
+                    게시판 개설 요청 확인하기
+                </Link>
+                <Link to="/admin/challenge-requests" className={styles.menuBox}>
+                    챌린지 개설 요청 확인하기
+                </Link>
             </div>
         </div>
     );

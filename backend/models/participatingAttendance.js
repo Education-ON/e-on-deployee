@@ -32,10 +32,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'participating_id',
       as: 'participant',
     });
-    models.ParticipatingChallenge.hasMany(ParticipatingAttendance, {
-      foreignKey: 'participating_id',
-      as: 'attendances',
-    });
+    // models.ParticipatingChallenge.hasMany(ParticipatingAttendance, {
+    //   foreignKey: 'participating_id',
+    //   as: 'attendances',
+    // });
   };
 
   return ParticipatingAttendance;
