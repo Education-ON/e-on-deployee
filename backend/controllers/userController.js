@@ -1,6 +1,6 @@
 // backend/controllers/user.js
 const bcrypt = require("bcrypt");
-const db = require('../models');
+const db = require("../models");
 const User = db.User;
 const BoardRequest = db.BoardRequest;
 
@@ -36,6 +36,7 @@ exports.getMyInfo = async (req, res, next) => {
  */
 exports.updateMyInfo = async (req, res, next) => {
     const { name, emailNotification, currentPassword } = req.body;
+    console.log(emailNotification);
     if (!currentPassword) {
         return res
             .status(400)
@@ -67,14 +68,12 @@ exports.updateMyInfo = async (req, res, next) => {
         // 🛠️ 정보 업데이트
         await User.update(
             {
-                ...(name && { name }),
-                emailNotification:
-                    emailNotification === undefined
-                        ? user.emailNotification
-                        : emailNotification,
+                name,
+                emailNotification,
             },
             { where: { user_id: req.user.user_id } }
         );
+
         console.log("[2] 사용자 정보 업데이트 완료");
         return res.json({
             success: true,
@@ -126,11 +125,22 @@ exports.changePassword = async (req, res) => {
 exports.deactivateAccount = async (req, res, next) => {
     try {
         await User.update(
-            { accountStatus: "inactive", deactivatedAt: new Date() },
+            { state_code: "inactive", deactivatedAt: new Date() },
             { where: { user_id: req.user.user_id } }
         );
         req.logout(() => {}); // 세션 종료
         res.json({ success: true, message: "계정이 비활성화되었습니다." });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.deleteAccount = async (req, res, next) => {
+    try {
+        await User.destroy({ where: { user_id: req.user.user_id } });
+        req.logout(() => {}); // 세션 종료
+        res.json({ success: true, message: "계정이 탈퇴되었습니다." });
+        // console.log("탈퇴 완료ㅠㅠ");
     } catch (err) {
         next(err);
     }
@@ -142,13 +152,67 @@ exports.getMyBoardRequests = async (req, res) => {
         const user_id = req.user.user_id;
 
         const requests = await BoardRequest.findAll({
-            where: { user_id : user_id },
-            order: [['request_date', 'DESC']],
-        })
+            where: { user_id: user_id },
+            order: [["request_date", "DESC"]],
+        });
         res.json(requests);
-        
     } catch (error) {
-        console.error('게시판 요청 조회 실패:', error);
-        res.status(500).json({ message: '서버 오류' });
+        console.error("게시판 요청 조회 실패:", error);
+        res.status(500).json({ message: "서버 오류" });
     }
-}
+};
+
+// 사용자 계정 상태 조회
+exports.getAllUserState = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: [
+                "user_id",
+                "name",
+                "age",
+                "email",
+                "type",
+                "state_code",
+                // "createdAt",
+                // "deactivatedAt",
+            ],
+            order: [["user_id", "ASC"]],
+        });
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("사용자 상태 조회 실패:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+};
+
+// 사용자 계정 상태 변경
+exports.updateUserState = async (req, res) => {
+    const isAdmin = req.user?.type === "admin";
+
+    if (!isAdmin) {
+        return res.status(403).json({ error: "관리자 권한이 필요합니다." });
+    }
+
+    const { user_id, state_code } = req.body;
+    if (!user_id || !state_code) {
+        return res
+            .status(400)
+            .json({ error: "user_id와 state_code는 필수입니다." });
+    }
+
+    try {
+        const user = await User.findByPk(user_id);
+        if (!user) {
+            return res
+                .status(404)
+                .json({ error: "사용자를 찾을 수 없습니다." });
+        }
+        await User.update({ state_code }, { where: { user_id } });
+        res.status(200).json({ message: "사용자 상태가 업데이트되었습니다." });
+    } catch (err) {
+        res.status(500).json({
+            error: "사용자 상태 업데이트 중 오류가 발생했습니다.",
+        });
+        console.error("사용자 상태 업데이트 오류:", err);
+    }
+};

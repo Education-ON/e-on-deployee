@@ -19,7 +19,16 @@ async function getRegionByName(region_name) {
     });
 };
 
+// 3. id로 지역 이름 조회 API
+async function getRegionById(region_id) {
+    return await Region.findOne({
+        where: { region_id },
+        attributes: ["region_name"], // 지역 이름만 반환
+    });
+}
+
 module.exports = {
     getAllRegions,
     getRegionByName,
+    getRegionById,
 };

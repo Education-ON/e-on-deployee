@@ -56,7 +56,7 @@ const ChallengeListItem = ({
     userAge == null || minAge == null || maxAge == null
       ? true
       : userAge >= minAge && userAge <= maxAge;
-  console.log("userAge", userAge, "minAge", minAge, "maxAge", maxAge);
+  // console.log("userAge", userAge, "minAge", minAge, "maxAge", maxAge);
 
 
 

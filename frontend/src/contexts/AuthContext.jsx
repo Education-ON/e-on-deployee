@@ -21,7 +21,7 @@ function AuthProvider({ children }) {
         agreements,
     }) => {
         try {
-            console.log("📦 signup axios 요청 보냄");
+            // console.log("📦 signup axios 요청 보냄");
             const res = await api.post("/auth/join/step3", {
                 name,
                 email,
@@ -33,7 +33,7 @@ function AuthProvider({ children }) {
                 agreements,
                 state_code: "active",
             });
-            console.log("✅ signup axios 성공", res.data);
+            // console.log("✅ signup axios 성공", res.data);
             setUser(res.data.user);
 
             localStorage.setItem("user", JSON.stringify(res.data.user));

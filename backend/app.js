@@ -51,16 +51,17 @@ app.use(passport.session());
 
 // ───────────────────────────────────────────────
 // 인증 라우트
-app.use("/auth", require("./routes/auth"));
+app.use("/auth", require("./routes/authRouter"));
 
-app.use("/api/user", require("./routes/user"));
+app.use("/api/user", require("./routes/userRouter"));
 app.use("/api/interests", require("./routes/interest"));
 app.use("/api/activity", require("./routes/activity"));
 app.use("/api/notification", require("./routes/notification"));
 
-app.use("/schoolSchedule", require("./routes/schoolScheduleRoute"));
+app.use("/schoolSchedule", require("./routes/schoolScheduleRouter"));
 app.use("/averageSchedule", require("./routes/averageScheduleRouter"));
 app.use("/regions", require("./routes/regionRouter"));
+app.use("/mySchool", require("./routes/mySchoolRouter"))
 app.use("/boards", require("./routes/boardRoute"));
 
 app.use("/api/recommendations", require("./routes/recommendations"));

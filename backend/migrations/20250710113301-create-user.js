@@ -40,10 +40,16 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
-      my_school: {
-        type: Sequelize.STRING(100),
-        allowNull: true,
-      },
+      // my_school: {
+      //   type: Sequelize.BIGINT,
+      //   allowNull: true,
+      //   references: {
+      //     model: 'MySchool',
+      //     key: 'my_school_id',
+      //   },
+      //   onUpdate: 'CASCADE',
+      //   onDelete: 'SET NULL',
+      // },
       email_notification: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
