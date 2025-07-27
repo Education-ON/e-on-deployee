@@ -61,19 +61,19 @@ const SchoolSearchBar = () => {
     }, [inputValue, debouncedSearch]);
 
     // 핸들러 함수: 학교별/지역별 라디오 버튼 클릭 시
-    const handleSearchTypeChange = (type) => {
-        if (type === "school") {
-            setSearchType((prev) => {
-                return { ...prev, type: "region" };
-            });
-            setCurrentSchoolCode();
-        } else if (type === "region") {
-            setSearchType((prev) => {
-                return { ...prev, type: "school" };
-            });
-            setCurrentSchoolCode();
-        }
-    };
+    // const handleSearchTypeChange = (type) => {
+    //     if (type === "school") {
+    //         setSearchType((prev) => {
+    //             return { ...prev, type: "region" };
+    //         });
+    //         setCurrentSchoolCode();
+    //     } else if (type === "region") {
+    //         setSearchType((prev) => {
+    //             return { ...prev, type: "school" };
+    //         });
+    //         setCurrentSchoolCode();
+    //     }
+    // };
 
     // 핸들러 함수: 검색 버튼 클릭 시
     const handleSearch = async () => {

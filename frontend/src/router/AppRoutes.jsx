@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Auth/LoginPage";
 import Signup from "../pages/Auth/SignupPage";
-import MyInfo from "../pages/MyPage/MyInfoPage";
+import MyInfoPage from "../pages/MyPage/MyInfoPage";
 import ChangePasswordPage from "../pages/MyPage/ChangePasswordPage";
 import DeactivateAccountPage from "../pages/MyPage/DeactivateAccountPage";
 import Calendar from "../pages/Calendar/Calendar";
@@ -30,7 +30,7 @@ import PreferenceVision from "../pages/Suggestion/PreferenceVision";
 import RecommendationResult from "../pages/Suggestion/RecommendationResult";
 import AdminPage from "../pages/Admin/AdminPage";
 import UserManagement from "../pages/Admin/UserManagement";
-import MySchoolManagement from "../pages/MyPage/MySchoolManagement";
+import MySchoolManagementPage from "../pages/MyPage/MySchoolManagementPage";
 import TermsPage from "../pages/Auth/TermsPage";
 import PrivacyPage from "../pages/Auth/PrivacyPage";
 import MarketingPage from "../pages/Auth/MarketingPage";
@@ -111,8 +111,8 @@ const AppRoutes = () => {
                     </PrivateRoutes>
                 }>
                     <Route index element={<Navigate to="info" replace />} /> {/* 기본 페이지 설정 */}
-                <Route path="info" element={<MyInfo />} />
-                <Route path="my-school" element={<MySchoolManagement />} />
+                <Route path="info" element={<MyInfoPage />} />
+                <Route path="my-school" element={<MySchoolManagementPage />} />
                 <Route path="password" element={<ChangePasswordPage />} />
                 <Route path="deactivate" element={<DeactivateAccountPage />} />
             </Route>
