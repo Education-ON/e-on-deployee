@@ -7,6 +7,7 @@ import {
     getChallengeList,
     participateChallenge,
     cancelParticipation,
+    checkAbsence,
 } from "../../api/challengeApi";
 import axiosInstance from "../../api/axiosInstance";
 import styles from "../../styles/Pages/Challenge.module.css";
@@ -154,10 +155,33 @@ const Challenge = () => {
         setCurrentPage(1);
     };
 
-    // 챌린지 생성 페이지로 이동 (예시)
-    const handleCreate = () => {
-        window.location.href = "/challenge/create";
+    // 챌린지 생성 페이지로 이동 
+    // const handleCreate = () => {
+    //     window.location.href = "/challenge/create";
+    // };
+    // 챌린지 생성 페이지로 이동 (결석 체크)
+    const handleCreate = async () => {
+        if (!userId) {
+            toast("로그인이 필요합니다.", { /* ... */ });
+            return;
+        }
+        try {
+            const res = await checkAbsence(userId);
+            if (res.data.hasAbsence) {
+                toast("최근 1주일 내 결석 기록이 있어 챌린지 개설이 제한됩니다.", {
+                    icon: "💜",
+                    className: "my-toast",
+                    progressClassName: "custom-progress-bar",
+                });
+                return;
+            }
+            window.location.href = "/challenge/create";
+        } catch (err) {
+            toast("결석 체크 중 오류가 발생했습니다.", { /* ... */ });
+            console.error(err);
+        }
     };
+
 
     // 참여 / 참여 취소 로직
     const handleApply = async ({

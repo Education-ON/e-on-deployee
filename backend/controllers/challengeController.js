@@ -8,12 +8,14 @@ const {
   ChallengeInterest,
   ChallengeVision,
   ParticipatingChallenge,
+  ParticipatingAttendance,
   User,
   Bookmark,
   Review,
   Interests,
   Visions
 } = db;
+
 
 /** ---------------- 챌린지 개설 ---------------- **/
 exports.create = async (req, res, next) => {
@@ -44,6 +46,24 @@ exports.create = async (req, res, next) => {
 
     if (!title || !description || !creator_contact || !user_id) {
       return res.status(400).json({ error: '필수 필드 누락' });
+    }
+
+    // 7일 내 결석 체크
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const hasAbsence = await ParticipatingAttendance.findOne({
+      include: [{
+        model: ParticipatingChallenge,
+        as: 'participant',
+        where: { user_id }
+      }],
+      where: {
+        attendance_state: '결석',
+        attendance_date: { [Op.gte]: sevenDaysAgo }
+      }
+    });
+    if (hasAbsence) {
+      return res.status(403).json({ error: '최근 7일 이내 결석 기록이 있어 챌린지 개설이 제한됩니다.' });
     }
 
     const challenge = await Challenge.sequelize.transaction(async (t) => {

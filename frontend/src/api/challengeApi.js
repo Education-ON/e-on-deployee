@@ -50,10 +50,6 @@ export const getParticipationDetail = (participationId) => {
   return axiosInstance.get(`/api/participations/${participationId}`);
 };
 
-// export const getParticipationDetailForUser = (challengeId, userId) => {
-//   return axiosInstance.get(`/challenge/${challengeId}/user/${userId}`);
-// };
-
 export const getParticipationDetailForUser = (challengeId, userId) => {
   return axiosInstance.get(`/api/challenges/${challengeId}`, {
     params: { user_id: userId }
@@ -128,4 +124,9 @@ export const getAttachments = (challengeId) => {
 // 21. 첨부파일 삭제
 export const deleteAttachment = (attachmentId) => {
   return axiosInstance.delete(`/api/attachments/${attachmentId}`);
+};
+
+// 22. 최근 7일 이내 결석 체크
+export const checkAbsence = (userId) => {
+  return axiosInstance.get('/api/attendances/check-absence', { params: { user_id: userId } });
 };
