@@ -44,6 +44,7 @@
 
 .resultTableContainer {
     flex: 1;
+    scrollbar-gutter: stable;
     overflow-y: auto;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -58,23 +59,29 @@
 
 .resultTable th,
 .resultTable td {
+    box-sizing: border-box;
     padding: 0.75rem;
     border-bottom: 1px solid #eee;
-    text-align: left;
+    border-left: 1px solid #eee; /* 왼쪽 세로줄 */
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.resultTable th:first-child,
+.resultTable th {
+    background-color: #f7f7f7;
+}
+
+/* .resultTable th:first-child,
 .resultTable td:first-child {
-    width: 30%; /* ✅ 첫 번째 열을 더 좁게 */
+  width: 40%;
 }
 
 .resultTable th:last-child,
 .resultTable td:last-child {
-    width: 70%; /* ✅ 두 번째 열은 넓게 */
-}
+  width: 60%;
+} */
 
 .selectedRow {
     background-color: #d0ebff !important;

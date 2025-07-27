@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 const MySchoolModal = ({ type, onClose, onConfirm }) => {
     const [keyword, setKeyword] = useState("");
     const [results, setResults] = useState([]);
+    const [afterSearch, setAfterSearch] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 
     const handleSearchClick = async () => {
@@ -23,6 +24,7 @@ const MySchoolModal = ({ type, onClose, onConfirm }) => {
                 setResults(res?.data.data.regions || []);
                 console.log(res?.data.data.regions);
             }
+            setAfterSearch(true);
         } catch (error) {
             console.error("검색 실패", error);
         }
@@ -78,6 +80,13 @@ const MySchoolModal = ({ type, onClose, onConfirm }) => {
                 {/* 결과 테이블 */}
                 <div className={styles.resultTableContainer}>
                     <table className={styles.resultTable}>
+                        {type === "school" ? (                        <colgroup>
+                            <col style={{ width: "40%" }} />
+                            <col style={{ width: "60%" }} />
+                        </colgroup>) : (                        <colgroup>
+                            <col style={{ width: "30%" }} />
+                            <col style={{ width: "70%" }} />
+                        </colgroup>)}
                         <thead>
                             {type === "school" ? (
                                 <tr>
@@ -92,7 +101,17 @@ const MySchoolModal = ({ type, onClose, onConfirm }) => {
                             )}
                         </thead>
                         <tbody>
-                            {results.length === 0 ? (
+                            {!afterSearch ? (
+                                // 검색 전에는 아무것도 표시하지 않음
+                                <tr>
+                                    <td
+                                        className={styles.placeHolder}
+                                        colSpan={2}>
+                                        검색어를 입력하여 검색을 진행해주세요.
+                                    </td>
+                                </tr>
+                            ) : results.length === 0 ? (
+                                // 검색 후 결과 없음
                                 <tr>
                                     <td
                                         colSpan={2}
@@ -104,6 +123,7 @@ const MySchoolModal = ({ type, onClose, onConfirm }) => {
                                     </td>
                                 </tr>
                             ) : (
+                                // 결과 있음
                                 results.map((item) => {
                                     const isSelected =
                                         type === "school"
@@ -111,6 +131,7 @@ const MySchoolModal = ({ type, onClose, onConfirm }) => {
                                               item.schoolCode
                                             : selectedItem?.region_id ===
                                               item.region_id;
+
                                     return (
                                         <tr
                                             key={
