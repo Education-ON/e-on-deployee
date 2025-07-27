@@ -63,11 +63,16 @@ const MyInfo = () => {
         setMessage({ type: "", text: "" });
 
         try {
-            const res = await api.put("/api/user/me", {
-                name,
-                emailNotification,
+            const payload = {
                 currentPassword,
-            });
+                ...(name !== undefined && { name }),
+                ...(age !== undefined && { age }),
+                ...(emailNotification !== undefined && { emailNotification }),
+            };
+
+            const res = await api.put("/api/user/me", payload);
+
+            console.log("[1] ", res);
 
             setMessage({ type: "success", text: res.data.message });
 
