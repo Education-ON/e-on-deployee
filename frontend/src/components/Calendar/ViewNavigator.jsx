@@ -33,6 +33,10 @@ const ViewNavigator = () => {
     };
 
     useEffect(() => {
+        console.log("🔁 검색 종류 변경: ", searchType);
+    }, [searchType]);
+
+    useEffect(() => {
         if (searchType.year === "prev") {
             // currentDate를 1년 전으로 변경
             setCurrentDate(currentDate.subtract(1, "year"));
