@@ -97,10 +97,10 @@ const AppRoutes = () => {
                 element={<CommunityWrite />}
             />
             <Route path="/posts/:post_id" element={<PostDetail />} />
-            {/* <Route
+            <Route
                 path="/community/board-requests"
                 element={<BoardRequestPage />}
-            /> */}
+            />
 
             {/* MyPage 라우트 */}
             <Route
@@ -115,6 +115,7 @@ const AppRoutes = () => {
                 <Route path="my-school" element={<MySchoolManagement />} />
                 <Route path="password" element={<ChangePassword />} />
                 <Route path="deactivate" element={<DeactivateAccount />} />
+                <Route path="boardrequest" element={<MyBoardRequest />} />
             </Route>
 
             {/* <Route

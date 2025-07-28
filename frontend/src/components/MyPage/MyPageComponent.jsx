@@ -57,6 +57,16 @@ const MyPageComponent = () => {
                     }`}>
                     계정 탈퇴 / 비활성화
                 </Link>
+
+                <Link
+                    to="/mypage/boardrequest"
+                    className={`${styles.menuItem} ${
+                        location.pathname === "/mypage/boardrequest"
+                            ? styles.active
+                            : ""
+                    }`}>
+                    개설 신청 게시판
+                </Link>
             </div>
             <div className={styles.contentArea}>
                 {/* 하위 페이지 컴포넌트 로딩 */}
