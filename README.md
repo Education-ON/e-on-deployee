@@ -17,6 +17,7 @@ backend/
 ├── services/             # 비즈니스 로직 처리
 ├── uploads/              # 사용자 업로드 파일 저장소
 ├── utils/                # 재사용 가능한 유틸 함수
+├── seeders/
 ├── scripts/              # ⚙️ 초기 설정용 실행 스크립트
 ├── node_modules/
 ├── .env
@@ -39,7 +40,6 @@ frontend/
 │   ├── assets/            # 이미지, 폰트 등 static 리소스
 │   ├── components/        # 재사용 가능한 UI 컴포넌트
 │   ├── pages/             # 라우팅되는 각 페이지 (Home, Login 등)
-│   ├── layouts/           # 공통 레이아웃 구성 (Header, Footer 등)
 │   ├── hooks/             # 커스텀 훅 (useAuth 등)
 │   ├── utils/             # 유틸 함수 모음
 │   ├── constants/         # 상수 (API 주소, 메시지 등)

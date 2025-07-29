@@ -2,12 +2,12 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 
-const authCtrl = require('../controllers/auth');
+const authCtrl = require('../controllers/authController');
 const { isLoggedIn, isNotLoggedIn } = require('../middleware/auth');
 
-console.log('✅ [auth.js] 라우터 로딩됨');
-console.log('🔍 [auth.js] passport 타입:', typeof passport);
-console.trace('🔎 [auth.js] passport 호출 위치 추적');
+console.log('✅ [authRouter.js] 라우터 로딩됨');
+console.log('🔍 [authRouter.js] passport 타입:', typeof passport);
+console.trace('🔎 [authRouter.js] passport 호출 위치 추적');
 
 // ────────────── 회원가입 관련 ──────────────
 router.post('/join/step1', isNotLoggedIn, authCtrl.signupStep1);
@@ -61,8 +61,8 @@ router.get('/social-session', (req, res) => {
 router.post('/social-signup', authCtrl.socialSignup);
 
 // --- 리디렉트 방지 라우터 추가 ---
-router.get('kakao/undefined/social-singup', (req,res) => {
-  return res.redirect('${process.env.FRONTEND_URL}/social-signup');
+router.get('/kakao/undefined/social-singup', (req, res) => {
+  return res.redirect(`${process.env.FRONTEND_URL}/social-signup`);
 });
 
 console.log('🌐 process.env.FRONTEND_URL:', process.env.FRONTEND_URL);

@@ -60,27 +60,16 @@ const MonthlyView = () => {
                             ? date.format("YYYY-MM-DD") // 예: 2025-06-13
                             : date.format("YYYYMMDD"); // 예: 20250613
 
-                    let filteredSchedules = schedules;
-
-                    let event = null;
-
-                    if (searchType.type === "region") {
-                        // schedules 배열에서 average_date가 targetDate인 이벤트 찾기
-                        // console.log("region 씨벌", filteredSchedules);
-                        event =
-                            filteredSchedules.find(
-                                (schedule) =>
-                                    schedule.average_date === targetDate &&
-                                    schedule.school_type ===
-                                        searchType.schoolType
-                            ) || null;
-                        // if (event) console.log("event: ", event);
-                    } else {
-                        event =
-                            schedules.find(
-                                (schedule) => schedule.AA_YMD === targetDate
-                            ) || null;
-                    }
+                    const filteredEvents = schedules.filter((schedule) => {
+                        if (searchType.type === "region") {
+                            return (
+                                schedule.average_date === targetDate &&
+                                schedule.school_type === searchType.schoolType
+                            );
+                        } else {
+                            return schedule.AA_YMD === targetDate;
+                        }
+                    });
 
                     return (
                         <div
@@ -89,16 +78,22 @@ const MonthlyView = () => {
                                 currentMonth ? "" : styles.otherMonth
                             }`}>
                             <div>{date.date()}</div>
-                            {event && currentMonth && (
-                                <EventBadge
-                                    key={
-                                        event.AA_YMD || event.averageSchedule_id
-                                    }
-                                    event_name={
-                                        event.EVENT_NM || event.event_name
-                                    }
-                                />
-                            )}
+                            <div className={styles.eventContainer}>
+                                {currentMonth &&
+                                    filteredEvents.length > 0 &&
+                                    filteredEvents.map((event) => (
+                                        <EventBadge
+                                            key={
+                                                event.AA_YMD ||
+                                                event.averageSchedule_id
+                                            }
+                                            event_name={
+                                                event.EVENT_NM ||
+                                                event.event_name
+                                            }
+                                        />
+                                    ))}
+                            </div>
                         </div>
                     );
                 })}

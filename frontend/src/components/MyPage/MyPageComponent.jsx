@@ -1,0 +1,47 @@
+// src/components/MyPage/MyPageComponent.jsx
+import { Link, Outlet, useLocation, Navigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import styles from "../../styles/MyPage/Mypage.module.css";
+
+const MyPageComponent = () => {
+    const { user, loading } = useAuth();
+    const location = useLocation();
+
+    if (loading) return <p>로딩 중...</p>;
+    if (!user) return <Navigate to="/login" />;
+
+    return (
+        <div className={styles.container}>
+            <div className={styles.menuGrid}>
+                <Link to="/mypage/info" className={`${styles.menuItem} ${location.pathname === "/mypage/info" ? styles.active : ""}`}>
+                    내 정보 수정
+                </Link>
+                <Link to="/mypage/my-school" className={`${styles.menuItem} ${location.pathname === "/mypage/my-school" ? styles.active : ""}`}>
+                    나의 학교 관리
+                </Link>
+                <Link to="/mypage/boardrequest" className={`${styles.menuItem} ${location.pathname === "/mypage/boardrequest" ? styles.active : ""}`}>
+                    게시판 개설 신청 현황
+                </Link>
+                <Link to="/mypage/password" className={`${styles.menuItem} ${location.pathname === "/mypage/password" ? styles.active : ""}`}>
+                    비밀번호 변경
+                </Link>
+                <Link to="/mypage/deactivate" className={`${styles.menuItem} ${location.pathname === "/mypage/deactivate" ? styles.active : ""}`}>
+                    계정 탈퇴 / 비활성화
+                </Link>
+
+                {/* ✅ 활동 이력 조회 (비관리자만 표시) */}
+                {user.type !== "admin" && (
+                    <Link to="/mypage/activity-history" className={`${styles.menuItem} ${location.pathname === "/mypage/activity-history" ? styles.active : ""}`}>
+                        활동 이력 조회
+                    </Link>
+                )}
+            </div>
+
+            <div className={styles.contentArea}>
+                <Outlet />
+            </div>
+        </div>
+    );
+};
+
+export default MyPageComponent;

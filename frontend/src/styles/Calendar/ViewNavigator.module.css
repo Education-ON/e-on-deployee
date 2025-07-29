@@ -12,10 +12,20 @@
 .left {
     display: flex;
     align-items: baseline; /* 기준선(baseline) 정렬 */
+    position: relative;
 }
 
 .name {
     font-size: 22px;
+    font-weight: bold;
+    color: #000000;
+    /* margin-left: 30px; */
+    margin-right: 5px;
+    line-height: 1;
+}
+
+.name_region {
+        font-size: 22px;
     font-weight: bold;
     color: #000000;
     margin-left: 30px;
@@ -56,6 +66,21 @@
     padding: 0;
 }
 
+.star {
+    margin-right: 8px;
+    margin-left: 30px;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    transition: transform 0.7s ease;
+    display: flex;
+    align-items: center;
+
+    /* 중심 정렬 */
+    position: relative;
+    top: 50%;
+    transform: translateY(13%);
+}
 
 /*
 

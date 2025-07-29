@@ -37,21 +37,23 @@ app.use(
   })
 );
 
-
-// 이후 미들웨어 실행
 app.use(passport.initialize());
 app.use(passport.session());
 
-// 라우터
-app.use('/auth', require('./routes/auth'));
-app.use('/api/user', require('./routes/user'));
+// ───────────────────────────────────────────────
+// 인증 및 API 라우터 설정
+app.use('/auth', require('./routes/authRouter'));
+app.use('/api/user', require('./routes/userRouter'));
 app.use('/api/interests', require('./routes/interest'));
 app.use('/api/activity', require('./routes/activity'));
 app.use('/api/notification', require('./routes/notification'));
-app.use('/schoolSchedule', require('./routes/schoolScheduleRoute'));
+
+app.use('/schoolSchedule', require('./routes/schoolScheduleRouter'));
 app.use('/averageSchedule', require('./routes/averageScheduleRouter'));
 app.use('/regions', require('./routes/regionRouter'));
+app.use('/mySchool', require('./routes/mySchoolRouter'));
 app.use('/boards', require('./routes/boardRoute'));
+
 app.use('/api/recommendations', require('./routes/recommendations'));
 app.use('/api/preferences', require('./routes/preferencesRoutes'));
 app.use('/api/select', require('./routes/select'));
@@ -62,7 +64,9 @@ app.use('/api/attendances', require('./routes/attendance'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/attachments', require('./routes/attachmentRoutes'));
 app.use('/api/visions', require('./routes/visions'));
+app.use('/api/admin/challenges', require('./routes/adminChallengeRoutes'));
 
+// 테스트용 엔드포인트
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from Node.js!' });
 });

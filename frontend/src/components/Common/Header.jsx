@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import styles from "./../../styles/Common/Header.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
@@ -13,6 +13,7 @@ export default function Header() {
         try {
             await logout();
             navigate("/");
+            window.location.reload(); // 로그아웃 후 새로고침
         } catch (error) {
             console.error("Logout failed:", error);
         }
@@ -56,11 +57,19 @@ export default function Header() {
                     {user ? (
                         <>
                             <li className={styles.navItem}>
-                                <Link to="/mypage" className={styles.navLink}>
-                                    {user.type === "admin"
-                                        ? "관리자 페이지"
-                                        : "마이페이지"}
-                                </Link>
+                                {user.type !== "admin" ? (
+                                    <Link
+                                        to="/mypage"
+                                        className={styles.navLink}>
+                                        마이페이지
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        to="/admin"
+                                        className={styles.navLink}>
+                                        관리자 페이지
+                                    </Link>
+                                )}
                             </li>
                             <li className={styles.navItem}>
                                 <button

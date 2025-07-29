@@ -9,8 +9,8 @@ exports.add = async (req, res, next) => {
     const challengeId = req.params.id;
     const photosArr   = req.files.photos   || [];
     const consentsArr = req.files.consents || [];
-    console.log("▶ [첨부파일 추가] req.params.id:", challengeId);
-    console.log("▶ [첨부파일 추가] req.files:", req.files);
+    // console.log("▶ [첨부파일 추가] req.params.id:", challengeId);
+    // console.log("▶ [첨부파일 추가] req.files:", req.files);
     
 
     // 1) 챌린지 존재 확인

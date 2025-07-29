@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const db = require('../models');
 const ParticipatingChallenge  = db.ParticipatingChallenge;
-const ParticipatingAttendance = db.participatingAttendance;
+const ParticipatingAttendance = db.ParticipatingAttendance;
 const Challenge= db.Challenge;
 const User = db.User;
 
@@ -124,4 +124,32 @@ exports.remove = async (req, res, next) => {
     next(err);
   }
 };
+
+// 최근 7일 이내 결석 체크 (user_id로)
+exports.checkAbsence = async (req, res, next) => {
+  try {
+    const { user_id } = req.query;
+    if (!user_id) return res.status(400).json({ error: 'user_id 필요' });
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const hasAbsence = await db.ParticipatingAttendance.findOne({
+      include: [{
+        model: db.ParticipatingChallenge,
+        as: 'participant',
+        where: { user_id }
+      }],
+      where: {
+        attendance_state: '결석',
+        attendance_date: { [db.Sequelize.Op.gte]: sevenDaysAgo }
+      }
+    });
+
+    res.json({ hasAbsence: !!hasAbsence });
+  } catch (err) {
+    next(err);
+  }
+};
+
 

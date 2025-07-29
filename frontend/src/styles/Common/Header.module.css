@@ -7,7 +7,8 @@
     width: 100%; /* 반응형을 위해 고정값 대신 100% */
     max-width: 1280px; /* 원래 최대 너비 유지 */
     margin: 0 auto;
-    height: 140px;
+    /* height: 140px; */
+    height: 130px;
 }
 
 img {

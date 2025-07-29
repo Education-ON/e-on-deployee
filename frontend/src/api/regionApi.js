@@ -19,3 +19,8 @@ export const searchAverageScheduleByName = async (regionName) => {
 export const searchAverageScheduleByGrade = async (regionName, grade) => {
     return axios.get(`/averageSchedule/region/${regionName}/schedule?grade=${grade}`);
 }
+
+// 5. 아이디로 지역명 조회
+export const searchRegionById = async (regionId) => {
+    return axios.get(`/regions/${regionId}`);
+}

@@ -7,35 +7,42 @@ export default function Login() {
     const navigate = useNavigate();
 
     const handleKaKaoLogin = () => {
-    window.location.href = "http://localhost:4000/auth/kakao";
-};
-
+        window.location.href = "http://localhost:4000/auth/kakao";
+    };
 
     return (
         <div className={styles.loginWrapper}>
-            <div className={styles.header}>
-                <Header />
-            </div>
-            <div className={styles.loginBox}>
-                <div className={styles.logoText}>E-ON</div>
-                <div className={styles.loginTitle}>로그인</div>
-                <LoginForm onSuccess={() => navigate("/")} />
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <Header />
+                </div>
+                <div className={styles.content}>
+                    <div className={styles.loginBox}>
+                        <div className={styles.logoText}>E-ON</div>
+                        <div className={styles.loginTitle}>로그인</div>
+                        <LoginForm
+                            onSuccess={() => {
+                                setTimeout(() => {
+                                    navigate("/");
+                                    window.location.reload(); // 로그인 후 새로고침 (1)
+                                    window.location.reload(); // 로그인 후 새로고침 (2)
+                                }, 200);
+                            }}
+                        />
+                        {/* ✅ 너의 카카오 로그인 버튼 추가 */}
+                        <button
+                            onClick={handleKaKaoLogin}
+                            className={styles.kakaoButton}
+                        >
+                            카카오로 로그인
+                        </button>
 
-                {/*카카오 로그인 추가*/}
-                <button
-                    onClick={handleKaKaoLogin}
-                    className={styles.kakaoButton}
-                >
-                    카카오로 로그인 
-                </button>
-                {/* <div className={styles.loginBottom}>
-                    <Link to="/find-email">이메일 찾기</Link>
-                    <span className={styles.divider}>|</span>
-                    <Link to="/find-password">비밀번호 찾기</Link>
-                </div> */}
-                <Link to="/signup" className={styles.signupButton}>
-                    회원가입
-                </Link>
+                        {/* ✅ 회원가입 버튼 아래에 유지 */}
+                        <Link to="/signup" className={styles.signupButton}>
+                            회원가입
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     );

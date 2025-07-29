@@ -5,11 +5,10 @@ if (!apiKey) {
     throw new Error("API key is not defined in environment variables.");
 }
 
-// 1. 서울특별시 내 초등, 중학교 검색
+// 1. 전국 초등, 중학교 검색
 // 사용자가 입력한 키워드(query)를 포함하는 학교 목록만 조회
 async function searchSchools(query) {
     const url = "https://open.neis.go.kr/hub/schoolInfo"; // 학교기본정보 조회 API URL
-
     try {
         const params = {
             KEY: apiKey,
@@ -38,19 +37,67 @@ async function searchSchools(query) {
                     !school.SCHUL_KND_SC_NM.includes("각종학교(고)") &&
                     !school.SCHUL_KND_SC_NM.includes("평생학교(고)-3년6학기") &&
                     !school.SCHUL_KND_SC_NM.includes("평생학교(고)-2년6학기")
-                    // &&
-                    // school.LCTN_SC_NM.includes("서울특별시")
+                // &&
+                // school.LCTN_SC_NM.includes("서울특별시")
             )
             .map((school) => ({
                 schoolCode: school.SD_SCHUL_CODE, // 행정 표준 코드
                 name: school.SCHUL_NM, // 학교 이름
                 address: school.ORG_RDNMA, // 학교 주소
                 schoolType: school.SCHUL_KND_SC_NM, // 학교 종류 (초, 중, 고)
-                atptCode: school.ATPT_OFCDC_SC_CODE,  // 시도교육청 코드
+                atptCode: school.ATPT_OFCDC_SC_CODE, // 시도교육청 코드
             }));
     } catch (error) {
-        console.error("학교 검색 API 호출 실패:", err);
+        console.error("학교 검색 API 호출 실패:", error);
         throw new Error("학교 검색 API 호출 실패");
+    }
+}
+
+// 1-1. 행정표준코드로 초중학교 검색
+// 사용자가 입력한 행정코드(query)의 학교만 조회 (하나만 반환)
+async function searchSchoolBySchoolCode(query) {
+    if (!query) {
+        throw new Error("학교 코드를 입력해주세요.");
+    }
+
+    const url = "https://open.neis.go.kr/hub/schoolInfo"; // 학교기본정보 조회 API URL
+    try {
+        const params = {
+            KEY: apiKey,
+            Type: "json",
+            pIndex: 1,
+            pSize: 1000,
+            SD_SCHUL_CODE: query,
+        };
+
+        const res = await axios.get(url, {
+            params,
+        });
+
+        const schoolData = res.data.schoolInfo?.[1].row
+            .filter(
+                (school) =>
+                    !school.SCHUL_KND_SC_NM.includes("고등") &&
+                    !school.SCHUL_KND_SC_NM.includes("각종학교(고)") &&
+                    !school.SCHUL_KND_SC_NM.includes("평생학교(고)-3년6학기") &&
+                    !school.SCHUL_KND_SC_NM.includes("평생학교(고)-2년6학기")
+                // &&
+                // school.LCTN_SC_NM.includes("서울특별시")
+            )
+            .map((school) => ({
+                schoolCode: school.SD_SCHUL_CODE, // 행정 표준 코드
+                name: school.SCHUL_NM, // 학교 이름
+                address: school.ORG_RDNMA, // 학교 주소
+                schoolType: school.SCHUL_KND_SC_NM, // 학교 종류 (초, 중, 고)
+                atptCode: school.ATPT_OFCDC_SC_CODE, // 시도교육청 코드
+            }));
+        if (!schoolData) {
+            throw new Error("해당 학교를 찾을 수 없습니다.");
+        }
+        return schoolData;
+    } catch (error) {
+        console.error("행정표준코드로 학교 검색 API 호출 실패:", error);
+        throw new Error("행정표준코드로 학교 검색 API 호출 실패");
     }
 }
 
@@ -172,6 +219,7 @@ function filterByGrade(scheduleData, grade) {
 
 module.exports = {
     searchSchools,
+    searchSchoolBySchoolCode,
     getSchoolSchedule,
     getAllSchoolSchedule,
 };
