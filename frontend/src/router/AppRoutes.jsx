@@ -97,10 +97,10 @@ const AppRoutes = () => {
                 element={<CommunityWrite />}
             />
             <Route path="/posts/:post_id" element={<PostDetail />} />
-            {/* <Route
+            <Route
                 path="/community/board-requests"
                 element={<BoardRequestPage />}
-            /> */}
+            />
 
             {/* MyPage 라우트 */}
             <Route
@@ -116,48 +116,8 @@ const AppRoutes = () => {
                 <Route path="my-school" element={<MySchoolManagementPage />} />
                 <Route path="password" element={<ChangePasswordPage />} />
                 <Route path="deactivate" element={<DeactivateAccountPage />} />
+                <Route path="boardrequest" element={<MyBoardRequest />} />
             </Route>
-
-            {/* <Route
-                path="/mypage"
-                element={
-                    <PrivateRoutes>
-                        <MyPage />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/info"
-                element={
-                    <PrivateRoutes>
-                        <MyInfo />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/my-school"
-                element={
-                    <PrivateRoutes>
-                        <MySchoolManagement />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/password"
-                element={
-                    <PrivateRoutes>
-                        <ChangePassword />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/deactivate"
-                element={
-                    <PrivateRoutes>
-                        <DeactivateAccount />
-                    </PrivateRoutes>
-                }
-            /> */}
 
             {/* 관리자 페이지 라우트 */}
             <Route
@@ -189,31 +149,6 @@ const AppRoutes = () => {
                     }
                 />
             </Route>
-
-            {/* <Route
-                path="/admin"
-                element={
-                    <PrivateRoutes>
-                        <AdminPage />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/admin/user-management"
-                element={
-                    <PrivateRoutes>
-                        <UserManagement />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/admin/board-requests"
-                element={
-                    <PrivateRoutes>
-                        <BoardRequestList />
-                    </PrivateRoutes>
-                }
-            /> */}
         </Routes>
     );
 };

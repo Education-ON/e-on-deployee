@@ -22,8 +22,7 @@ const MyBoardRequest = () => {
 
     return (
         <div className={styles.container}>
-            <Header />
-            <h2 className={styles.title}>게시판 개설 신청 목록</h2>
+            {/* <h2 className={styles.title}>게시판 개설 신청 목록</h2> */}
 
             <div className={styles.tableContainer}>
                 <div className={styles.tableHeader}>
