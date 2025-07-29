@@ -58,11 +58,13 @@ const ChallengeDetailContent = ({
   setParticipationId,
   participationState,
   refresh,
+  hideActions = false,
 }) => {
   const navigate = useNavigate();
   const [actionLoading, setActionLoading] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  console.log("상세페이지 버튼 상태 확인", isJoined, participationId, participationState);
 
   // ─────────────────────────────
   // 0) 나이 조건 추출
@@ -364,25 +366,48 @@ const ChallengeDetailContent = ({
           </div>
         </div>
         {/* 오른쪽 버튼 영역 */}
+        
+        {/* 1) 액션 버튼 전체를 감싸는 hideActions 조건문 시작 */}
+      {!hideActions && (
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {/* 출석부 버튼 */}
           <button
-            style={{
-              background: "#f9fafb",
-              color: "#2563eb",
-              border: "1.5px solid #e5e7eb",
-              borderRadius: 8,
-              padding: "7px 20px",
-              fontWeight: "bold",
-              fontSize: 15,
-              cursor: "pointer",
-            }}
-            onClick={() =>
-              navigate(`/attendance/${challenge.challenge_id}`)
-            }
-          >
-            출석부
-          </button>
-          {/* 북마크 */}
+                style={{
+                  background: "#f9fafb",
+                  color: "#2563eb",
+                  border: "1.5px solid #e5e7eb",
+                  borderRadius: 8,
+                  padding: "7px 20px",
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate(`/attendance/${challenge.challenge_id}`)}
+              >
+                출석부
+            </button>
+
+
+          {/* {isOwner && (
+              <button
+                style={{
+                  background: "#f9fafb",
+                  color: "#2563eb",
+                  border: "1.5px solid #e5e7eb",
+                  borderRadius: 8,
+                  padding: "7px 20px",
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate(`/attendance/${challenge.challenge_id}`)}
+              >
+                출석부
+            </button>
+          )} */}
+
+
+          {/* 북마크 버튼 */}
           <button
             onClick={toggleBookmark}
             style={{
@@ -392,91 +417,92 @@ const ChallengeDetailContent = ({
               marginRight: 4,
             }}
           >
-            <FaBookmark
-              size={25}
-              color={bookmarked ? "#38bdf8" : "#bbb"}
-            />
+            <FaBookmark size={25} color={bookmarked ? "#38bdf8" : "#bbb"} />
           </button>
-          {/* 신청/취소 */}
-                <button
-                  disabled={!canJoinByAge || actionLoading}
-                  style={{
-                    background: !canJoinByAge
-                      ? "#eee"
-                      : isJoined
-                      ? "#f3f3f3"
-                      : "#e5e7eb",
-                    color: !canJoinByAge
-                      ? "#bbb"
-                      : isJoined
-                      ? "#e11d48"
-                      : "#222",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "9px 28px",
-                    fontWeight: "bold",
-                    fontSize: 16,
-                    cursor: !canJoinByAge ? "not-allowed" : "pointer",
-                  }}
-                  onClick={
-                    !canJoinByAge
-                      ? () => {
-                          alert(
-                            `참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`
-                          );
-                        }
-                      : isJoined
-                      ? handleCancel
-                      : handleJoin
-                  }
-                >
-                  {!canJoinByAge
-                    ? minAgeNum === maxAgeNum
-                      ? `${maxAgeNum}세만 신청 가능`
-                      : `${minAgeNum}~${maxAgeNum}세만 신청 가능`
-                    : isJoined
-                    ? "참여 취소"
-                    : "신청하기"}
-                </button>
-              </div>
-        {isOwner && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+
+          {/* 참여/취소 버튼 */}
           <button
+            disabled={!canJoinByAge || actionLoading}
             style={{
-              background: "#fff",
-              border: "1.5px solid #2563eb",
-              color: "#2563eb",
+              background: !canJoinByAge
+                ? "#eee"
+                : isJoined
+                ? "#fef2f2" 
+                : "#e5e7eb",
+              color: !canJoinByAge
+                ? "#bbb"
+                : isJoined
+                ? "#e11d48"
+                : "#222",
+              border: isJoined ? "1.5px solid #fca5a5" : "none",
               borderRadius: 8,
-              padding: "8px 22px",
+              padding: "9px 28px",
               fontWeight: "bold",
-              fontSize: 15,
-              cursor: "pointer",
+              fontSize: 16,
+              cursor: !canJoinByAge ? "not-allowed" : "pointer",
             }}
-            onClick={() =>
-              navigate(`/challenge/${challenge.challenge_id}/edit`)
+            onClick={
+              !canJoinByAge
+                ? () => {
+                    alert(
+                      `참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`
+                    );
+                  }
+                : isJoined
+                ? handleCancel
+                : handleJoin
             }
           >
-            수정
+            {!canJoinByAge
+              ? minAgeNum === maxAgeNum
+                ? `${maxAgeNum}세만 신청 가능`
+                : `${minAgeNum}~${maxAgeNum}세만 신청 가능`
+              : isJoined
+              ? "참여 취소"
+              : "신청하기"}
           </button>
-          <button
-            style={{
-              background: "#fff",
-              border: "1.5px solid #f87171",
-              color: "#e11d48",
-              borderRadius: 8,
-              padding: "8px 22px",
-              fontWeight: "bold",
-              fontSize: 15,
-              cursor: "pointer",
-            }}
-            onClick={handleDelete}
-          >
-            삭제
-          </button>
+
+          {/* 수정/삭제 버튼 (소유자만) */}
+          {isOwner && (
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <button
+                style={{
+                  background: "#fff",
+                  border: "1.5px solid #2563eb",
+                  color: "#2563eb",
+                  borderRadius: 8,
+                  padding: "8px 22px",
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  navigate(`/challenge/${challenge.challenge_id}/edit`)
+                }
+              >
+                수정
+              </button>
+
+              <button
+                style={{
+                  background: "#fff",
+                  border: "1.5px solid #f87171",
+                  color: "#e11d48",
+                  borderRadius: 8,
+                  padding: "8px 22px",
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={handleDelete}
+              >
+                삭제
+              </button>
         </div>
       )}
-
       </div>
+    )}
+    </div>
 
       {/* ── 사진 (PHOTO) ── */}
       {photoObj ? (

@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import ChallengeCreate from "../../pages/Challenge/ChallengeCreate";
 
-const ChallengeCreateButton = () => {
+const ChallengeCreateButton = ({ onClick }) => {
   const navigate = useNavigate();
   return (
     <button
-      onClick={() => navigate('/challenge/create')}
+      onClick={ onClick }
       style={{
         border: "1.5px solid #e5e7eb",
         background: "#fff",
