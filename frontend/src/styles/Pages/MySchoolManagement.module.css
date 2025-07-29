@@ -46,7 +46,18 @@
     font-weight: 600;
 }
 
-.button {
+.addBtn {
+    padding: 8px 16px;
+    background-color: #31a344;
+    color: white;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.deleteBtn {
     padding: 8px 16px;
     background-color: #d63939;
     color: white;
@@ -57,12 +68,16 @@
     transition: background-color 0.2s ease-in-out;
 }
 
-.button:hover:enabled {
+.addBtn:hover:enabled {
+    background-color: #69ce7a;
+}
+
+.deleteBtn:hover:enabled {
     background-color: #e06f6f;
 }
 
-.button:disabled {
+/* .button:disabled {
     background-color: #ccc;
     color: #666;
     cursor: not-allowed;
-}
+} */

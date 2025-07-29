@@ -20,6 +20,7 @@ const ViewNavigator = () => {
         useContext(SearchTypeContext);
     const { currentDate, setCurrentDate } = useContext(CurrentDateContext);
     const [mySchoolCode, setMySchoolCode] = useState(null);
+    const [isLoadingMySchool, setIsLoadingMySchool] = useState(true);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -30,6 +31,10 @@ const ViewNavigator = () => {
     const handleViewTypeChange = (event) => {
         setCurrentView(event.target.value);
     };
+
+    useEffect(() => {
+        console.log("🔁 검색 종류 변경: ", searchType);
+    }, [searchType]);
 
     useEffect(() => {
         if (searchType.year === "prev") {
@@ -46,11 +51,14 @@ const ViewNavigator = () => {
             if (!userId) return; // 로그인하지 않은 경우에는 조회하지 않음
 
             try {
+                setIsLoadingMySchool(true);
                 const type = searchType.type;
                 const res = await getMySchool(type);
                 setMySchoolCode(res.data?.code);
             } catch (err) {
                 console.error("나의 학교 조회 실패", err);
+            } finally {
+                setIsLoadingMySchool(false);
             }
         };
 
@@ -58,8 +66,23 @@ const ViewNavigator = () => {
     }, [searchType, selectedValue, userId]);
 
     const isMySchool = useMemo(() => {
-        return mySchoolCode === currentSchoolCode.code;
-    }, [mySchoolCode, currentSchoolCode.code]);
+        return (
+            !isLoadingMySchool &&
+            mySchoolCode &&
+            currentSchoolCode?.code &&
+            mySchoolCode === currentSchoolCode.code
+        );
+    }, [isLoadingMySchool, mySchoolCode, currentSchoolCode?.code]);
+
+    // const isMySchool =
+    //     !isLoadingMySchool &&
+    //     mySchoolCode !== undefined &&
+    //     currentSchoolCode?.code !== undefined &&
+    //     mySchoolCode === currentSchoolCode.code;
+
+    // const isMySchool = useMemo(() => {
+    //     return mySchoolCode === currentSchoolCode.code;
+    // }, [mySchoolCode, currentSchoolCode.code]);
 
     const cityName =
         searchType.type === "school" && schoolAddress
@@ -105,7 +128,7 @@ const ViewNavigator = () => {
             } else if (mySchoolCode) {
                 // 다른 학교가 나의 학교인 경우
                 const confirmed = window.confirm(
-                    `다른 학교가 이미 ${
+                    `다른 ${type === "school" ? "학교가" : "지역이"} 이미 ${
                         type === "school" ? "학교별" : "지역별"
                     } 나의 학교로 저장되어 있습니다. ${
                         type === "school" ? "학교별" : "지역별"
@@ -153,7 +176,13 @@ const ViewNavigator = () => {
         <div className={styles.viewNavigator}>
             <div className={styles.left}>
                 <img
-                    src={isMySchool ? star_filled : star}
+                    src={
+                        isLoadingMySchool
+                            ? star // 로딩 중엔 기본 별
+                            : isMySchool
+                            ? star_filled // 나의 학교면 꽉 찬 별
+                            : star
+                    }
                     alt="star"
                     className={styles.star}
                     onClick={clickStarHandler}

@@ -1,19 +1,22 @@
-import Header from "../../components/Common/Header";
 import styles from "../../styles/Pages/MySchoolManagement.module.css";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import {
     searchSchoolBySchoolCode,
+    saveMySchool,
     deleteMySchool,
     getMySchool,
 } from "../../api/schoolApi";
 import { searchRegionById } from "../../api/regionApi";
+import MySchoolModal from "./MySchoolModal";
 import { toast } from "react-toastify";
 
 const MySchoolManagement = () => {
     // const [mySchoolUpdated, setMySchoolUpdated] = useState(false);
     const [school, setSchool] = useState(null); // 학교별
     const [region, setRegion] = useState(null); // 지역별
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState(null);
     const { user } = useContext(AuthContext);
     const userId = user?.user_id; // 로그인된 사용자 ID
 
@@ -52,6 +55,38 @@ const MySchoolManagement = () => {
     useEffect(() => {
         fetchData();
     }, [userId, school, region]);
+
+    const openSearchModal = (type) => {
+        setModalType(type);
+        setModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
+        setModalType(null);
+    };
+
+    const handleConfirm = async (type, code) => {
+        try {
+            await saveMySchool(userId, type, code);
+            closeModal();
+            fetchData();
+
+            toast(
+                `${
+                    type === "school" ? "학교별" : "지역별"
+                } 나의 학교 추가 완료`,
+                {
+                    icon: "💜",
+                    className: "my-toast",
+                    progressClassName: "custom-progress-bar",
+                }
+            );
+        } catch (err) {
+            console.error("등록 실패", err);
+            toast.error("등록에 실패했습니다.");
+        }
+    };
 
     const handleDelete = async (type) => {
         try {
@@ -93,29 +128,54 @@ const MySchoolManagement = () => {
                             <td>학교별 나의 학교</td>
                             <td>{school || "등록된 정보 없음"}</td>
                             <td>
-                                <button
-                                    className={styles.button}
-                                    onClick={() => handleDelete("school")}
-                                    disabled={!school}>
-                                    삭제하기
-                                </button>
+                                {!school ? (
+                                    <button
+                                        className={styles.addBtn}
+                                        onClick={() =>
+                                            openSearchModal("school")
+                                        }>
+                                        등록하기
+                                    </button>
+                                ) : (
+                                    <button
+                                        className={styles.deleteBtn}
+                                        onClick={() => handleDelete("school")}>
+                                        삭제하기
+                                    </button>
+                                )}
                             </td>
                         </tr>
                         <tr>
                             <td>지역별 나의 학교</td>
                             <td>{region || "등록된 정보 없음"}</td>
                             <td>
-                                <button
-                                    className={styles.button}
-                                    onClick={() => handleDelete("region")}
-                                    disabled={!region}>
-                                    삭제하기
-                                </button>
+                                {!region ? (
+                                    <button
+                                        className={styles.addBtn}
+                                        onClick={() =>
+                                            openSearchModal("region")
+                                        }>
+                                        등록하기
+                                    </button>
+                                ) : (
+                                    <button
+                                        className={styles.deleteBtn}
+                                        onClick={() => handleDelete("region")}>
+                                        삭제하기
+                                    </button>
+                                )}
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            {modalOpen && (
+                <MySchoolModal
+                    type={modalType}
+                    onClose={closeModal}
+                    onConfirm={handleConfirm}
+                />
+            )}
         </div>
     );
 };

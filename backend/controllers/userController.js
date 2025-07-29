@@ -31,18 +31,20 @@ exports.getMyInfo = async (req, res, next) => {
 
 /**
  * [PUT] /api/user/me
- * Body: { name, emailNotification, currentPassword }
+ * Body: { name, age, emailNotification, currentPassword }
  *   - 내 정보 업데이트
+ *   - beforesave 훅 때문에 update 대신 save 사용
  */
 exports.updateMyInfo = async (req, res, next) => {
-    const { name, emailNotification, currentPassword } = req.body;
-    console.log(emailNotification);
+    const { name, age, emailNotification, currentPassword } = req.body;
+
     if (!currentPassword) {
         return res
             .status(400)
             .json({ message: "현재 비밀번호를 입력해주세요." });
     }
-    const nameRegex = /^[가-힣a-zA-Z ]{2,10}$/;
+
+    const nameRegex = /^[가-힣a-zA-Z]{2,10}$/;
     if (name && !nameRegex.test(name)) {
         return res
             .status(400)
@@ -58,21 +60,27 @@ exports.updateMyInfo = async (req, res, next) => {
                 .status(404)
                 .json({ message: "사용자를 찾을 수 없습니다." });
         }
+
         const match = await bcrypt.compare(currentPassword, user.password);
         if (!match) {
             return res
                 .status(400)
                 .json({ message: "현재 비밀번호가 일치하지 않습니다." });
         }
+
         console.log("[1] 비밀번호 확인 완료");
-        // 🛠️ 정보 업데이트
-        await User.update(
-            {
-                name,
-                emailNotification,
-            },
-            { where: { user_id: req.user.user_id } }
-        );
+        const updatedData = {};
+
+        if (name) updatedData.name = name;
+        if (emailNotification !== undefined)
+            updatedData.emailNotification = emailNotification;
+        if (age !== undefined) updatedData.age = age;
+
+        // console.log("변경할 데이터:", updatedData);
+
+        Object.assign(user, updatedData); // updatedData를 user에 복사
+
+        await user.save();
 
         console.log("[2] 사용자 정보 업데이트 완료");
         return res.json({
@@ -81,6 +89,42 @@ exports.updateMyInfo = async (req, res, next) => {
         });
     } catch (err) {
         console.error("[❌ 서버 오류]", err);
+        return res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    }
+};
+
+/**
+ * [POST] /api/user/verify-password
+ * Body: { password }
+ *   - 현재 비밀번호 검증만 수행
+ */
+exports.verifyPassword = async (req, res, next) => {
+    const { password } = req.body;
+
+    if (!password) {
+        return res.status(400).json({ message: "비밀번호를 입력해주세요." });
+    }
+
+    try {
+        const user = await User.scope("withPassword").findByPk(
+            req.user.user_id
+        );
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "사용자를 찾을 수 없습니다." });
+        }
+
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res
+                .status(400)
+                .json({ message: "비밀번호가 일치하지 않습니다." });
+        }
+
+        return res.json({ success: true, message: "비밀번호 확인 완료" });
+    } catch (err) {
+        console.error("[❌ 비밀번호 확인 오류]", err);
         return res.status(500).json({ message: "서버 오류가 발생했습니다." });
     }
 };
@@ -207,7 +251,10 @@ exports.updateUserState = async (req, res) => {
                 .status(404)
                 .json({ error: "사용자를 찾을 수 없습니다." });
         }
-        await User.update({ state_code }, { where: { user_id } });
+
+        user.state_code = state_code;
+        await user.save();
+
         res.status(200).json({ message: "사용자 상태가 업데이트되었습니다." });
     } catch (err) {
         res.status(500).json({

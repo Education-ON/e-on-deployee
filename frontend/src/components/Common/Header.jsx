@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import styles from "./../../styles/Common/Header.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
@@ -13,6 +13,7 @@ export default function Header() {
         try {
             await logout();
             navigate("/");
+            window.location.reload(); // 로그아웃 후 새로고침
         } catch (error) {
             console.error("Logout failed:", error);
         }

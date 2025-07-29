@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Auth/LoginPage";
 import Signup from "../pages/Auth/SignupPage";
-import MyInfo from "../pages/MyPage/MyInfo";
-import ChangePassword from "../pages/MyPage/ChangePassword";
-import DeactivateAccount from "../pages/MyPage/DeactivateAccount";
+import MyInfoPage from "../pages/MyPage/MyInfoPage";
+import ChangePasswordPage from "../pages/MyPage/ChangePasswordPage";
+import DeactivateAccountPage from "../pages/MyPage/DeactivateAccountPage";
 import Calendar from "../pages/Calendar/Calendar";
 import Challenge from "../pages/Challenge/Challenge";
 import Suggestion from "../pages/Suggestion/Suggestion";
@@ -30,7 +30,7 @@ import PreferenceVision from "../pages/Suggestion/PreferenceVision";
 import RecommendationResult from "../pages/Suggestion/RecommendationResult";
 import AdminPage from "../pages/Admin/AdminPage";
 import UserManagement from "../pages/Admin/UserManagement";
-import MySchoolManagement from "../pages/MyPage/MySchoolManagement";
+import MySchoolManagementPage from "../pages/MyPage/MySchoolManagementPage";
 import TermsPage from "../pages/Auth/TermsPage";
 import PrivacyPage from "../pages/Auth/PrivacyPage";
 import MarketingPage from "../pages/Auth/MarketingPage";
@@ -99,10 +99,10 @@ const AppRoutes = () => {
                 element={<CommunityWrite />}
             />
             <Route path="/posts/:post_id" element={<PostDetail />} />
-            {/* <Route
+            <Route
                 path="/community/board-requests"
                 element={<BoardRequestPage />}
-            /> */}
+            />
 
             {/* MyPage 라우트 */}
             <Route
@@ -112,53 +112,14 @@ const AppRoutes = () => {
                         <MyPage />
                     </PrivateRoutes>
                 }>
-                    <Route index element={<Navigate to="info" replace />} /> {/* 기본 페이지 설정 */}
-                <Route path="info" element={<MyInfo />} />
-                <Route path="my-school" element={<MySchoolManagement />} />
-                <Route path="password" element={<ChangePassword />} />
-                <Route path="deactivate" element={<DeactivateAccount />} />
+                <Route index element={<Navigate to="info" replace />} />{" "}
+                {/* 기본 페이지 설정 */}
+                <Route path="info" element={<MyInfoPage />} />
+                <Route path="my-school" element={<MySchoolManagementPage />} />
+                <Route path="password" element={<ChangePasswordPage />} />
+                <Route path="deactivate" element={<DeactivateAccountPage />} />
+                <Route path="boardrequest" element={<MyBoardRequest />} />
             </Route>
-
-            {/* <Route
-                path="/mypage"
-                element={
-                    <PrivateRoutes>
-                        <MyPage />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/info"
-                element={
-                    <PrivateRoutes>
-                        <MyInfo />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/my-school"
-                element={
-                    <PrivateRoutes>
-                        <MySchoolManagement />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/password"
-                element={
-                    <PrivateRoutes>
-                        <ChangePassword />
-                    </PrivateRoutes>
-                }
-            />
-            <Route
-                path="/mypage/deactivate"
-                element={
-                    <PrivateRoutes>
-                        <DeactivateAccount />
-                    </PrivateRoutes>
-                }
-            /> */}
 
             {/* 관리자 페이지 라우트 */}
             <Route
@@ -167,6 +128,7 @@ const AppRoutes = () => {
                     <PrivateRoutes>
                         <AdminPage />
                     </PrivateRoutes>
+<<<<<<< HEAD
                 }
             />
             <Route
@@ -202,6 +164,31 @@ const AppRoutes = () => {
                     </PrivateRoutes>
                 }
             />
+=======
+                }>
+                <Route
+                    index
+                    element={<Navigate to="/admin/user-management" replace />}
+                />{" "}
+                {/* 기본 페이지 설정 */}
+                <Route
+                    path="/admin/user-management"
+                    element={
+                        <PrivateRoutes>
+                            <UserManagement />
+                        </PrivateRoutes>
+                    }
+                />
+                <Route
+                    path="/admin/board-requests"
+                    element={
+                        <PrivateRoutes>
+                            <BoardRequestList />
+                        </PrivateRoutes>
+                    }
+                />
+            </Route>
+>>>>>>> a539e6bad417ee2e4a168fd4652aa6a3a16e7f22
         </Routes>
         
     );
