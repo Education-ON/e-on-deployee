@@ -48,7 +48,6 @@ const ChallengeRequests = () => {
 
   return (
     <div className={styles.container}>
-      <Header />
       <h2 className={styles.title}>챌린지 개설 요청 목록</h2>
 
       {error && <p className={styles.error}>Error: {error}</p>}
