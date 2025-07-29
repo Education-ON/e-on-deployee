@@ -40,6 +40,15 @@ const MyPageComponent = () => {
                     나의 학교 관리
                 </Link>
                 <Link
+                    to="/mypage/boardrequest"
+                    className={`${styles.menuItem} ${
+                        location.pathname === "/mypage/boardrequest"
+                            ? styles.active
+                            : ""
+                    }`}>
+                    게시판 개설 신청 현황
+                </Link>
+                <Link
                     to="/mypage/password"
                     className={`${styles.menuItem} ${
                         location.pathname === "/mypage/password"
@@ -56,16 +65,6 @@ const MyPageComponent = () => {
                             : ""
                     }`}>
                     계정 탈퇴 / 비활성화
-                </Link>
-
-                <Link
-                    to="/mypage/boardrequest"
-                    className={`${styles.menuItem} ${
-                        location.pathname === "/mypage/boardrequest"
-                            ? styles.active
-                            : ""
-                    }`}>
-                    개설 신청 게시판
                 </Link>
             </div>
             <div className={styles.contentArea}>

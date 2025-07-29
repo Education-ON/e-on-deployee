@@ -36,7 +36,7 @@ const WeeklyView = () => {
                         : date.format("YYYYMMDD");
 
                 const event =
-                    schedules.find((schedule) => {
+                    schedules.filter((schedule) => {
                         if (searchType.type === "region") {
                             return (
                                 schedule.average_date === targetDate &&
@@ -53,45 +53,27 @@ const WeeklyView = () => {
                         className={`${styles.weeklyDay} ${
                             isOtherMonth ? styles.otherMonth : ""
                         }`}>
-                        <div>{date.date()}</div>
-                        {event && !isOtherMonth && (
-                            <EventBadge
-                                key={event.averageSchedule_id || event.AA_YMD}
-                                event_name={event.event_name || event.EVENT_NM}
-                            />
-                        )}
+                        <div className={styles.dateText}>{date.date()}</div>
+                        <div className={styles.weeklyEvent}>
+                            {!isOtherMonth &&
+                                event.length > 0 &&
+                                event.map((event) => (
+                                    <EventBadge
+                                        key={
+                                            event.averageSchedule_id ||
+                                            event.AA_YMD
+                                        }
+                                        event_name={
+                                            event.event_name || event.EVENT_NM
+                                        }
+                                    />
+                                ))}
+                        </div>
                     </div>
                 );
             })}
         </div>
     );
-
-    // return (
-    //     <div className={styles.weeklyDays}>
-    //         {days.map(({ date, isOtherMonth }, index) => {
-    //             const targetDate = date.format("YYYY-MM-DD");
-    //             const eventList = schedules.filter((schedule) => {
-    //                 return schedule.average_date === targetDate;
-    //             });
-
-    //             return (
-    //                 <div
-    //                     key={index}
-    //                     className={`${styles.weeklyDay} ${
-    //                         isOtherMonth ? styles.otherMonth : ""
-    //                     }`}>
-    //                     <div>{date.date()}</div>
-    //                     {eventList.map((event) => (
-    //                         <EventBadge
-    //                             key={event.averageSchedule_id}
-    //                             event_name={event.event_name}
-    //                         />
-    //                     ))}
-    //                 </div>
-    //             );
-    //         })}
-    //     </div>
-    // );
 };
 
 export default WeeklyView;

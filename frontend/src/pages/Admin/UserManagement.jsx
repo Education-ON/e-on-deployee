@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllUserState, updateUserState } from "../../api/adminApi";
-import Header from "../../components/Common/Header";
+// import Header from "../../components/Common/Header";
 import styles from "../../styles/Admin/UserManagement.module.css";
 import { toast } from "react-toastify";
 
@@ -66,8 +66,8 @@ const UserManagement = () => {
 
     return (
         <div className={styles.container}>
-            <Header />
-            <h2 className={styles.title}>사용자 목록</h2>
+            {/* <Header /> */}
+            <h3 className={styles.title}>사용자 목록</h3>
 
             <div className={styles.tableContainer}>
                 <div className={styles.tableHeader}>
@@ -87,9 +87,14 @@ const UserManagement = () => {
                         <div>
                             {req.type === "admin" ? (
                                 ""
+                            ) : req.state_code === "deleted" ? (
+                                <div className={styles.deleted}>
+                                    {stateCodeMap[req.state_code]}
+                                </div>
                             ) : (
                                 <div>
                                     <select
+                                        clsasName={styles.select}
                                         value={
                                             updatedStates[req.user_id] ||
                                             req.state_code
@@ -111,6 +116,7 @@ const UserManagement = () => {
                                             ))}
                                     </select>
                                     <button
+                                        className={styles.selectBtn}
                                         onClick={() =>
                                             handleStateUpdate(req.user_id)
                                         }>

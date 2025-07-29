@@ -1,5 +1,4 @@
 // src/pages/MyPage/MyPage.jsx
-import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "../../styles/MyPage/Mypage.module.css";
 import Header from "../../components/Common/Header";
@@ -13,7 +12,7 @@ export default function MyPage() {
 
     return (
         <div className={styles.container}>
-            <div class={styles.header}>
+            <div className={styles.header}>
                 <Header />
             </div>
             <div className={styles.content}>
