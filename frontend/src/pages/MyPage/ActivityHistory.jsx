@@ -1,5 +1,3 @@
-// src/pages/MyPage/ActivityHistory.jsx
-
 import { useState, useEffect } from "react";
 import axios from "../../api/axiosInstance";
 import { useAuth } from "../../hooks/useAuth";
@@ -18,7 +16,7 @@ export default function ActivityHistory() {
 
     const fetchData = async () => {
         try {
-            const res = await axios.get("/user/activity-history", {
+            const res = await axios.get("/api/user/activity-history", {
                 params: { type, from, to, keyword, page, limit },
             });
 
@@ -42,6 +40,7 @@ export default function ActivityHistory() {
             <div style={{ marginBottom: "1rem" }}>
                 <select value={type} onChange={(e) => setType(e.target.value)}>
                     <option value="challenge">챌린지 참여</option>
+                    <option value="challengeCreated">챌린지 개설</option>
                     <option value="post">게시글</option>
                     <option value="comment">댓글</option>
                     <option value="boardRequest">게시판 요청</option>
@@ -63,41 +62,59 @@ export default function ActivityHistory() {
             </div>
 
             <ul>
-                {data.map((item, i) => (
-                    <li key={i} style={{ marginBottom: "1rem" }}>
-                        {type === "challenge" && (
-                            <div>
-                                <strong>{item.Challenge?.title}</strong> <br />
-                                참여 상태: {item.participating_state} <br />
-                                기간: {item.Challenge?.start_date} ~ {item.Challenge?.end_date}
-                            </div>
-                        )}
+                {data.length === 0 ? (
+                    <p style={{ marginTop: "1rem" }}>
+                        해당 조건에 맞는 활동 이력이 없습니다.
+                    </p>
+                ) : (
+                    data.map((item, i) => (
+                        <li key={i} style={{ marginBottom: "1rem" }}>
+                            {type === "challenge" && (
+                                <div>
+                                    <strong>{item.Challenge?.title}</strong> <br />
+                                    참여 상태: {item.participating_state} <br />
+                                    기간: {new Date(item.Challenge?.start_date).toLocaleDateString("ko-KR")} ~ {new Date(item.Challenge?.end_date).toLocaleDateString("ko-KR")}
+                                </div>
+                            )}
 
-                        {type === "post" && (
-                            <div>
-                                <strong>{item.title}</strong>
-                                <p>{item.content}</p>
-                                <small>{item.created_at}</small>
-                            </div>
-                        )}
+                            {type === "post" && (
+                                <div>
+                                    <strong>{item.title}</strong>
+                                    <p>{item.content}</p>
+                                    <small>{new Date(item.created_at).toLocaleString("ko-KR")}</small><br />
+                                    💖 게시판: {item.Board?.board_name}
+                                </div>
+                            )}
 
-                        {type === "comment" && (
-                            <div>
-                                <p>{item.content}</p>
-                                <small>{item.created_at}</small>
-                            </div>
-                        )}
+                            {type === "comment" && (
+                                <div>
+                                    <p>{item.content}</p>
+                                    <small>{new Date(item.created_at).toLocaleString("ko-KR")}</small>
+                                </div>
+                            )}
 
-                        {type === "boardRequest" && (
-                            <div>
-                                <strong>{item.requested_board_name}</strong><br />
-                                유형: {item.requested_board_type}, 상태: {item.request_status}
-                                <br />
-                                신청일: {item.request_date}
-                            </div>
-                        )}
-                    </li>
-                ))}
+                            {type === "boardRequest" && (
+                                <div>
+                                    <strong>{item.requested_board_name}</strong><br />
+                                    유형: {item.requested_board_type}, 
+                                    상태: {item.request_status}
+                                    <br />
+                                    신청일: {new Date(item.request_date).toLocaleString("ko-KR")}
+                                </div>
+                            )}
+
+                            {type === "challengeCreated" && (
+                                <div className="activity-card">
+                                    <h4>{item.challenge_title}</h4>
+                                    <p>상태: {item.challenge_state}</p>
+                                    <p>기간: {new Date(item.start_date).toLocaleDateString("ko-KR")} ~ {new Date(item.end_date).toLocaleDateString("ko-KR")}</p>
+                                    <p>작성일: {new Date(item.created_at).toLocaleString("ko-KR")}</p>
+                                    <p>개설자: {item.creator?.nickname}</p>
+                                </div>
+                            )}
+                        </li>
+                    ))
+                )}
             </ul>
 
             <div style={{ marginTop: "1rem" }}>

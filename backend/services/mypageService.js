@@ -5,7 +5,9 @@ const {
   Challenge,
   Post,
   Comment,
-  BoardRequest
+  BoardRequest,
+  Board,
+  User
 } = require('../models');
 
 exports.getActivityByType = async (userId, type, from, to, keyword, page = 1, limit = 10) => {
@@ -37,6 +39,10 @@ exports.getActivityByType = async (userId, type, from, to, keyword, page = 1, li
           ...(dateFilter && { created_at: dateFilter }),
           ...(keyword && { title: { [Op.like]: `%${keyword}%` } }),
         },
+        include:[{
+          model:Board,
+          attributes:['board_name'],
+        }],
         attributes: ['title', 'content', 'created_at'],
         offset,
         limit: Number(limit),
@@ -68,6 +74,34 @@ exports.getActivityByType = async (userId, type, from, to, keyword, page = 1, li
         limit: Number(limit),
       });
       break;
+
+      case 'challengeCreated':
+        result = await Challenge.findAndCountAll({
+          where: {
+            user_id: userId,
+            ...(dateFilter && {
+              created_at: dateFilter,
+            }),
+            ...(keyword && {
+              challenge_title: {
+                [Op.like]: `%${keyword}%`,
+              },
+            }),
+          },
+          include: [
+            {
+              model: User,
+              as: 'creator',
+              attributes: ['name'], // 필요에 따라 user_id, email 등도 포함 가능
+            },
+          ],
+          attributes: ['challenge_title', 'start_date', 'end_date', 'challenge_state', 'created_at'],
+          offset,
+          limit: Number(limit),
+          order: [['start_date', 'DESC']],
+        });
+        break;
+
 
     default:
       throw new Error('잘못된 활동 유형입니다');
