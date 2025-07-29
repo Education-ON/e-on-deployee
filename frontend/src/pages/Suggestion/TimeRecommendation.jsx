@@ -10,16 +10,18 @@ import { Link } from "react-router-dom";
 const TimeRecommendation = () => {
     const [schoolType, setSchoolType] = useState("elementary"); // 수정
     const [month, setMonth] = useState(1);
+    const [grade, setGrade] = useState(1); // 1~9 (초1~중3)
+
 
     const [recommendations, setRecommendations] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
 
     const handleFetch = async () => {
         try {
-            const result = await fetchTimeRecommendations(schoolType, month);
+            const result = await fetchTimeRecommendations(schoolType, month, grade);
             // console.log("✅ 서버 응답 확인:", result);
 
-            -setRecommendations(result);
+            setRecommendations(result);
         } catch (err) {
             console.error(err);
             alert("추천 정보를 불러오는 데 실패했습니다.");
@@ -50,13 +52,25 @@ const TimeRecommendation = () => {
             <div className={styles.selectRow}>
                 <label>
                     학년:
-                    <select
-                        value={schoolType}
-                        onChange={(e) => setSchoolType(e.target.value)}>
-                        <option value="elementary">초등</option>
-                        <option value="middle">중등</option>
+                    <select value={grade} 
+                    onChange={(e) => {
+                    const selectedGrade = Number(e.target.value);
+                        setGrade(selectedGrade);
+                        setSchoolType(selectedGrade <= 6 ? "elementary" : "middle"); 
+                    }}>
+                        <optgroup label="초등학교">
+                            {[1, 2, 3, 4, 5, 6].map((g) => (
+                                <option key={g} value={g}>초등 {g}학년</option>
+                            ))}
+                        </optgroup>
+                        <optgroup label="중학교">
+                            {[7, 8, 9].map((g) => (
+                                <option key={g} value={g}>중등 {g - 6}학년</option>
+                            ))}
+                        </optgroup>
                     </select>
                 </label>
+
 
                 <label>
                     월:
