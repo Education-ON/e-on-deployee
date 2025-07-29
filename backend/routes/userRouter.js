@@ -40,6 +40,6 @@ router.get("/board-requests/me", isLoggedIn, getMyBoardRequests);
 router.get("/state", isLoggedIn, getAllUserState);
 
 // 사용자 계정 상태 업데이트 (관리자용)
-router.patch("/state/:user_id", isLoggedIn, updateUserState);
+router.patch("/state", isLoggedIn, updateUserState);
 
 module.exports = router;

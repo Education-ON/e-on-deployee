@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllBoardRequests, updateBoardRequestStatus } from "../../api/communityApi";
-import Header from "../../components/Common/Header";
+// import Header from "../../components/Common/Header";
 import styles from "../../styles/MyPage/BoardRequestList.module.css";
 
 const BoardRequestList = () => {
@@ -30,7 +30,7 @@ const BoardRequestList = () => {
 
     return (
         <div className={styles.container}>
-            <Header />
+            {/* <Header /> */}
             <h2 className={styles.title}>게시판 개설 신청 목록</h2>
 
             <div className={styles.tableContainer}>

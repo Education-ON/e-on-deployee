@@ -78,7 +78,7 @@ exports.updateMyInfo = async (req, res, next) => {
 
         // console.log("변경할 데이터:", updatedData);
 
-        Object.assign(user, updatedData);   // updatedData를 user에 복사
+        Object.assign(user, updatedData); // updatedData를 user에 복사
 
         await user.save();
 
@@ -251,7 +251,10 @@ exports.updateUserState = async (req, res) => {
                 .status(404)
                 .json({ error: "사용자를 찾을 수 없습니다." });
         }
-        await User.update({ state_code }, { where: { user_id } });
+
+        user.state_code = state_code;
+        await user.save();
+
         res.status(200).json({ message: "사용자 상태가 업데이트되었습니다." });
     } catch (err) {
         res.status(500).json({

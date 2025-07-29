@@ -110,7 +110,8 @@ const AppRoutes = () => {
                         <MyPage />
                     </PrivateRoutes>
                 }>
-                    <Route index element={<Navigate to="info" replace />} /> {/* 기본 페이지 설정 */}
+                <Route index element={<Navigate to="info" replace />} />{" "}
+                {/* 기본 페이지 설정 */}
                 <Route path="info" element={<MyInfoPage />} />
                 <Route path="my-school" element={<MySchoolManagementPage />} />
                 <Route path="password" element={<ChangePasswordPage />} />
@@ -165,6 +166,36 @@ const AppRoutes = () => {
                     <PrivateRoutes>
                         <AdminPage />
                     </PrivateRoutes>
+                }>
+                <Route
+                    index
+                    element={<Navigate to="/admin/user-management" replace />}
+                />{" "}
+                {/* 기본 페이지 설정 */}
+                <Route
+                    path="/admin/user-management"
+                    element={
+                        <PrivateRoutes>
+                            <UserManagement />
+                        </PrivateRoutes>
+                    }
+                />
+                <Route
+                    path="/admin/board-requests"
+                    element={
+                        <PrivateRoutes>
+                            <BoardRequestList />
+                        </PrivateRoutes>
+                    }
+                />
+            </Route>
+
+            {/* <Route
+                path="/admin"
+                element={
+                    <PrivateRoutes>
+                        <AdminPage />
+                    </PrivateRoutes>
                 }
             />
             <Route
@@ -182,7 +213,7 @@ const AppRoutes = () => {
                         <BoardRequestList />
                     </PrivateRoutes>
                 }
-            />
+            /> */}
         </Routes>
     );
 };

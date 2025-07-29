@@ -80,13 +80,17 @@ const MySchoolModal = ({ type, onClose, onConfirm }) => {
                 {/* 결과 테이블 */}
                 <div className={styles.resultTableContainer}>
                     <table className={styles.resultTable}>
-                        {type === "school" ? (                        <colgroup>
-                            <col style={{ width: "40%" }} />
-                            <col style={{ width: "60%" }} />
-                        </colgroup>) : (                        <colgroup>
-                            <col style={{ width: "30%" }} />
-                            <col style={{ width: "70%" }} />
-                        </colgroup>)}
+                        {type === "school" ? (
+                            <colgroup>
+                                <col style={{ width: "40%" }} />
+                                <col style={{ width: "60%" }} />
+                            </colgroup>
+                        ) : (
+                            <colgroup>
+                                <col style={{ width: "30%" }} />
+                                <col style={{ width: "70%" }} />
+                            </colgroup>
+                        )}
                         <thead>
                             {type === "school" ? (
                                 <tr>
