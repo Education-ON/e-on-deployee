@@ -6,6 +6,11 @@ import styles from "../../styles/Auth/LoginPage.module.css";
 export default function Login() {
     const navigate = useNavigate();
 
+    const handleKaKaoLogin = () => {
+    window.location.href = "http://localhost:4000/auth/kakao";
+};
+
+
     return (
         <div className={styles.loginWrapper}>
             <div className={styles.header}>
@@ -15,6 +20,14 @@ export default function Login() {
                 <div className={styles.logoText}>E-ON</div>
                 <div className={styles.loginTitle}>로그인</div>
                 <LoginForm onSuccess={() => navigate("/")} />
+
+                {/*카카오 로그인 추가*/}
+                <button
+                    onClick={handleKaKaoLogin}
+                    className={styles.kakaoButton}
+                >
+                    카카오로 로그인 
+                </button>
                 {/* <div className={styles.loginBottom}>
                     <Link to="/find-email">이메일 찾기</Link>
                     <span className={styles.divider}>|</span>

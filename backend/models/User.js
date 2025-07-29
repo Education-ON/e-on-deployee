@@ -29,7 +29,9 @@ module.exports = (sequelize, DataTypes) => {
     age: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: { min: 8 },
+      validate: { min: 8,
+        max : 16,
+       },
     },
     email: {
       type: DataTypes.STRING(100),
@@ -38,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     password: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true, //소셜 로그인 때문에 true로 설정 
       field: 'pw',
     },
     type: {

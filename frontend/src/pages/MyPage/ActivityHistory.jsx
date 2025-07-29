@@ -1,109 +1,120 @@
 // src/pages/MyPage/ActivityHistory.jsx
-import { useState, useEffect } from 'react';
-import api from '../../api/api';
+
+import { useState, useEffect } from "react";
+import axios from "../../api/axiosInstance";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function ActivityHistory() {
-  const [type, setType] = useState('all');
-  const [period, setPeriod] = useState('3month');
-  const [search, setSearch] = useState('');
-  const [history, setHistory] = useState([]);
-  const [msg, setMsg] = useState('');
+    const { user } = useAuth();
 
-  const fetchHistory = () => {
-    const params = { type, period };
-    if (search.trim()) params.search = search.trim();
+    const [type, setType] = useState("challenge");
+    const [from, setFrom] = useState("");
+    const [to, setTo] = useState("");
+    const [keyword, setKeyword] = useState("");
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [data, setData] = useState([]);
+    const [totalPages, setTotalPages] = useState(1);
 
-    api.get('/api/activity/history', { params })
-      .then(res => {
-        if (res.data.success) {
-          setHistory(res.data.history);
-          setMsg('');
-        } else {
-          setHistory([]);
-          setMsg('이력 조회에 실패했습니다.');
+    const fetchData = async () => {
+        try {
+            const res = await axios.get("/user/activity-history", {
+                params: { type, from, to, keyword, page, limit },
+            });
+
+            setData(res.data.data);
+            setTotalPages(res.data.totalPages);
+        } catch (err) {
+            console.error("활동 이력 조회 실패:", err.response?.data || err.message);
         }
-      })
-      .catch(() => {
-        setHistory([]);
-        setMsg('서버 오류로 불러올 수 없습니다.');
-      });
-  };
+    };
 
-  useEffect(fetchHistory, []);
+    useEffect(() => {
+        fetchData();
+    }, [page]);
 
-  const handleFilter = e => {
-    e.preventDefault();
-    fetchHistory();
-  };
+    if (!user) return <p>로딩 중...</p>;
 
-  return (
-    <div>
-      <h3>활동 이력 조회</h3>
-      {msg && <p style={{ color: 'red' }}>{msg}</p>}
+    return (
+        <div style={{ padding: "2rem" }}>
+            <h2>📋 활동 이력 조회</h2>
 
-      <form onSubmit={handleFilter} style={{ marginBottom: '1rem' }}>
-        <label>
-          유형:&nbsp;
-          <select value={type} onChange={e => setType(e.target.value)}>
-            <option value="all">전체</option>
-            <option value="challenge">챌린지</option>
-            <option value="extracurricular">비교과</option>
-            <option value="book">도서</option>
-            <option value="community">커뮤니티</option>
-          </select>
-        </label>
+            <div style={{ marginBottom: "1rem" }}>
+                <select value={type} onChange={(e) => setType(e.target.value)}>
+                    <option value="challenge">챌린지 참여</option>
+                    <option value="post">게시글</option>
+                    <option value="comment">댓글</option>
+                    <option value="boardRequest">게시판 요청</option>
+                </select>
 
-        <label style={{ marginLeft: '1rem' }}>
-          기간:&nbsp;
-          <select value={period} onChange={e => setPeriod(e.target.value)}>
-            <option value="1month">1개월</option>
-            <option value="3month">3개월</option>
-            <option value="6month">6개월</option>
-            <option value="all">전체</option>
-          </select>
-        </label>
+                <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+                <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
 
-        <label style={{ marginLeft: '1rem' }}>
-          검색:&nbsp;
-          <input
-            type="text"
-            placeholder="검색어"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </label>
+                <input
+                    type="text"
+                    placeholder="검색어 입력"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                />
 
-        <button type="submit" style={{ marginLeft: '1rem' }}>
-          조회
-        </button>
-      </form>
+                <button onClick={() => { setPage(1); fetchData(); }}>
+                    조회하기
+                </button>
+            </div>
 
-      <table border="1" cellPadding="5" style={{ width: '100%' }}>
-        <thead>
-          <tr>
-            <th>유형</th>
-            <th>제목</th>
-            <th>날짜</th>
-          </tr>
-        </thead>
-        <tbody>
-          {history.length === 0 ? (
-            <tr>
-              <td colSpan="3" style={{ textAlign: 'center' }}>
-                이력이 없습니다.
-              </td>
-            </tr>
-          ) : (
-            history.map(item => (
-              <tr key={item.history_id}>
-                <td>{item.activity_type}</td>
-                <td>{item.title}</td>
-                <td>{new Date(item.date).toLocaleString()}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+            <ul>
+                {data.map((item, i) => (
+                    <li key={i} style={{ marginBottom: "1rem" }}>
+                        {type === "challenge" && (
+                            <div>
+                                <strong>{item.Challenge?.title}</strong> <br />
+                                참여 상태: {item.participating_state} <br />
+                                기간: {item.Challenge?.start_date} ~ {item.Challenge?.end_date}
+                            </div>
+                        )}
+
+                        {type === "post" && (
+                            <div>
+                                <strong>{item.title}</strong>
+                                <p>{item.content}</p>
+                                <small>{item.created_at}</small>
+                            </div>
+                        )}
+
+                        {type === "comment" && (
+                            <div>
+                                <p>{item.content}</p>
+                                <small>{item.created_at}</small>
+                            </div>
+                        )}
+
+                        {type === "boardRequest" && (
+                            <div>
+                                <strong>{item.requested_board_name}</strong><br />
+                                유형: {item.requested_board_type}, 상태: {item.request_status}
+                                <br />
+                                신청일: {item.request_date}
+                            </div>
+                        )}
+                    </li>
+                ))}
+            </ul>
+
+            <div style={{ marginTop: "1rem" }}>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        disabled={page === p}
+                        style={{
+                            marginRight: "0.25rem",
+                            fontWeight: p === page ? "bold" : "normal",
+                        }}
+                    >
+                        {p}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
 }

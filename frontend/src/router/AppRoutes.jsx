@@ -29,6 +29,8 @@ import RecommendationResult from "../pages/Suggestion/RecommendationResult";
 import TermsPage from "../pages/Auth/TermsPage";
 import PrivacyPage from "../pages/Auth/PrivacyPage";
 import MarketingPage from "../pages/Auth/MarketingPage";
+import SocialLoginPage from "../pages/Auth/SocialLoginPage";
+import ActivityHistory from "../pages/MyPage/ActivityHistory";
 
 const AppRoutes = () => {
     return (
@@ -42,6 +44,9 @@ const AppRoutes = () => {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/marketing" element={<MarketingPage />} />
+
+            {/* Social Login 라우트 */ }
+            <Route path="/social-login" element={<SocialLoginPage />} />
 
             {/* Calendar 라우트 */}
             <Route path="/calendar" element={<Calendar />} />
@@ -134,6 +139,15 @@ const AppRoutes = () => {
                 element={
                     <PrivateRoutes>
                         <BoardRequestList />
+                    </PrivateRoutes>
+                }
+            />
+
+            <Route
+                path="/mypage/activity-history"
+                element={
+                    <PrivateRoutes>
+                        <ActivityHistory />
                     </PrivateRoutes>
                 }
             />
