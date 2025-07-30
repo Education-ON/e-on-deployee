@@ -253,7 +253,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {}, user_id }) => 
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        alert("챌린지 생성 완료!");
+        alert("챌린지 개설 신청 완료!");
       }
 
       navigate("/challenge");

@@ -1,6 +1,5 @@
 // timeRecommendationController.js
-const db = require('../models');
-const timeRecommendationService = db.timeRecommendationService;
+const timeRecommendationService = require('../services/timeRecommendationService');
 
 exports.getRecommendationsByTime = async (req, res) => {
   try {
@@ -10,11 +9,12 @@ exports.getRecommendationsByTime = async (req, res) => {
       return res.status(400).json({ message: 'month와 schoolType은 필수입니다.' });
     }
 
-    const parsedGrade = grade ? parseInt(grade) : undefined;
+    const parsedGrade = parseInt(grade);
+    const finalGrade = isNaN(parsedGrade) ? undefined : parsedGrade;
     const parsedMonth = parseInt(month);
 
     const results = await timeRecommendationService.getByGradeAndMonth(
-      parsedGrade,
+      finalGrade,
       parsedMonth,
       schoolType
     );

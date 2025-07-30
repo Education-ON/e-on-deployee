@@ -1,8 +1,9 @@
 // src/pages/MyPage/MyPage.jsx
 import { useAuth } from "../../hooks/useAuth";
-import styles from "../../styles/MyPage/Mypage.module.css";
 import Header from "../../components/Common/Header";
-import MyPageComponent from "../../components/MyPage/MyPageComponent"
+import MyPageComponent from "../../components/MyPage/MyPageComponent";
+import styles from "../../styles/MyPage/Mypage.module.css";
+import { Navigate } from "react-router-dom";
 
 export default function MyPage() {
     const { user, loading } = useAuth();

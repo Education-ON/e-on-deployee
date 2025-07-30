@@ -1,6 +1,6 @@
 import axios from "./axiosInstance";
 
-// 1. 학교 이름으로 학굔 조회
+// 1. 학교 이름으로 학교 이름 조회
 export const searchSchoolsByName = async (schoolName) => {
     return axios.get(`/schoolSchedule/schools?query=${schoolName}`);
 };

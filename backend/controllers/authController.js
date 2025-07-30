@@ -3,30 +3,24 @@ const VALID_USER_TYPES = ["student", "parent"];
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const transporter = require("../config/mail");
-const db = require('../models');
+const db = require("../models");
 const User = db.User;
 
 // 1단계: 회원 구분 저장
 exports.signupStep1 = (req, res) => {
     const { userType } = req.body;
-    // 1) 관리자는 접근 차단
     if (userType === "admin") {
         return res.status(403).json({ message: "권한이 없습니다." });
     }
-    // 2) 학생/부모가 아니면 에러
     if (!VALID_USER_TYPES.includes(userType)) {
         return res
             .status(400)
             .json({ message: "유효하지 않은 회원 유형입니다." });
     }
-
-    // 세션에 저장
     req.session.signup = { type: userType };
-    // res.json({ success: true });
     req.session.save(() => {
         res.json({ success: true });
     });
-
     console.log("🔥 [STEP1] 세션 전체:", req.session);
 };
 
@@ -36,7 +30,6 @@ exports.signupStep2 = (req, res) => {
         return res.status(400).json({ message: "Step1 먼저 진행해주세요." });
     }
     req.session.signup.agreements = req.body.agreements;
-    // res.json({ success: true });
     req.session.save(() => {
         console.log("🔥 [STEP2] 세션 전체:", req.session);
         res.json({ success: true });
@@ -47,19 +40,14 @@ exports.signupStep2 = (req, res) => {
 exports.sendEmailCode = async (req, res, next) => {
     try {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // 세션 초기화 + 저장
         req.session.emailCode = code;
         req.session.emailForCode = req.body.email;
-
         await transporter.sendMail({
             from: `"E-ON" <${process.env.SMTP_USER}>`,
             to: req.body.email,
             subject: "E-ON 이메일 인증번호",
             html: `<p>인증번호: <strong>${code}</strong></p>`,
         });
-
-        // 🔥 세션 강제 저장
         req.session.save(() => {
             console.log("📮 인증번호 세션 저장 완료:", code);
             res.json({ success: true });
@@ -89,32 +77,23 @@ exports.signupStep3 = async (req, res, next) => {
     const { name, email, code, password, confirm, age } = req.body;
     const su = req.session.signup || {};
 
-    // 1단계/2단계 확인
     if (!su.type || !su.agreements) {
-        // 세션 정리
         clearSignupSession(req);
         return res
             .status(400)
             .json({ message: "이전 단계가 완료되지 않았습니다." });
     }
-
-    // admin 타입 차단 재확인 (혹시 모를 조작 대비)
     if (su.type === "admin") {
         clearSignupSession(req);
         return res
             .status(403)
             .json({ message: "관리자 계정은 생성할 수 없습니다." });
     }
-
-    // 이메일·코드 확인
     if (email !== req.session.emailForCode || code !== req.session.emailCode) {
-        // 세션 정리
         clearSignupSession(req);
         return res.status(400).json({ message: "이메일 또는 인증 코드 오류" });
     }
-    // 비밀번호 확인
     if (password !== confirm) {
-        // 세션 정리
         clearSignupSession(req);
         return res
             .status(400)
@@ -122,30 +101,24 @@ exports.signupStep3 = async (req, res, next) => {
     }
 
     try {
-        // 중복 이메일 체크
         if (await User.findOne({ where: { email } })) {
-            // 세션 정리
             clearSignupSession(req);
             return res
                 .status(409)
                 .json({ message: "이미 사용 중인 이메일입니다." });
         }
 
-        // 회원 생성 (password 필드에 hook이 걸려 있어 자동 해시됨)
         const newUser = await User.create({
             name,
             email,
             age,
             password,
-            // nickname: name, // 테이블 구조와 달라서 주석 처리
             state_code: "active",
-            type: su.type, // User 모델의 'type' 컬럼
-            agreements: su.agreements, // JSON 컬럼
+            type: su.type,
+            agreements: su.agreements,
         });
 
-        // 회원가입 성공 시 세션 정리
         clearSignupSession(req);
-
         res.status(201).json({ success: true, user: newUser.toJSON() });
     } catch (err) {
         next(err);
@@ -161,20 +134,14 @@ exports.login = (req, res, next) => {
             const foundUser = await User.findByPk(user.user_id, {
                 attributes: ["user_id", "email", "state_code", "type", "name"],
             });
-            console.log("🧨 로그인 시도 유저:", {
-                id: user.user_id,
-                email: foundUser.email,
-                state_code: foundUser.state_code,
-            });
+            console.log("🧨 로그인 시도 유저:", foundUser);
 
-            // 강제 차단 테스트
             if (!foundUser) {
                 console.log("❌ DB에서 유저 못 찾음");
                 return res.status(403).json({ message: "유저 없음" });
             }
 
             if (foundUser.state_code !== "active") {
-                console.log("🚫 비활성화 계정 로그인 시도 차단됨");
                 return res
                     .status(403)
                     .json({ message: "비활성화된 계정입니다." });
@@ -190,7 +157,6 @@ exports.login = (req, res, next) => {
     })(req, res, next);
 };
 
-// 로그아웃
 exports.logout = (req, res, next) => {
     req.logout((err) => {
         if (err) return next(err);
@@ -201,13 +167,86 @@ exports.logout = (req, res, next) => {
     });
 };
 
-// exports.refresh = async (req, res) => {
-//   const userId = req.session.passport.user;
-//   const user = await User.findByPk(userId);
-//   return res.json({success: true, user: user.toJSON()});
-// }
+// ✅ 카카오 소셜 로그인 추가 정보 처리
+exports.socialSignup = async (req, res, next) => {
+    const socialData = req.session.socialUser;
 
-// 🔧 공통 세션 정리 함수
+    if (!socialData) {
+        return res.status(400).json({ message: "소셜 세션이 없습니다." });
+    }
+
+    const { name, type, age, agreements } = req.body;
+
+    if (!name || !type || !agreements || !age) {
+        return res.status(400).json({ message: "필수 항목이 누락되었습니다." });
+    }
+
+    if (type === "admin") {
+        return res
+            .status(403)
+            .json({ message: "관리자 유형은 생성할 수 없습니다." });
+    }
+
+    if (age < 8 || age > 16) {
+        return res
+            .status(400)
+            .json({ message: "나이는 8세 이상 16세 이하로 입력해주세요." });
+    }
+
+    try {
+        const existing = await User.findOne({
+            where: { sns_id: socialData.sns_id, provider: socialData.provider },
+        });
+        if (existing) {
+            return res.status(409).json({ message: "이미 가입된 계정입니다." });
+        }
+
+        // 이메일 중복 검사
+        const emailExists = await User.findOne({
+            where: { email: socialData.email },
+        });
+        if (emailExists) {
+            return res
+                .status(409)
+                .json({
+                    message: " 이미 해당 이메일로 가입된 계정이 있습니다. ",
+                });
+        }
+
+        const user = await User.create({
+            name,
+            email: socialData.email,
+            sns_id: socialData.sns_id,
+            provider: socialData.provider,
+            age,
+            type,
+            state_code: "active",
+            agreements,
+        });
+
+        delete req.session.socialUser;
+
+        req.login(user, (err) => {
+            if (err) return next(err);
+            res.status(201).json({
+                success: true,
+                user: {
+                    user_id: newUser.user_id,
+                    email: newUser.email,
+                    name: newUser.name,
+                    age: newUser.age,
+                    type: newUser.type,
+                    state_code: newUser.state_code,
+                    agreements: newUser.agreements,
+                    email_notification: newUser.email_notification,
+                },
+            });
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 function clearSignupSession(req) {
     delete req.session.signup;
     delete req.session.emailCode;

@@ -12,6 +12,15 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 allowNull: false,
             },
+            provider: {
+                type: DataTypes.ENUM("local", "kakao"),
+                allowNull: false,
+                defaultValue: "local",
+            },
+            sns_id: {
+                type: DataTypes.STRING,
+                allowNull: true, // local은 null
+            },
             name: {
                 type: DataTypes.STRING(50),
                 allowNull: false,
@@ -19,7 +28,10 @@ module.exports = (sequelize, DataTypes) => {
             age: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                validate: { min: 8 },
+                validate: {
+                    min: 8,
+                    max: 16,
+                },
             },
             email: {
                 type: DataTypes.STRING(100),
@@ -28,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             password: {
                 type: DataTypes.STRING(255),
-                allowNull: false,
+                allowNull: true, // 소셜 로그인은 null 허용
                 field: "pw",
             },
             type: {
@@ -42,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING(100),
             },
             // my_school: {
-            //     type: DataTypes.BIGINT,
+            //   type: DataTypes.BIGINT,
             // },
             email_notification: {
                 type: DataTypes.BOOLEAN,
@@ -53,6 +65,15 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.JSON,
                 allowNull: false,
                 defaultValue: {},
+            },
+            provider: {
+                type: DataTypes.ENUM("local", "kakao", "naver", "google"),
+                allowNull: false,
+                defaultValue: "local",
+            },
+            sns_id: {
+                type: DataTypes.STRING,
+                allowNull: true,
             },
         },
         {

@@ -1,0 +1,16 @@
+.container { padding: 20px; }
+.title { font-size: 1.5rem; margin-bottom: 16px; }
+.tableContainer { display: flex; flex-direction: column; }
+.tableHeader, .tableRow {
+  display: grid;
+  grid-template-columns: 1fr 3fr 2fr 2fr 2fr;
+  align-items: center;
+  padding: 8px 0;
+}
+.tableHeader { font-weight: bold; border-bottom: 2px solid #ccc; }
+.tableRow { border-bottom: 1px solid #eee; }
+.actions { display: flex; gap: 8px; }
+.approveBtn { padding: 4px 8px; }
+.rejectBtn { padding: 4px 8px; background: #fdd; }
+.empty { padding: 16px; text-align: center; color: #666; }
+.error { color: red; }

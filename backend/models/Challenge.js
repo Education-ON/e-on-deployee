@@ -67,6 +67,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'ACTIVE',
     },
+     status: {
+      type: DataTypes.ENUM('PENDING','APPROVED','REJECTED'),
+      allowNull: false,
+      defaultValue: 'PENDING',
+    },
     user_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -88,7 +93,7 @@ module.exports = (sequelize, DataTypes) => {
 
     // Challenge - Interests (Many-to-Many)
     Challenge.belongsToMany(models.Interests, {
-      through: 'Challenge_Interest',
+      through: { model: models.ChallengeInterest, timestamps: false },
       foreignKey: 'challenge_id',
       otherKey: 'interest_id',
       as: 'interests',
@@ -96,7 +101,7 @@ module.exports = (sequelize, DataTypes) => {
 
     // Challenge - Visions (Many-to-Many)
     Challenge.belongsToMany(models.Visions, {
-      through: 'Challenge_Vision',
+      through: { model: models.ChallengeVision, timestamps: false },
       foreignKey: 'challenge_id',
       otherKey: 'vision_id',
       as: 'visions',
