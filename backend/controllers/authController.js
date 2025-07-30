@@ -3,7 +3,7 @@ const VALID_USER_TYPES = ["student", "parent"];
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const transporter = require("../config/mail");
-const db = require('../models');
+const db = require("../models");
 const User = db.User;
 
 // 1단계: 회원 구분 저장
@@ -13,7 +13,9 @@ exports.signupStep1 = (req, res) => {
         return res.status(403).json({ message: "권한이 없습니다." });
     }
     if (!VALID_USER_TYPES.includes(userType)) {
-        return res.status(400).json({ message: "유효하지 않은 회원 유형입니다." });
+        return res
+            .status(400)
+            .json({ message: "유효하지 않은 회원 유형입니다." });
     }
     req.session.signup = { type: userType };
     req.session.save(() => {
@@ -77,11 +79,15 @@ exports.signupStep3 = async (req, res, next) => {
 
     if (!su.type || !su.agreements) {
         clearSignupSession(req);
-        return res.status(400).json({ message: "이전 단계가 완료되지 않았습니다." });
+        return res
+            .status(400)
+            .json({ message: "이전 단계가 완료되지 않았습니다." });
     }
     if (su.type === "admin") {
         clearSignupSession(req);
-        return res.status(403).json({ message: "관리자 계정은 생성할 수 없습니다." });
+        return res
+            .status(403)
+            .json({ message: "관리자 계정은 생성할 수 없습니다." });
     }
     if (email !== req.session.emailForCode || code !== req.session.emailCode) {
         clearSignupSession(req);
@@ -89,13 +95,17 @@ exports.signupStep3 = async (req, res, next) => {
     }
     if (password !== confirm) {
         clearSignupSession(req);
-        return res.status(400).json({ message: "비밀번호와 확인이 일치하지 않습니다." });
+        return res
+            .status(400)
+            .json({ message: "비밀번호와 확인이 일치하지 않습니다." });
     }
 
     try {
         if (await User.findOne({ where: { email } })) {
             clearSignupSession(req);
-            return res.status(409).json({ message: "이미 사용 중인 이메일입니다." });
+            return res
+                .status(409)
+                .json({ message: "이미 사용 중인 이메일입니다." });
         }
 
         const newUser = await User.create({
@@ -132,7 +142,9 @@ exports.login = (req, res, next) => {
             }
 
             if (foundUser.state_code !== "active") {
-                return res.status(403).json({ message: "비활성화된 계정입니다." });
+                return res
+                    .status(403)
+                    .json({ message: "비활성화된 계정입니다." });
             }
 
             req.login(foundUser, (loginErr) => {
@@ -170,11 +182,15 @@ exports.socialSignup = async (req, res, next) => {
     }
 
     if (type === "admin") {
-        return res.status(403).json({ message: "관리자 유형은 생성할 수 없습니다." });
+        return res
+            .status(403)
+            .json({ message: "관리자 유형은 생성할 수 없습니다." });
     }
 
     if (age < 8 || age > 16) {
-        return res.status(400).json({ message: "나이는 8세 이상 16세 이하로 입력해주세요." });
+        return res
+            .status(400)
+            .json({ message: "나이는 8세 이상 16세 이하로 입력해주세요." });
     }
 
     try {
@@ -186,9 +202,15 @@ exports.socialSignup = async (req, res, next) => {
         }
 
         // 이메일 중복 검사
-        const emailExists = await User.findOne({ where : { email: socialData.email}});
+        const emailExists = await User.findOne({
+            where: { email: socialData.email },
+        });
         if (emailExists) {
-            return res.status(409).json({ message : " 이미 해당 이메일로 가입된 계정이 있습니다. "});
+            return res
+                .status(409)
+                .json({
+                    message: " 이미 해당 이메일로 가입된 계정이 있습니다. ",
+                });
         }
 
         const user = await User.create({
@@ -206,7 +228,19 @@ exports.socialSignup = async (req, res, next) => {
 
         req.login(user, (err) => {
             if (err) return next(err);
-            res.status(201).json({ success: true, user: user });
+            res.status(201).json({
+                success: true,
+                user: {
+                    user_id: newUser.user_id,
+                    email: newUser.email,
+                    name: newUser.name,
+                    age: newUser.age,
+                    type: newUser.type,
+                    state_code: newUser.state_code,
+                    agreements: newUser.agreements,
+                    email_notification: newUser.email_notification,
+                },
+            });
         });
     } catch (err) {
         next(err);
