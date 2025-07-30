@@ -29,13 +29,26 @@ export default function Login() {
                                 }, 200);
                             }}
                         />
-                        {/* ✅ 너의 카카오 로그인 버튼 추가 */}
+                        {/* ✅ 카카오 로그인 버튼 추가 */}
                         <button
                             onClick={handleKaKaoLogin}
                             className={styles.kakaoButton}
                         >
                             카카오로 로그인
                         </button>
+
+                        {/* ✅ 구글 로그인 버튼 추가 */}
+                        <button onClick={() => window.location.href = "http://localhost:4000/auth/google"} 
+                         className={styles.googleButton}>
+                            구글로 로그인
+                        </button>
+
+                        {/* ✅ 네이버 로그인 버튼 추가 */}
+                        <button onClick={() => window.location.href = "http://localhost:4000/auth/naver"} 
+                        className={styles.naverButton}>
+                            네이버로 로그인
+                        </button>
+
 
                         {/* ✅ 회원가입 버튼 아래에 유지 */}
                         <Link to="/signup" className={styles.signupButton}>

@@ -91,7 +91,7 @@
     border: none;
     padding: 14px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
     font-weight: bold;
     margin-bottom: 12px;
@@ -99,6 +99,7 @@
 
 .signupButton {
     display: block;
+    font-size: 15px;
     width: 570px;
     padding: 14px 0;
     border-radius: 12px;
@@ -130,16 +131,59 @@
     margin-bottom: 16px;
 }
 
-/*소셜 로그인 버튼*/
+/*KaKao 로그인 버튼*/
 .kakaoButton {
-    background-color: #fee500;
-    color: #000;
-    padding: 12px;
+    background: linear-gradient(90deg, #fcf9a4, #fee500); 
+    color: #3c1e1e;
     border: none;
-    border-radius: 4px;
+    border-radius: 12px;
     font-weight: bold;
-    margin-top: 16px;
     cursor: pointer;
     width: 100%;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding: 14px;
+    margin-top: 10px;
+
+}
+
+/*Google 로그인 버튼*/
+.googleButton {
+    background: white;
+    color: #5f6368;
+    border: 1px solid #dadce0;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding: 14px;
+    margin-top: 10px;
+
+}
+
+/*naver 로그인 버튼*/
+.naverButton {
+    background: linear-gradient(90deg, #a8f5c3, #03c75a); 
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding: 14px;
+    margin-top: 10px;
+
+}
+
+.kakaoButton,
+.googleButton,
+.naverButton {
+    width: 570px;
+    margin: 10px auto 12px auto; /* 가운데 정렬 */
+    display: block;
 }
 

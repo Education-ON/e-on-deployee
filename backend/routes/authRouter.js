@@ -49,6 +49,59 @@ router.get('/kakao/callback', (req, res, next) => {
   })(req, res, next);
 });
 
+// ────────────── 네이버 로그인 ──────────────
+router.get('/naver', (req, res, next) => {
+  console.log('🟡 [/auth/naver] 네이버 로그인 시작 요청');
+  passport.authenticate('naver')(req, res, next);
+});
+
+router.get('/naver/callback', (req, res, next) => {
+  passport.authenticate('naver', (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.redirect('/login');
+
+    if (user.isNewSocialUser) {
+      req.session.socialUser = {
+        provider: user.provider,
+        sns_id: user.sns_id,
+        email: user.email,
+      };
+      return res.redirect(`${process.env.FRONTEND_URL}/social-login`);
+    }
+
+    req.login(user, (err) => {
+      if (err) return next(err);
+      return res.redirect(`${process.env.FRONTEND_URL}/`);
+    });
+  })(req, res, next);
+});
+
+
+// ────────────── 구글 로그인 ──────────────
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/google/callback', (req, res, next) => {
+  passport.authenticate('google', (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.redirect('/login');
+
+    if (user.isNewSocialUser) {
+      req.session.socialUser = {
+        provider: user.provider,
+        sns_id: user.sns_id,
+        email: user.email,
+      };
+      return res.redirect(`${process.env.FRONTEND_URL}/social-login`);
+    }
+
+    req.login(user, (err) => {
+      if (err) return next(err);
+      return res.redirect(`${process.env.FRONTEND_URL}/`);
+    });
+  })(req, res, next);
+});
+
+
 // ────────────── 소셜 유저 세션 조회 ──────────────
 router.get('/social-session', (req, res) => {
   if (!req.session.socialUser) {

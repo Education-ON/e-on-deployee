@@ -1,7 +1,10 @@
 const passport = require('passport');
 const localStrategy = require('./localStrategy');
 const kakaoStrategy = require('./kakaoStrategy');
+const NaverStrategy = require('./naverStrategy');
 const { User } = require('../../models');
+const googleStrategy = require('./googleStrategy');
+const naverStrategy = require('./naverStrategy');
 
 module.exports = (passport) => {
   passport.serializeUser((user, done) => {
@@ -30,4 +33,6 @@ module.exports = (passport) => {
 
   localStrategy(passport);
   kakaoStrategy(passport);
+  naverStrategy(passport);
+  googleStrategy(passport);
 };
