@@ -81,12 +81,12 @@ const MonthlyView = () => {
                             <div className={styles.eventContainer}>
                                 {currentMonth &&
                                     filteredEvents.length > 0 &&
-                                    filteredEvents.map((event) => (
+                                    filteredEvents.map((event, i) => (
                                         <EventBadge
-                                            key={
-                                                event.AA_YMD ||
-                                                event.averageSchedule_id
-                                            }
+                                            key={`${targetDate}-${
+                                                event.EVENT_NM ||
+                                                event.event_name
+                                            }`}
                                             event_name={
                                                 event.EVENT_NM ||
                                                 event.event_name
