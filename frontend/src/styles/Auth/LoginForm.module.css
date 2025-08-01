@@ -52,6 +52,17 @@ input::placeholder {
     /* margin-bottom: 12px; */
 }
 
+/*아이디 찾기 버튼*/
+.findIdLink {
+  display: block;
+  margin-top: 12px;
+  font-size: 12px;
+  text-align: center;
+  color: #6457db;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .errorMessage {
     color: red;
     font-size: 14px;

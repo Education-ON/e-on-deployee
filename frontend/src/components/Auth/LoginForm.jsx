@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "../../styles/Auth/LoginForm.module.css";
+import { Link } from "react-router-dom";
+import FindIdModal from "../../pages/Auth/FindIdModal.jsx";
 
-export default function LoginForm({ onSuccess }) {
+
+
+export default function LoginForm({ onSucces, showFindId, setShowFindId }) {
     const { login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -44,6 +48,11 @@ export default function LoginForm({ onSuccess }) {
                     required
                 />
             </div>
+
+            <Link to="#" onClick={() => setShowFindId(true)} className={styles.findIdLink}>
+                아이디 찾기
+            </Link>
+            {showFindId && <FindIdModal onClose={() => setShowFindId(false)} />}
 
             {/* <div className={styles.checkboxGroup}>
                 <label>

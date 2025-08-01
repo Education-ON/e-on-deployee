@@ -11,8 +11,8 @@ const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const { rawConnection: db, sequelize } = require("./database/db");
 const app = express();
 
-app.set("trust proxy", 1);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.set('trust proxy', 1);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(
     cors({
@@ -24,17 +24,28 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const sessionStore = new SequelizeStore({ db: sequelize });
+// app.js
+const sessionStore = new SequelizeStore({
+  db: sequelize,
+  checkExpirationInterval: 15 * 60 * 1000, // 15분마다 만료 세션 정리
+  expiration: 24 * 60 * 60 * 1000,         // 세션 저장소 만료(1일)
+  disableTouch: true,                       // ★ 매 요청마다 UPDATE 막기
+});
 sessionStore.sync();
 
 app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        store: sessionStore,
-        cookie: { httpOnly: true, secure: false },
-    })
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,              // 꼭 false
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: {
+      httpOnly: true,
+      secure: false,            // HTTPS면 true
+      maxAge: 24 * 60 * 60 * 1000, // ★ 쿠키 만료(1일) - store.expiration과 맞추기
+    },
+    // rolling: false,           // 기본값이 false (명시해도 무방)
+  })
 );
 
 app.use(passport.initialize());

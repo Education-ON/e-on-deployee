@@ -124,6 +124,7 @@
     color: #aaa;
 }
 
+
 /* 에러 메시지 */
 .errorMessage {
     color: red;
@@ -186,4 +187,6 @@
     margin: 10px auto 12px auto; /* 가운데 정렬 */
     display: block;
 }
+
+
 

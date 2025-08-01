@@ -1,9 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
+// 이메일 찾기에 사용 두 줄
+import {useState} from "react";
+import FindIdModal from "./FindIdModal";
 import Header from "../../components/Common/Header";
 import LoginForm from "../../components/Auth/LoginForm";
 import styles from "../../styles/Auth/LoginPage.module.css";
 
 export default function Login() {
+    const [showFindId, setShowFindId] = useState(false);
     const navigate = useNavigate();
 
     const handleKaKaoLogin = () => {
@@ -20,6 +24,7 @@ export default function Login() {
                     <div className={styles.loginBox}>
                         <div className={styles.logoText}>E-ON</div>
                         <div className={styles.loginTitle}>로그인</div>
+
                         <LoginForm
                             onSuccess={() => {
                                 setTimeout(() => {
@@ -28,7 +33,11 @@ export default function Login() {
                                     window.location.reload(); // 로그인 후 새로고침 (2)
                                 }, 200);
                             }}
+                            showFindId={showFindId}           
+                            setShowFindId={setShowFindId} 
                         />
+
+
                         {/* ✅ 카카오 로그인 버튼 추가 */}
                         <button
                             onClick={handleKaKaoLogin}
