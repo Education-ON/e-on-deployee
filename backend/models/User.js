@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       provider: {
-        type: DataTypes.ENUM("local", "kakao"),
+        type: DataTypes.ENUM("local", "kakao", "naver", "google"),
         allowNull: false,
         defaultValue: "local",
       },
@@ -53,9 +53,10 @@ module.exports = (sequelize, DataTypes) => {
       state_code: {
         type: DataTypes.STRING(100),
       },
-      my_school: {
-        type: DataTypes.BIGINT, 
-      },
+      // ⚠️ 현재 사용하지 않으므로 주석 처리
+      // my_school: {
+      //   type: DataTypes.BIGINT,
+      // },
       email_notification: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -95,12 +96,13 @@ module.exports = (sequelize, DataTypes) => {
       targetKey: "state_code",
     });
 
-    User.hasOne(models.MySchool, {
-      foreignKey: "user_id",
-      as: "mySchool",
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
-    });
+    // ⚠️ my_school 관련 관계도 주석 처리
+    // User.hasOne(models.MySchool, {
+    //   foreignKey: "user_id",
+    //   as: "mySchool",
+    //   onDelete: "CASCADE",
+    //   onUpdate: "CASCADE",
+    // });
 
     User.hasMany(models.BoardRequest, {
       foreignKey: "user_id",

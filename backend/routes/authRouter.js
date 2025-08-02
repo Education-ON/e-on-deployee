@@ -1,13 +1,15 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
-
+const {User} = require("../models");
+const authController = require("../controllers/authController");
 const authCtrl = require('../controllers/authController');
 const { isLoggedIn, isNotLoggedIn } = require('../middleware/auth');
 
 console.log('✅ [authRouter.js] 라우터 로딩됨');
 console.log('🔍 [authRouter.js] passport 타입:', typeof passport);
 console.trace('🔎 [authRouter.js] passport 호출 위치 추적');
+console.log('✅ authRouter 연결됨');
 
 // ────────────── 회원가입 관련 ──────────────
 router.post('/join/step1', isNotLoggedIn, authCtrl.signupStep1);
@@ -15,6 +17,18 @@ router.post('/join/step2', isNotLoggedIn, authCtrl.signupStep2);
 router.post('/join/email', isNotLoggedIn, authCtrl.sendEmailCode);
 router.post('/verify-email', isNotLoggedIn, authCtrl.verifyEmailCode);
 router.post('/join/step3', isNotLoggedIn, authCtrl.signupStep3);
+
+// ──────────────아이디(이메일) 찾기 기능──────────────
+router.post("/find-id", (req, res, next) => {
+  console.log("✅ /auth/find-id 호출됨");
+  next();
+}, authController.findEmailsByNameAndAge);
+router.post("/find-id/list-emails", authController.findEmailsByNameAndAge);
+router.post("/find-id/send-code-to-email", authController.sendFindIdCodeToEmail);
+router.post("/find-id/verify-code", authController.verifyFindIdCode);
+
+
+// ──────────────비밀번호 변경 기능──────────────
 
 // ────────────── 로그인 / 로그아웃 ──────────────
 router.post('/login', isNotLoggedIn, authCtrl.login);
