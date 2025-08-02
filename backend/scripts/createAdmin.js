@@ -23,7 +23,7 @@ const { User, sequelize } = require("../models");   // sequelize 하나로 통�
 
         const admin = User.build({
             name: "관리자",
-            age: 30,
+            age: 16,
             email: adminEmail,
             password: hashedPassword, // 직접 해시된 값
             type: "admin",

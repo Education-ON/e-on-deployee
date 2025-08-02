@@ -1,10 +1,9 @@
-// src/pages/reviews/ReviewEdit.jsx
-
 import Header from "../../components/Common/Header";
 import ReviewCreateForm from "../../components/Review/ReviewCreateForm";
 import { useParams, useNavigate } from "react-router-dom";
 import { getChallengeReviews, updateReview } from "../../api/challengeApi";
 import { useEffect, useState } from "react";
+import styles from "../../styles/Challenge/ReviewEdit.module.css";
 
 const ReviewEdit = () => {
   const { challengeId, reviewId } = useParams();
@@ -13,12 +12,10 @@ const ReviewEdit = () => {
   const [initialData, setInitialData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 1) 페이지 진입 시: reviewId에 해당하는 리뷰 하나만 가져오기
   useEffect(() => {
     const fetchOneReview = async () => {
       setLoading(true);
       try {
-        // 현재 API는 “챌린지 전체 리뷰 목록”을 반환하므로, 리스트에서 해당 reviewId만 골라냅니다.
         const res = await getChallengeReviews(challengeId);
         const found = res.data.find(
           (r) => String(r.review_id) === String(reviewId)
@@ -43,7 +40,6 @@ const ReviewEdit = () => {
     fetchOneReview();
   }, [challengeId, reviewId, navigate]);
 
-  // 2) form 제출 시: updateReview 호출
   const handleEdit = async ({ rating_stars, text }) => {
     setLoading(true);
     try {
@@ -58,18 +54,17 @@ const ReviewEdit = () => {
     }
   };
 
-  // 로딩중 또는 데이터가 없으면 화면에 로딩 메시지
   if (loading || !initialData) {
     return (
-      <div style={{ textAlign: "center", marginTop: 40 }}>로딩 중…</div>
+      <div className={styles.loading}>로딩 중…</div>
     );
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
-          <Header />
-        </div>
+      <div className={styles.header}>
+        <Header />
+      </div>
       <ReviewCreateForm
         challengeId={challengeId}
         mode="edit"
