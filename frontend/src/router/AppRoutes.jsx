@@ -42,6 +42,8 @@ import DeactivateAccountPage from "../pages/MyPage/DeactivateAccountPage";
 import MySchoolManagementPage from "../pages/MyPage/MySchoolManagementPage";
 import MyBoardRequest from "../pages/MyPage/MyBoardRequest";
 import ActivityHistory from "../pages/MyPage/ActivityHistory";
+import MyParticipatedChallenges from "../pages/MyPage/MyParticipatedChallenges";
+import MyCreatedChallenges from "../pages/MyPage/MyCreatedChallenges";
 
 // Admin
 import AdminPage from "../pages/Admin/AdminPage";
@@ -107,6 +109,8 @@ const AppRoutes = () => {
                 <Route path="deactivate" element={<DeactivateAccountPage />} />
                 <Route path="boardrequest" element={<MyBoardRequest />} />
                 <Route path="activity-history" element={<ActivityHistory />} />
+                <Route path="my-challenges" element={<MyParticipatedChallenges />} />
+                <Route path="created-challenges" element={<MyCreatedChallenges />} />
             </Route>
 
             {/* Admin (중첩 라우트) */}

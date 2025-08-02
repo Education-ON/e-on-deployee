@@ -15,12 +15,6 @@ const router = express.Router();
 
 // 1. 챌린지 생성
 
-// router.post(
-//   '/',
-//   upload.array('files'),
-//   challengeCtrl.create
-// );
-
 router.post(
   '/',
   upload.fields([
@@ -80,5 +74,10 @@ router.post('/:id/participations', participationCtrl.join);
 router.get('/:challengeId/user/:userId', participationCtrl.getParticipationByUserAndChallenge);
 
 // router.get('/challenge/:challengeId/user/:userId', ctrl.getParticipationByUserAndChallenge);
+
+// 마이페이지용
+router.get('/my/participated', challengeCtrl.myParticipated);
+router.get('/my/created', challengeCtrl.myCreated);
+
 
 module.exports = router;

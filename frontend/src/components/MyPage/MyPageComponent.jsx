@@ -35,6 +35,19 @@ const MyPageComponent = () => {
                         활동 이력 조회
                     </Link>
                 )}
+                <Link
+                    to="/mypage/my-challenges"
+                    className={`${styles.menuItem} ${location.pathname === "/mypage/my-challenges" ? styles.active : ""}`}
+                    >
+                    내가 신청한 챌린지
+                    </Link>
+                    <Link
+                    to="/mypage/created-challenges"
+                    className={`${styles.menuItem} ${location.pathname === "/mypage/created-challenges" ? styles.active : ""}`}
+                    >
+                    내가 개설한 챌린지
+                </Link>
+
             </div>
 
             <div className={styles.contentArea}>

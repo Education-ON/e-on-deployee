@@ -330,3 +330,74 @@ exports.changeState = async (req, res, next) => {
     next(err);
   }
 };
+
+// 내가 신청한 챌린지
+exports.myParticipated = async (req, res, next) => {
+  try {
+    const userId = req.user?.user_id || req.query.user_id;
+    if (!userId) return res.status(400).json({ error: 'user_id 필요' });
+
+    const list = await db.ParticipatingChallenge.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: db.Challenge,
+          include: [
+            { model: db.ChallengeDay, as: 'days', attributes: ['day_of_week'] },
+            { model: db.Attachment, as: 'attachments', attributes: ['url', 'attachment_type'] },
+            { model: db.Interests, as: 'interests', through: { attributes: [] } },
+            { model: db.Visions, as: 'visions', through: { attributes: [] } }
+          ]
+        }
+      ],
+      order: [['participating_id', 'DESC']]
+    });
+
+    res.json({
+      challenges: list.map(item => ({
+        ...item.Challenge?.toJSON(),
+        my_participation: {
+          participating_id: item.participating_id,
+          participating_state: item.participating_state
+        }
+      }))
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+// 내가 개설한 챌린지
+exports.myCreated = async (req, res, next) => {
+  try {
+    const userId = req.user?.user_id || req.query.user_id;
+    if (!userId) return res.status(400).json({ error: 'user_id 필요' });
+
+    const list = await db.Challenge.findAll({
+      where: { user_id: userId },
+      include: [
+        { model: db.ChallengeDay, as: 'days', attributes: ['day_of_week'] },
+        { model: db.Attachment, as: 'attachments', attributes: ['url', 'attachment_type'] },
+        { model: db.ParticipatingChallenge, as: 'participants', attributes: ['participating_id', 'participating_state'] }
+      ],
+      order: [['challenge_id', 'DESC']]
+    });
+
+    res.json({
+      challenges: list.map(ch => ({
+        challenge_id: ch.challenge_id,
+        title: ch.title,
+        status: ch.status,
+        challenge_state: ch.challenge_state,
+        application_deadline: ch.application_deadline,
+        start_date: ch.start_date,      
+        end_date: ch.end_date,
+        applicants_count: ch.participants ? ch.participants.length : 0,
+        participants: ch.participants, 
+      }))
+    });
+  } catch (err) {
+    next(err);
+  }
+};
