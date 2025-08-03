@@ -1,11 +1,10 @@
-// src/pages/reviews/ReviewCreate.jsx
-
 import Header from "../../components/Common/Header";
 import ReviewCreateForm from "../../components/Review/ReviewCreateForm";
 import { useParams, useNavigate } from "react-router-dom";
 import { createReview } from "../../api/challengeApi";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import styles from "../../styles/Challenge/ReviewCreate.module.css";
 
 const ReviewCreate = () => {
   const { challengeId } = useParams();
@@ -13,7 +12,6 @@ const ReviewCreate = () => {
   const [loading, setLoading] = useState(false);
   const { user, loading: authLoading } = useAuth();
 
-  // 폼이 제출되면 API 호출
   const handleCreate = async ({ rating_stars, text }) => {
     setLoading(true);
     try {
@@ -34,12 +32,12 @@ const ReviewCreate = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
-          <Header />
-        </div>
+      <div className={styles.header}>
+        <Header />
+      </div>
       <ReviewCreateForm challengeId={challengeId} onSubmit={handleCreate} />
       {loading && (
-        <div style={{ textAlign: "center", marginTop: 20 }}>저장 중…</div>
+        <div className={styles.loading}>저장 중…</div>
       )}
     </div>
   );

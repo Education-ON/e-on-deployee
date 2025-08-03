@@ -130,3 +130,17 @@ export const deleteAttachment = (attachmentId) => {
 export const checkAbsence = (userId) => {
   return axiosInstance.get('/api/attendances/check-absence', { params: { user_id: userId } });
 };
+
+// 23. 내가 신청한 챌린지
+export const getMyParticipatedChallenges = (userId) => {
+  return axiosInstance.get('/api/challenges/my/participated', {
+    params: { user_id: userId }
+  });
+};
+
+// 24. 내가 개설한 챌린지
+export const getMyCreatedChallenges = (userId) => {
+  return axiosInstance.get('/api/challenges/my/created', {
+    params: { user_id: userId }
+  });
+};

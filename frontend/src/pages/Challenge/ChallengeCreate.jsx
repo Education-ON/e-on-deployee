@@ -1,11 +1,11 @@
 // src/pages/Challenge/ChallengeCreate.jsx
-
 import { createChallenge, uploadAttachment } from "../../api/challengeApi";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import ChallengeCreateForm from "../../components/Challenge/ChallengeCreateForm";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
+import styles from "../../styles/Challenge/ChallengeCreate.module.css";
 
 const ChallengeCreate = () => {
     const navigate = useNavigate();
@@ -13,7 +13,6 @@ const ChallengeCreate = () => {
 
     const handleSubmit = async (formData, photoFile, consentFile) => {
         try {
-            // 1) 백엔드가 요구하는 필드 이름으로 재매핑
             const req = {
                 title: formData.title,
                 description: formData.content,
@@ -72,24 +71,19 @@ const ChallengeCreate = () => {
                 user_id: user.user_id,
             };
 
-            // 2) 챌린지 생성 요청 (createChallenge)
             const res = await createChallenge(req);
             const challengeId = res.data.id;
 
-            // 3) “사진” 업로드 (있다면)
             if (photoFile) {
                 const photoFormData = new FormData();
                 photoFormData.append("file", photoFile);
-                // 서버에서 type 필드를 받아서 DB에 “PHOTO”로 저장하도록 로직이 있어야 합니다.
                 photoFormData.append("type", "PHOTO");
                 await uploadAttachment(challengeId, photoFormData);
             }
 
-            // 4) “보호자 동의서” 업로드 (있다면)
             if (consentFile) {
                 const consentFormData = new FormData();
                 consentFormData.append("file", consentFile);
-                // 서버에서 type 필드를 받아서 DB에 “CONSENT”로 저장하도록 로직이 있어야 합니다.
                 consentFormData.append("type", "CONSENT");
                 await uploadAttachment(challengeId, consentFormData);
             }
@@ -98,7 +92,7 @@ const ChallengeCreate = () => {
                 className: "my-toast",
                 progressClassName: "custom-progress-bar",
             });
-            navigate("/challenge"); // 생성 후 챌린지 목록 페이지로 이동
+            navigate("/challenge");
         } catch (err) {
             console.error("서버 에러 응답 전체:", err.response?.data);
             toast(
@@ -116,13 +110,7 @@ const ChallengeCreate = () => {
 
     return (
         <div>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    margin: "20px 0",
-                    paddingLeft: "150px",
-                }}>
+            <div className={styles.header}>
                 <Header />
             </div>
 
