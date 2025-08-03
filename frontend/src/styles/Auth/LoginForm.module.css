@@ -37,6 +37,33 @@ input::placeholder {
     font-size: 14px;
 }
 
+.findIdRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  width: 100%;
+  gap: 12px;
+  margin-top: 0.5rem;
+}
+
+.findIdLink {
+  font-size: 0.9rem;
+  color: #3d5afe;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.divider {
+  margin: 0 4px;
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1;
+  display:flex;
+  align-items: center;
+}
 .loginButton {
     width: 570px;
     background: linear-gradient(180deg, #3aadb6, #6457db);

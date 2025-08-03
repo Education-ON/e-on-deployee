@@ -29,6 +29,9 @@ router.post("/find-id/verify-code", authController.verifyFindIdCode);
 
 
 // ──────────────비밀번호 변경 기능──────────────
+router.post("/find-password/send-code-to-email", authController.sendFindPwCodeToEmail);
+router.post("/find-password/verify-code", authController.verifyFindPwCode);
+router.patch("/find-password/reset", authController.resetPassword);
 
 // ────────────── 로그인 / 로그아웃 ──────────────
 router.post('/login', isNotLoggedIn, authCtrl.login);

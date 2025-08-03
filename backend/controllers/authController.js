@@ -371,11 +371,110 @@ function maskEmail(email) {
     return `${masked}@${domain}`;
 }
 
-// 세션 정리 유틸
-function clearSignupSession(req) {
-    delete req.session.signup;
-    delete req.session.emailCode;
-    delete req.session.emailForCode;
-    delete req.session.emailCodeExpires;
-    console.log("🔥 세션 정리됨:", req.session);
-}
+// 🔹 비밀번호 찾기 - 인증 코드 전송
+exports.sendFindPwCodeToEmail = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user || user.provider !== "local") {
+      return res.status(404).json({ message: "로컬 계정이 아니거나 존재하지 않는 이메일입니다." });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await EmailCode.upsert({
+      email,
+      code,
+      purpose: "find-password",
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
+
+    await transporter.sendMail({
+      to: email,
+      subject: "[E-ON] 비밀번호 재설정 인증 코드",
+      text: `인증 코드는 ${code}입니다.`,
+    });
+
+    return res.status(200).json({ message: "인증 코드 전송 완료" });
+  } catch (err) {
+    console.error("🔴 비밀번호 찾기 코드 전송 오류:", err);
+    return res.status(500).json({ message: "서버 오류 발생" });
+  }
+};
+
+// 🔹 인증 코드 확인
+exports.verifyFindPwCode = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const record = await EmailCode.findOne({
+      where: {
+        email,
+        code,
+        purpose: "find-password",
+        createdAt: {
+          [Op.gt]: new Date(Date.now() - 5 * 60 * 1000),
+        },
+      },
+    });
+
+    if (!record) {
+      return res.status(400).json({ message: "인증 실패: 코드가 일치하지 않거나 만료됨" });
+    }
+
+    req.session.resetPassword = {
+      verified: true,
+      email,
+    };
+
+    await EmailCode.destroy({ where: { email, purpose: "find-password" } });
+
+    return res.status(200).json({ message: "인증 성공" });
+  } catch (err) {
+    console.error("🔴 인증 실패:", err);
+    return res.status(500).json({ message: "서버 오류" });
+  }
+};
+
+// 🔹 비밀번호 실제 변경
+exports.resetPassword = async (req, res) => {
+  const { newPassword, confirmPassword } = req.body;
+  const resetSession = req.session.resetPassword;
+
+  if (!resetSession || !resetSession.verified || !resetSession.email) {
+    return res.status(400).json({ message: "인증되지 않은 요청입니다." });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: "비밀번호와 확인이 일치하지 않습니다." });
+  }
+
+  try {
+    const user = await User.scope("withPassword").findOne({ where: { email: resetSession.email } });
+
+    if (!user) {
+      return res.status(404).json({ message: "해당 이메일의 유저가 존재하지 않습니다." });
+    }
+
+    user.password = newPassword; // 해시 처리 hook에서 자동 수행
+    await user.save();
+    
+    // 비밀번호 재설정 후 세션 완전 제거 및 쿠키 삭제
+    req.session.destroy((err) => {
+        if (err) {
+        console.error("❌ 세션 제거 실패:", err);
+        return res.status(500).json({ message: "세션 정리에 실패했습니다." });
+        }
+        res.clearCookie("connect.sid", { path: "/" }); // 쿠키 삭제
+        res.status(200).json({ message: "비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요." });
+    });
+
+
+    return res.status(200).json({ message: "비밀번호가 성공적으로 변경되었습니다." });
+  } catch (err) {
+    console.error("🔴 비밀번호 변경 오류:", err);
+    return res.status(500).json({ message: "서버 오류" });
+  }
+};
