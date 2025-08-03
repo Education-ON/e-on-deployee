@@ -107,8 +107,7 @@ export default function FindPasswordModal({ onClose }) {
         newPassword,
         confirmPassword,
       });
-      // 세션 파괴 요청
-      await axios.post("/auth/logout"); // 로그인 되어 있으면 세션 삭제됨
+    
       alert("비밀번호가 성공적으로 변경되었습니다.");
       handleClose();
     } catch (err) {

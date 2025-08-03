@@ -468,11 +468,9 @@ exports.resetPassword = async (req, res) => {
         return res.status(500).json({ message: "세션 정리에 실패했습니다." });
         }
         res.clearCookie("connect.sid", { path: "/" }); // 쿠키 삭제
-        res.status(200).json({ message: "비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요." });
+        return res.status(200).json({ message: "비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요." });
     });
 
-
-    return res.status(200).json({ message: "비밀번호가 성공적으로 변경되었습니다." });
   } catch (err) {
     console.error("🔴 비밀번호 변경 오류:", err);
     return res.status(500).json({ message: "서버 오류" });
