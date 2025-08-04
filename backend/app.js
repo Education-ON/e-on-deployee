@@ -77,11 +77,6 @@ app.use("/api/attachments", require("./routes/attachmentRoutes"));
 app.use("/api/visions", require("./routes/visions"));
 app.use("/api/admin/challenges", require("./routes/adminChallengeRoutes"));
 
-// 테스트용 엔드포인트
-app.get("/api/hello", (req, res) => {
-    res.json({ message: "Hello from Node.js!" });
-});
-
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).json({ message: "Internal Server Error" });

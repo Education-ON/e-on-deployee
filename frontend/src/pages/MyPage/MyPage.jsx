@@ -2,7 +2,7 @@
 import { useAuth } from "../../hooks/useAuth";
 import Header from "../../components/Common/Header";
 import MyPageComponent from "../../components/MyPage/MyPageComponent";
-import styles from "../../styles/MyPage/Mypage.module.css";
+import styles from "../../styles/Pages/Mypage.module.css";
 import { Navigate } from "react-router-dom";
 
 export default function MyPage() {

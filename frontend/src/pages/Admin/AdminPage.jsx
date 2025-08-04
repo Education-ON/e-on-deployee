@@ -2,7 +2,7 @@
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-hot-toast"; // toast import 필요
-import styles from "../../styles/MyPage/Mypage.module.css";
+import styles from "../../styles/Pages/Mypage.module.css";
 import Header from "../../components/Common/Header";
 import AdminPageComponent from "../../components/Admin/AdminPageComponent";
 

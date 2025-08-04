@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getMyBoardRequests } from "../../api/myPageApi";
-import Header from "../../components/Common/Header";
 import styles from "../../styles/MyPage/MyBoardRequest.module.css";
 
 const MyBoardRequest = () => {
