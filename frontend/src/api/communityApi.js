@@ -64,3 +64,24 @@ export const getAllBoardRequests = () => {
 export const updateBoardRequestStatus = (requestId, status) => {
   return axiosInstance.patch(`/boards/board-requests/${requestId}`, { request_status: status });
 };
+
+// 게시글 댓글 신고
+export const reportContent = (report_type, targetId, reason, reporter_id) => {
+  const payload = {
+    report_type,
+    reason,
+    reporter_id,
+  };
+
+  if (report_type === 'post') {
+    payload.post_id = targetId;
+  } else if (report_type === 'comment') {
+    payload.comment_id = targetId;
+  }
+
+  return axiosInstance.post('boards/report', payload);
+};
+
+export const getAllReports = () => {
+  return axiosInstance.get('/boards/admin/report');
+};
