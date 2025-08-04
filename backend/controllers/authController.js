@@ -74,7 +74,9 @@ exports.sendEmailCode = async (req, res, next) => {
 exports.verifyEmailCode = (req, res) => {
     const now = Date.now();
     if (!req.session.emailCodeExpires || now > req.session.emailCodeExpires) {
-        return res.status(400).json({ success: false, message: "인증코드가 만료되었습니다." });
+        return res
+            .status(400)
+            .json({ success: false, message: "인증코드가 만료되었습니다." });
     }
     if (
         req.body.email !== req.session.emailForCode ||
@@ -142,6 +144,18 @@ exports.signupStep3 = async (req, res, next) => {
     }
 };
 
+// clearSignupSession
+function clearSignupSession(req) {
+    if (req.session.signup) {
+        delete req.session.signup;
+    }
+    if (req.session.emailCode) {
+        delete req.session.emailCode;
+        delete req.session.emailForCode;
+        delete req.session.emailCodeExpires;
+    }
+}
+
 // 로그인
 exports.login = (req, res, next) => {
     passport.authenticate("local", async (err, user, info) => {
@@ -185,109 +199,118 @@ exports.logout = (req, res, next) => {
 };
 // 인증 메일 전송 유틸 함수
 const sendEmail = async ({ to, subject, text }) => {
-  await transporter.sendMail({
-    from: process.env.SMTP_USER,
-    to,
-    subject,
-    text,
-  });
+    await transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to,
+        subject,
+        text,
+    });
 };
 
 // 이메일 목록 반환 (이름 + 나이로)
 exports.findEmailsByNameAndAge = async (req, res) => {
-  const { name, age } = req.body;
-  console.log("👉 요청값:", name, age);
-  try {
-    const users = await User.findAll({
-      where: { name, age },/*이름 공백이랑, 나이 string으로 못받아올까봐 이런 조건 추가해둠*/
-      attributes: ["email", "provider"],
-    });
-    console.log("🔍 DB 조회 결과:", users);
-    if (!users || users.length === 0) {
-    console.log("❌ 일치하는 사용자 없음");
-      return res.status(404).json({ message: "해당 정보로 가입된 이메일 없음" });
+    const { name, age } = req.body;
+    console.log("👉 요청값:", name, age);
+    try {
+        const users = await User.findAll({
+            where: {
+                name,
+                age,
+            } /*이름 공백이랑, 나이 string으로 못받아올까봐 이런 조건 추가해둠*/,
+            attributes: ["email", "provider"],
+        });
+        console.log("🔍 DB 조회 결과:", users);
+        if (!users || users.length === 0) {
+            console.log("❌ 일치하는 사용자 없음");
+            return res
+                .status(404)
+                .json({ message: "해당 정보로 가입된 이메일 없음" });
+        }
+
+        const emails = users.map((user) => ({
+            email: user.email,
+            provider: user.provider,
+        }));
+
+        return res.json({ emails });
+    } catch (err) {
+        console.error("🔴 이메일 찾기 오류:", err);
+        return res.status(500).json({ message: "서버 오류 발생" });
     }
-
-    const emails = users.map((user) => ({
-      email: user.email,
-      provider: user.provider,
-    }));
-
-    return res.json({ emails });
-  } catch (err) {
-    console.error("🔴 이메일 찾기 오류:", err);
-    return res.status(500).json({ message: "서버 오류 발생" });
-  }
 };
 
 // 인증 코드 전송
 exports.sendFindIdCodeToEmail = async (req, res) => {
-  const { email } = req.body;
+    const { email } = req.body;
 
-  try {
-    console.log("✅ 입력된 이메일:", email);
-    const user = await User.findOne({ where: { email } });
+    try {
+        console.log("✅ 입력된 이메일:", email);
+        const user = await User.findOne({ where: { email } });
 
-    if (!user) {
-      return res.status(404).json({ message: "해당 이메일의 유저가 없습니다." });
-    }else{
-      console.log("✅ 찾은 유저:", user.toJSON());
-      console.log("✅ 유저의 provider:", user.provider);
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "해당 이메일의 유저가 없습니다." });
+        } else {
+            console.log("✅ 찾은 유저:", user.toJSON());
+            console.log("✅ 유저의 provider:", user.provider);
+        }
+
+        if (user.provider && user.provider !== "local") {
+            return res.status(400).json({ message: "로컬 계정이 아닙니다." });
+        }
+
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await EmailCode.upsert({
+            email,
+            code,
+            purpose: "find-id",
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 맍료 시간 설정은 :: 현재 시각 + 5분
+        });
+
+        await sendEmail({
+            to: email,
+            subject: "[E-ON] 아이디 찾기 인증 코드",
+            text: `인증 코드는 ${code}입니다.`,
+        });
+
+        return res.status(200).json({ message: "인증 코드 전송 완료" });
+    } catch (err) {
+        console.error("🔴 인증 코드 전송 오류:", err);
+        return res.status(500).json({ message: "코드 전송 중 오류 발생" });
     }
-
-    if (user.provider && user.provider !== "local") {
-      return res.status(400).json({ message: "로컬 계정이 아닙니다." });
-    }
-
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-    await EmailCode.upsert({
-      email,
-      code,
-      purpose: "find-id",
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000) // 맍료 시간 설정은 :: 현재 시각 + 5분
-    });
-
-    await sendEmail({
-      to: email,
-      subject: "[E-ON] 아이디 찾기 인증 코드",
-      text: `인증 코드는 ${code}입니다.`,
-    });
-
-    return res.status(200).json({ message: "인증 코드 전송 완료" });
-  } catch (err) {
-    console.error("🔴 인증 코드 전송 오류:", err);
-    return res.status(500).json({ message: "코드 전송 중 오류 발생" });
-  }
 };
 
 // 인증 코드 검증
 exports.verifyFindIdCode = async (req, res) => {
-  const { email, code } = req.body;
+    const { email, code } = req.body;
 
-  try {
-    const record = await EmailCode.findOne({
-      where: {
-        email,
-        code,
-        purpose: "find-id",
-        createdAt: {
-          [Op.gt]: new Date(Date.now() - 3 * 60 * 1000),
-        },
-      },
-    });
+    try {
+        const record = await EmailCode.findOne({
+            where: {
+                email,
+                code,
+                purpose: "find-id",
+                createdAt: {
+                    [Op.gt]: new Date(Date.now() - 3 * 60 * 1000),
+                },
+            },
+        });
 
-    if (!record) {
-      return res.status(400).json({ message: "인증 실패: 코드가 일치하지 않거나 만료됨" });
+        if (!record) {
+            return res
+                .status(400)
+                .json({ message: "인증 실패: 코드가 일치하지 않거나 만료됨" });
+        }
+
+        await EmailCode.destroy({ where: { email, purpose: "find-id" } });
+
+        return res.status(200).json({ userId: email });
+    } catch (err) {
+        console.error("🔴 인증 코드 검증 오류:", err);
+        return res.status(500).json({ message: "서버 오류" });
     }
-
-    await EmailCode.destroy({ where: { email, purpose: "find-id" } });
-
-    return res.status(200).json({ userId: email });
-  } catch (err) {
-    console.error("🔴 인증 코드 검증 오류:", err);
-    return res.status(500).json({ message: "서버 오류" });
-  }
 };
 // 소셜 회원가입 추가정보 저장
 exports.socialSignup = async (req, res, next) => {
@@ -324,9 +347,15 @@ exports.socialSignup = async (req, res, next) => {
         }
 
         // 이메일 중복 검사
-        const emailExists = await User.findOne({ where: { email: socialData.email } });
+        const emailExists = await User.findOne({
+            where: { email: socialData.email },
+        });
         if (emailExists) {
-            return res.status(409).json({ message: "이미 해당 이메일로 가입된 계정이 있습니다." });
+            return res
+                .status(409)
+                .json({
+                    message: "이미 해당 이메일로 가입된 계정이 있습니다.",
+                });
         }
 
         const user = await User.create({
@@ -373,90 +402,102 @@ function maskEmail(email) {
 
 // 🔹 비밀번호 찾기 - 인증 코드 전송
 exports.sendFindPwCodeToEmail = async (req, res) => {
-  const { email } = req.body;
+    const { email } = req.body;
 
-  try {
-    const user = await User.findOne({ where: { email } });
+    try {
+        const user = await User.findOne({ where: { email } });
 
-    if (!user || user.provider !== "local") {
-      return res.status(404).json({ message: "로컬 계정이 아니거나 존재하지 않는 이메일입니다." });
+        if (!user || user.provider !== "local") {
+            return res
+                .status(404)
+                .json({
+                    message: "로컬 계정이 아니거나 존재하지 않는 이메일입니다.",
+                });
+        }
+
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await EmailCode.upsert({
+            email,
+            code,
+            purpose: "find-password",
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+        });
+
+        await transporter.sendMail({
+            to: email,
+            subject: "[E-ON] 비밀번호 재설정 인증 코드",
+            text: `인증 코드는 ${code}입니다.`,
+        });
+
+        return res.status(200).json({ message: "인증 코드 전송 완료" });
+    } catch (err) {
+        console.error("🔴 비밀번호 찾기 코드 전송 오류:", err);
+        return res.status(500).json({ message: "서버 오류 발생" });
     }
-
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-    await EmailCode.upsert({
-      email,
-      code,
-      purpose: "find-password",
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-    });
-
-    await transporter.sendMail({
-      to: email,
-      subject: "[E-ON] 비밀번호 재설정 인증 코드",
-      text: `인증 코드는 ${code}입니다.`,
-    });
-
-    return res.status(200).json({ message: "인증 코드 전송 완료" });
-  } catch (err) {
-    console.error("🔴 비밀번호 찾기 코드 전송 오류:", err);
-    return res.status(500).json({ message: "서버 오류 발생" });
-  }
 };
 
 // 🔹 인증 코드 확인
 exports.verifyFindPwCode = async (req, res) => {
-  const { email, code } = req.body;
+    const { email, code } = req.body;
 
-  try {
-    const record = await EmailCode.findOne({
-      where: {
-        email,
-        code,
-        purpose: "find-password",
-        createdAt: {
-          [Op.gt]: new Date(Date.now() - 5 * 60 * 1000),
-        },
-      },
-    });
+    try {
+        const record = await EmailCode.findOne({
+            where: {
+                email,
+                code,
+                purpose: "find-password",
+                createdAt: {
+                    [Op.gt]: new Date(Date.now() - 5 * 60 * 1000),
+                },
+            },
+        });
 
-    if (!record) {
-      return res.status(400).json({ message: "인증 실패: 코드가 일치하지 않거나 만료됨" });
+        if (!record) {
+            return res
+                .status(400)
+                .json({ message: "인증 실패: 코드가 일치하지 않거나 만료됨" });
+        }
+
+        req.session.resetPassword = {
+            verified: true,
+            email,
+        };
+
+        await EmailCode.destroy({ where: { email, purpose: "find-password" } });
+
+        return res.status(200).json({ message: "인증 성공" });
+    } catch (err) {
+        console.error("🔴 인증 실패:", err);
+        return res.status(500).json({ message: "서버 오류" });
     }
-
-    req.session.resetPassword = {
-      verified: true,
-      email,
-    };
-
-    await EmailCode.destroy({ where: { email, purpose: "find-password" } });
-
-    return res.status(200).json({ message: "인증 성공" });
-  } catch (err) {
-    console.error("🔴 인증 실패:", err);
-    return res.status(500).json({ message: "서버 오류" });
-  }
 };
 
 // 🔹 비밀번호 실제 변경
 exports.resetPassword = async (req, res) => {
-  const { newPassword, confirmPassword } = req.body;
-  const resetSession = req.session.resetPassword;
+    const { newPassword, confirmPassword } = req.body;
+    const resetSession = req.session.resetPassword;
 
-  if (!resetSession || !resetSession.verified || !resetSession.email) {
-    return res.status(400).json({ message: "인증되지 않은 요청입니다." });
-  }
-
-  if (newPassword !== confirmPassword) {
-    return res.status(400).json({ message: "비밀번호와 확인이 일치하지 않습니다." });
-  }
-
-  try {
-    const user = await User.scope("withPassword").findOne({ where: { email: resetSession.email } });
-
-    if (!user) {
-      return res.status(404).json({ message: "해당 이메일의 유저가 존재하지 않습니다." });
+    if (!resetSession || !resetSession.verified || !resetSession.email) {
+        return res.status(400).json({ message: "인증되지 않은 요청입니다." });
     }
+
+    if (newPassword !== confirmPassword) {
+        return res
+            .status(400)
+            .json({ message: "비밀번호와 확인이 일치하지 않습니다." });
+    }
+
+    try {
+        const user = await User.scope("withPassword").findOne({
+            where: { email: resetSession.email },
+        });
+
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "해당 이메일의 유저가 존재하지 않습니다." });
+        }
 
     const hashed = await bcrypt.hash(newPassword, 12);
     user.password = hashed;

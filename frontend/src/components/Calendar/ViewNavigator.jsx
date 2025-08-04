@@ -32,9 +32,9 @@ const ViewNavigator = () => {
         setCurrentView(event.target.value);
     };
 
-    useEffect(() => {
-        console.log("🔁 검색 종류 변경: ", searchType);
-    }, [searchType]);
+    // useEffect(() => {
+    //     console.log("🔁 검색 종류 변경: ", searchType);
+    // }, [searchType]);
 
     useEffect(() => {
         if (searchType.year === "prev") {
