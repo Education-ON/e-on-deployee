@@ -1,7 +1,7 @@
 // src/components/MyPage/MyPage.jsx
 import { Link, Outlet, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import styles from "../../styles/MyPage/Mypage.module.css";
+import styles from "../../styles/MyPage/MypageComponent.module.css";
 import { toast } from "react-toastify";
 
 const AdminPageComponent = () => {
