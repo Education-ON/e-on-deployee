@@ -458,7 +458,8 @@ exports.resetPassword = async (req, res) => {
       return res.status(404).json({ message: "해당 이메일의 유저가 존재하지 않습니다." });
     }
 
-    user.password = newPassword; // 해시 처리 hook에서 자동 수행
+    const hashed = await bcrypt.hash(newPassword, 12);
+    user.password = hashed;
     await user.save();
     
     // 비밀번호 재설정 후 세션 완전 제거 및 쿠키 삭제
