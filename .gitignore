@@ -15,3 +15,7 @@
 
 .history/
 node_modules/
+
+# Python
+python-server/venv/
+
