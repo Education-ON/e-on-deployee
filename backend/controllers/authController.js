@@ -314,6 +314,9 @@ exports.verifyFindIdCode = async (req, res) => {
 };
 // 소셜 회원가입 추가정보 저장
 exports.socialSignup = async (req, res, next) => {
+    console.log("✅ [POST] /auth/social-signup 호출됨");
+    console.log("📦 req.body:", req.body);
+    console.log("🧠 req.session.socialUser:", req.session.socialUser);
     const socialData = req.session.socialUser;
 
     if (!socialData) {
@@ -376,14 +379,14 @@ exports.socialSignup = async (req, res, next) => {
             res.status(201).json({
                 success: true,
                 user: {
-                    user_id: newUser.user_id,
-                    email: newUser.email,
-                    name: newUser.name,
-                    age: newUser.age,
-                    type: newUser.type,
-                    state_code: newUser.state_code,
-                    agreements: newUser.agreements,
-                    email_notification: newUser.email_notification,
+                    user_id: user.user_id,
+                    email: user.email,
+                    name: user.name,
+                    age: user.age,
+                    type: user.type,
+                    state_code: user.state_code,
+                    agreements: user.agreements,
+                    email_notification: user.email_notification,
                 },
             });
         });
@@ -503,15 +506,7 @@ exports.resetPassword = async (req, res) => {
     user.password = hashed;
     await user.save();
     
-    // 비밀번호 재설정 후 세션 완전 제거 및 쿠키 삭제
-    req.session.destroy((err) => {
-        if (err) {
-        console.error("❌ 세션 제거 실패:", err);
-        return res.status(500).json({ message: "세션 정리에 실패했습니다." });
-        }
-        res.clearCookie("connect.sid", { path: "/" }); // 쿠키 삭제
-        return res.status(200).json({ message: "비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요." });
-    });
+    delete req.session.resetPassword;
 
   } catch (err) {
     console.error("🔴 비밀번호 변경 오류:", err);

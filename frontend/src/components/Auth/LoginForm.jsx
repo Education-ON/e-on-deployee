@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import FindIdModal from "../../pages/Auth/FindIdModal.jsx";
 import FindPasswordModal from "../../pages/Auth/FindPasswordModal.jsx";
 
-export default function LoginForm({ onSucces, showFindId, setShowFindId }) {
+export default function LoginForm({ onSuccess, showFindId, setShowFindId }) {
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -45,20 +45,28 @@ export default function LoginForm({ onSucces, showFindId, setShowFindId }) {
     setIsModalOpen(false);
   };
 
-  // 🔧 수정: 모달 열려 있을 경우 로그인 차단
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isModalOpen) return;
+  e.preventDefault();
+  if (isModalOpen) return;
 
-    console.log("🧪 handleSubmit 실행됨");
-    setError("");
-    try {
-      await login({ email, password });
-      onSucces();
-    } catch (err) {
-      setError(err.response?.data?.message || "로그인 실패 😢");
+  console.log("🧪 handleSubmit 실행됨");
+  setError("");
+  try {
+    const data = await login({ email, password });
+    console.log("✅ 로그인 성공!", data);
+
+    if (typeof onSuccess === "function") {
+      console.log("🎯 onSucces 실행함");
+      onSuccess();
+    } else {
+      console.warn("⚠️ onSucces가 함수가 아님:", onSuccess);
     }
-  };
+  } catch (err) {
+    console.error("❌ 로그인 에러:", err);
+    setError(err.response?.data?.message || "로그인 실패 😢");
+  }
+};
+
 
   return (
     <form className={styles.loginForm} onSubmit={handleSubmit}>

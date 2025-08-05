@@ -44,6 +44,19 @@ const SocialLogin = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        
+            const selectedAgreements = Object.entries(formData.agreements)
+                .filter(([_, v]) => v)
+                .map(([k]) => k);
+
+            console.log("🟢 보내는 데이터:", {
+                name: formData.name,
+                type: formData.type,
+                age: formData.age,
+                agreements: selectedAgreements,
+            });
+
         axiosInstance
             .post(
                 "/auth/social-signup", // baseURL 이미 포함돼 있음
@@ -51,7 +64,8 @@ const SocialLogin = () => {
                     name: formData.name,
                     type: formData.type,
                     age: formData.age,
-                    agreements: formData.agreements,
+                    agreements: selectedAgreements, 
+                    email_notification: true, 
                 },
                 { withCredentials: true }
             )
@@ -97,6 +111,7 @@ const SocialLogin = () => {
                         onChange={handleChange}
                         required
                         className={styles.input}>
+                        <option value="">-- 회원 유형 선택 --</option>
                         <option value="student">학생</option>
                         <option value="parent">학부모</option>
                     </select>
