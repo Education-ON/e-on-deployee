@@ -51,6 +51,7 @@ import UserManagement from "../pages/Admin/UserManagement";
 import BoardRequestList from "../pages/Admin/BoardRequestList";
 import ChallengeRequests from "../pages/MyPage/ChallengeRequests";
 import AdminChallengeDetail from "../pages/MyPage/AdminChallengeDetail";
+import ReportList from "../pages/Community/ReportList";
 
 const AppRoutes = () => {
     return (
@@ -127,6 +128,7 @@ const AppRoutes = () => {
                 <Route path="board-requests" element={<BoardRequestList />} />
                 <Route path="challenge-requests" element={<ChallengeRequests />} />
                 <Route path="challenge-requests/:id" element={<AdminChallengeDetail />} />
+                <Route path="reports" element={<ReportList />} />
             </Route>
         </Routes>
     );

@@ -10,6 +10,7 @@ import {
     updateComment,
     deleteComment,
 } from "../../api/communityApi";
+import ReportForm from "../../pages/Community/ReportForm";
 import styles from "../../styles/Community/PostDetail.module.css";
 import { toast } from "react-toastify";
 
@@ -26,6 +27,8 @@ const PostDetail = () => {
     const [isEditingPost, setIsEditingPost] = useState(false);
     const [editedPostTitle, setEditedPostTitle] = useState("");
     const [editedPostContent, setEditedPostContent] = useState("");
+    const [showReportId, setShowReportId] = useState(null);
+    const [showReportPost, setShowReportPost] = useState(false);
 
     const fetchPost = async () => {
         try {
@@ -306,7 +309,21 @@ const PostDetail = () => {
                             }
                         />
                     ) : (
-                        post.content
+                        <>
+                            {post.content}
+                            <div className={styles.reportPostWrapper}>
+                                <button onClick={() => setShowReportPost(true)}>
+                                🚨 게시글 신고
+                                </button>
+                                {showReportPost && (
+                                <ReportForm
+                                    targetType="post"
+                                    targetId={post.post_id}
+                                    onClose={() => setShowReportPost(false)}
+                                />
+                                )}
+                            </div>
+                        </>
                     )}
                 </div>
 
@@ -364,6 +381,19 @@ const PostDetail = () => {
                                                     </button>
                                                 </div>
                                             )}
+                                    </div>
+                                    {/* 신고 버튼 & 폼 */}
+                                    <div className={styles.commentActions}>
+                                        <button onClick={() => setShowReportId(comment.comment_id)}>
+                                            🚨 신고
+                                        </button>
+                                        {showReportId === comment.comment_id && (
+                                            <ReportForm
+                                                targetType="comment"
+                                                targetId={comment.comment_id}
+                                                onClose={() => setShowReportId(null)}
+                                            />
+                                        )}
                                     </div>
                                     {editingCommentId === comment.comment_id ? (
                                         <div className={styles.commentEditBox}>
