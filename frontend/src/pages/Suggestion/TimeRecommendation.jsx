@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { fetchTimeRecommendations } from "../../api/timeRecommendation";
+import { fetchAIRecommendations } from "../../api/aiRecommendation";
 import TimeRecommendationCard from "../../components/Suggestion/TimeRecommendationCard";
 import RecommendationModal from "../../components/Suggestion/RecommendationModal";
 import styles from "./TimeRecommendation.module.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import Header from "../../components/Common/Header";
 import { Link } from "react-router-dom";
+
 
 const TimeRecommendation = () => {
     const [schoolType, setSchoolType] = useState("elementary"); // 수정
@@ -14,6 +16,7 @@ const TimeRecommendation = () => {
 
 
     const [recommendations, setRecommendations] = useState([]);
+    const [aiRecommendations, setAiRecommendations] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
 
     const handleFetch = async () => {
@@ -25,6 +28,19 @@ const TimeRecommendation = () => {
         } catch (err) {
             console.error(err);
             alert("추천 정보를 불러오는 데 실패했습니다.");
+        }
+    };
+
+
+    // ✅ AI 추천 버튼 클릭 시 처리
+    const handleAIRecommend = async () => {
+        try {
+        const result = await fetchAIRecommendations();
+        setAiRecommendations(result);
+        alert("AI 추천 결과를 불러왔습니다!");
+        } catch (err) {
+        console.error("AI 추천 실패:", err);
+        alert("AI 추천 요청에 실패했습니다.");
         }
     };
 
@@ -86,6 +102,7 @@ const TimeRecommendation = () => {
                 </label>
 
                 <button onClick={handleFetch}>추천 보기</button>
+                <button onClick={handleAIRecommend}>✨ AI 추천</button>
             </div>
 
             {recommendations.length === 0 ? (

@@ -1,4 +1,4 @@
-// neis에서 학사 일정을 받아오는 api
+7// neis에서 학사 일정을 받아오는 api
 const axios = require("axios");
 const apiKey = process.env.NEIS_API_KEY; // 환경변수에서 API 키 가져오기
 if (!apiKey) {
