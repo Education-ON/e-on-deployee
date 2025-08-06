@@ -250,3 +250,17 @@
     margin-left: 30px;
     margin-top: 12px;
 }
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.gallery img,
+.preview {
+  width: 150px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+}

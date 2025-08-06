@@ -15,3 +15,5 @@
 
 .history/
 node_modules/
+
+/backend/uploads/

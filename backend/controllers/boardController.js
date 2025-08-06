@@ -4,6 +4,7 @@ const User = db.User;
 const Board = db.Board;
 const Post = db.Post;
 const Comment = db.Comment;
+const PostImage = db.PostImage; 
 const BoardRequest = db.BoardRequest;
 const Report = db.Report;
 
@@ -94,65 +95,112 @@ exports.getPost = async (req, res) => {
 // 게시글 작성
 exports.createPost = async (req, res) => {
   const { board_id } = req.params;
-  const user_id = req.user.user_id;
+  const user_id      = req.user.user_id;
   const { title, content } = req.body;
+  const files = req.files;                 // multer 가 채워 줌
 
   if (!title || !content) {
-    return res.status(400).json({ error: 'title, content는 필수입니다.' });
+    return res.status(400).json({ error: "title, content는 필수입니다." });
   }
 
   try {
-    const newPost = await Post.create({
-      board_id,
-      user_id,
-      title,
-      content,
-    });
+    /* 1) 게시글 저장 */
+    const newPost = await Post.create({ board_id, user_id, title, content });
 
-    res.status(201).json({ message: '게시글 작성 성공', post: newPost });
+    /* 2) 이미지가 있다면 PostImage 테이블에 bulkInsert */
+    if (files?.length) {
+      // http(s)://localhost:4000
+      const host = `${req.protocol}://${req.get("host")}`;
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: '게시글 작성 중 오류가 발생했습니다.' });
+      const bulk = files.map((f) => ({
+        post_id: newPost.post_id,
+      // ⭐ 절대경로로 저장
+        image_url: `${host}/uploads/${f.filename}`,
+      }));
+
+      await PostImage.bulkCreate(bulk);
+    }
+
+    res.status(201).json({ post: newPost });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "게시글 작성 중 오류가 발생했습니다." });
   }
 };
 
 
-// 게시글 수정
+
+// 게시글 수정 ─ 텍스트 + (선택)새 이미지
 exports.updatePost = async (req, res) => {
   const { post_id } = req.params;
   const { title, content } = req.body;
+  const files = req.files;
+  let removed = [];
+
+    /* 0) 삭제 예약 파싱 */
+  if (req.body.removed_ids) {
+    try {
+      removed = JSON.parse(req.body.removed_ids);   // "[7,8]" → [7,8]
+    } catch (_) {
+      return res.status(400).json({ error: "removed_ids 파싱 오류" });
+    }
+  }
 
   if (!title || !content) {
-    return res.status(400).json({ error: '제목과 내용을 모두 입력해야 합니다.' });
+    return res
+      .status(400)
+      .json({ error: "제목과 내용을 모두 입력해야 합니다." });
   }
 
   try {
-    const post = await Post.findOne({ where: { post_id } });
+    /* 1) 게시글 존재 및 권한 확인 */
+    const post = await Post.findByPk(post_id);
+    if (!post) return res.status(404).json({ error: "게시글을 찾을 수 없습니다." });
 
-    if (!post) {
-      return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
-    }
-
-    // 작성자 본인 또는 관리자만 삭제 가능
     const isOwner = post.user_id === req.user.user_id;
-    const isAdmin = req.user.type === 'admin';
+    const isAdmin = req.user.type === "admin";
+    if (!isOwner && !isAdmin)
+      return res.status(403).json({ error: "본인의 게시글만 수정할 수 있습니다." });
 
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ error: '본인의 게시글만 수정할 수 있습니다.' });
+    /* 2) 기존 이미지 삭제 */
+    if (removed.length) {
+      await db.PostImage.destroy({ where: { image_id: removed } });
     }
 
+    /* 3) 제목·내용 업데이트 */
     await Post.update({ title, content }, { where: { post_id } });
 
-    const updatedPost = await Post.findOne({ where: { post_id } });
+    /* 4) 새 이미지가 있다면 PostImage에 추가 */
+    if (files?.length) {
+      const host = `${req.protocol}://${req.get("host")}`; // http://localhost:4000
+      const bulk = files.map((f) => ({
+        post_id,
+        image_url: `${host}/uploads/${f.filename}`, // 절대경로로 저장
+      }));
+      await db.PostImage.bulkCreate(bulk);
+    }
 
-    res.status(200).json({ message: '게시글 수정 성공', post: updatedPost });
+    /* 5) 수정된 게시글 + 이미지 포함해서 반환 */
+    const updatedPost = await Post.findOne({
+      where: { post_id },
+      include: [
+        {
+          model: db.PostImage,
+          as: "images",
+          attributes: ["image_id", "image_url"],
+        },
+      ],
+    });
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: '게시글 수정 중 오류가 발생했습니다.' });
+    res.status(200).json({ message: "게시글 수정 성공", post: updatedPost });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "게시글 수정 중 오류가 발생했습니다." });
   }
 };
+
 
 
 // 게시글 삭제
