@@ -72,6 +72,7 @@ exports.getBoardPost = async (req, res) => {
     }
 };
 
+// 게시글 상세 조회
 exports.getPost = async (req, res) => {
     const { post_id } = req.params;
 
@@ -188,7 +189,7 @@ exports.deletePost = async (req, res) => {
 exports.createComment = async (req, res) => {
   const { post_id } = req.params;
   const user_id = req.user.user_id;
-  const { content } = req.body;
+  const { content, parent_comment_id } = req.body; // parent_comment_id 추가함
 
   if (!user_id || !content) {
     return res.status(400).json({ error: 'user_id와 content는 필수입니다.' });
@@ -199,6 +200,7 @@ exports.createComment = async (req, res) => {
       post_id,
       user_id,
       content,
+      parent_comment_id: parent_comment_id || null,
     });
 
     res.status(201).json({ message: '댓글 작성 성공', comment: newComment });
@@ -207,6 +209,7 @@ exports.createComment = async (req, res) => {
     res.status(500).json({ error: '댓글 작성 중 오류가 발생했습니다.' });
   }
 };
+
 
 // 댓글 수정
 exports.updateComment = async (req, res) => {
