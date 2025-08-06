@@ -458,36 +458,35 @@ exports.createReport = async (req, res) => {
   }
 };
 
-// 신고 게시글 댓글 조회 api
+// 신고 게시글·댓글 조회  ─  /boards/admin/report
 exports.getAllReports = async (req, res) => {
   try {
     const { report_type } = req.query;
 
-    // 관리자인지 확인
-    if (!req.user || req.user.type !== "admin") {
+    if (!req.user || req.user.type !== "admin")
       return res.status(403).json({ message: "관리자 권한이 필요합니다." });
-    }
 
+    /* post / comment 필터 */
     const whereClause = {};
-    if (report_type === "post") {
-      whereClause.post_id = { [Op.not]: null };
-    } else if (report_type === "comment") {
-      whereClause.comment_id = { [Op.not]: null };
-    }
+    if (report_type === "post")      whereClause.post_id    = { [Op.not]: null };
+    else if (report_type === "comment") whereClause.comment_id = { [Op.not]: null };
 
     const reports = await Report.findAll({
       where: whereClause,
       include: [
-        { model: User, attributes: ["user_id", "name"] },
-        { model: Post, attributes: ["post_id", "title", "content"], required: false },
-        { model: Comment, attributes: ["comment_id", "content"], required: false },
+        {
+          model: User,
+          attributes: ["user_id", "name", "banned_until"], // ← 여기!
+        },
+        { model: Post,     attributes: ["post_id", "title", "content"],    required: false },
+        { model: Comment,  attributes: ["comment_id", "content", "post_id"], required: false },
       ],
       order: [["created_at", "DESC"]],
     });
 
     res.json(reports);
-  } catch (error) {
-    console.error("신고 조회 실패:", error);
+  } catch (err) {
+    console.error("신고 조회 실패:", err);
     res.status(500).json({ message: "신고 목록 조회 중 오류 발생" });
   }
 };

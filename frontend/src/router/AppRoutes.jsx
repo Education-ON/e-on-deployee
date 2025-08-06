@@ -91,7 +91,7 @@ const AppRoutes = () => {
             <Route path="/community" element={<CommunityList />} />
             <Route path="/community/:board_id/write" element={<CommunityWrite />} />
             <Route path="/community/:board_id/edit" element={<CommunityEdit />} />
-            <Route path="/posts/:post_id" element={<PostDetail />} />
+            <Route path="community/posts/:post_id" element={<PostDetail />} />
             <Route path="/community/board-requests" element={<BoardRequestPage />} />
 
             {/* MyPage (중첩 라우트) */}

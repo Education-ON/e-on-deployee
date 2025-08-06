@@ -19,20 +19,22 @@ const API = import.meta.env.VITE_BASE_URL || "http://localhost:4000";
 const PostDetail = () => {
     const { post_id } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, isBanned, bannedUntil } = useAuth();
 
     const [post, setPost] = useState(null);
     const [newComment, setNewComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [showReportPost, setShowReportPost] = useState(false);
 
     // ───────── 수정 관련 상태 ─────────
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState("");
     const [editedContent, setEditedContent] = useState("");
 
-    const [existingImgs, setExistingImgs] = useState([]); // ⭐ DB에 이미 저장된 이미지
-    const [removedIds, setRemovedIds] = useState([]);     // ⭐ 삭제 체크된 이미지 id
-    const [newFiles, setNewFiles] = useState([]);         // ⭐ 새로 고른 File[]
+    const [existingImgs, setExistingImgs] = useState([]);
+    const [removedIds, setRemovedIds] = useState([]);
+    const [newFiles, setNewFiles] = useState([]);
 
     // ───────── 게시글 가져오기 ─────────
     const fetchPost = async () => {
@@ -53,11 +55,15 @@ const PostDetail = () => {
 
     // ───────── 이미지 관련 핸들러 ─────────
     const handleFileChange = (e) => {
-        const files = Array.from(e.target.files).map((f) => {
+      if (isBanned) {
+        toast(`정지 중입니다. ${bannedUntil} 까지`, { icon: "⚠️" });
+        return;
+      }
+      const files = Array.from(e.target.files).map((f) => {
         f.previewURL = URL.createObjectURL(f);
         return f;
-        });
-        setNewFiles(files);
+      });
+      setNewFiles(files);
     };
 
     useEffect(
@@ -73,7 +79,11 @@ const PostDetail = () => {
 
     // ───────── 게시글 수정 저장 ─────────
     const handleSave = async () => {
-        try {
+      if (isBanned) {
+        toast(`정지 중입니다. ${bannedUntil} 까지`, { icon: "⚠️" });
+        return;
+      }
+      try {
         const fd = new FormData();
         fd.append("title", editedTitle);
         fd.append("content", editedContent);
@@ -90,7 +100,7 @@ const PostDetail = () => {
         } catch (err) {
         console.error("수정 실패:", err);
         toast("게시글 수정 중 오류가 발생했습니다.", { icon: "⚠️" });
-        }
+      }
     };
 
     // 게시글 삭제
@@ -108,10 +118,14 @@ const PostDetail = () => {
 
     // 댓글 등록
     const handleSubmitComment = async () => {
-        if (!newComment.trim()) {
-            toast("댓글을 입력해주세요.", { icon: "⚠️" });
-            return;
-        }
+      if (isBanned) {
+        toast(`정지 중입니다. ${bannedUntil} 까지`, { icon: "⚠️" });
+        return;
+      }
+      if (!newComment.trim()) {
+        toast("댓글을 입력해주세요.", { icon: "⚠️" });
+        return;
+      }
         try {
             setIsSubmitting(true);
             await createComment(post.post_id, { content: newComment });
@@ -168,13 +182,18 @@ const PostDetail = () => {
                   <>
                     <button
                       className={styles.editBtn}
+                      disabled={isBanned}
                       onClick={() => {
+                        if (isBanned) {
+                          toast(`정지 중입니다. ${bannedUntil} 까지`, { icon: "⚠️" });
+                          return;
+                        }
                         setIsEditing(true);
                         setEditedTitle(post.title);
                         setEditedContent(post.content);
                       }}
                     >
-                      수정
+                      {isBanned ? "정지중" : "수정"}
                     </button>
                     <button
                       className={styles.deleteBtn}
@@ -193,7 +212,28 @@ const PostDetail = () => {
             <span className={styles.date}>
               {new Date(post.created_at).toLocaleString()}
             </span>
+            {/* 🚨 게시글 신고 버튼 */}
+            {!isEditing && (
+              <>
+                <button
+                  className={styles.reportBtn}           // 필요하면 CSS 작성
+                  onClick={() => setShowReportPost(true)}
+                  disabled={isBanned}                    // 정지 중엔 신고 불가
+                >
+                  🚨 게시글 신고
+                </button>
+
+                {showReportPost && (
+                  <ReportForm
+                    targetType="post"
+                    targetId={post.post_id}
+                    onClose={() => setShowReportPost(false)}
+                  />
+                )}
+              </>
+            )}
           </div>
+
         </div>
 
         {/* ───── 본문 & 이미지 ───── */}
@@ -245,6 +285,7 @@ const PostDetail = () => {
                 type="file"
                 accept="image/*"
                 multiple
+                disabled={isBanned}
                 onChange={handleFileChange}
               />
 
@@ -289,18 +330,24 @@ const PostDetail = () => {
 
         {/* ───── 댓글 작성 폼 ───── */}
         <div className={styles.commentForm}>
+          {isBanned && (
+            <p className={styles.banMsg}>
+              ⚠️  {new Date(bannedUntil).toLocaleString()} 까지 댓글 작성이 제한됩니다.
+            </p>
+          )}
           <textarea
             className={styles.commentTextarea}
             placeholder="댓글을 입력하세요"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
+            disabled={isBanned}
           />
           <button
             className={styles.commentButton}
             onClick={handleSubmitComment}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isBanned}
           >
-            {isSubmitting ? "작성 중..." : "등록"}
+            {isBanned ? "정지중" : isSubmitting ? "작성 중..." : "등록"}
           </button>
         </div>
       </div>
