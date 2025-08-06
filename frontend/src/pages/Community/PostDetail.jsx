@@ -17,87 +17,117 @@ import { toast } from "react-toastify";
 const API = import.meta.env.VITE_BASE_URL || "http://localhost:4000";
 
 const PostDetail = () => {
-  const { post_id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
+    const { post_id } = useParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
 
-  const [post, setPost] = useState(null);
-  const [newComment, setNewComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [post, setPost] = useState(null);
+    const [newComment, setNewComment] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ───────── 수정 관련 상태 ─────────
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState("");
-  const [editedContent, setEditedContent] = useState("");
+    // ───────── 수정 관련 상태 ─────────
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedTitle, setEditedTitle] = useState("");
+    const [editedContent, setEditedContent] = useState("");
 
-  const [existingImgs, setExistingImgs] = useState([]); // ⭐ DB에 이미 저장된 이미지
-  const [removedIds, setRemovedIds] = useState([]);     // ⭐ 삭제 체크된 이미지 id
-  const [newFiles, setNewFiles] = useState([]);         // ⭐ 새로 고른 File[]
+    const [existingImgs, setExistingImgs] = useState([]); // ⭐ DB에 이미 저장된 이미지
+    const [removedIds, setRemovedIds] = useState([]);     // ⭐ 삭제 체크된 이미지 id
+    const [newFiles, setNewFiles] = useState([]);         // ⭐ 새로 고른 File[]
 
-  // ───────── 게시글 가져오기 ─────────
-  const fetchPost = async () => {
-    try {
-      const res = await getPost(post_id);
-      setPost(res.data);
-      setExistingImgs(res.data.images || []);           // ⭐
-      setRemovedIds([]);
-      setNewFiles([]);
-    } catch (err) {
-      console.error("게시글 불러오기 실패:", err);
-    }
-  };
+    // ───────── 게시글 가져오기 ─────────
+    const fetchPost = async () => {
+        try {
+        const res = await getPost(post_id);
+        setPost(res.data);
+        setExistingImgs(res.data.images || []);           // ⭐
+        setRemovedIds([]);
+        setNewFiles([]);
+        } catch (err) {
+        console.error("게시글 불러오기 실패:", err);
+        }
+    };
 
-  useEffect(() => {
-    fetchPost();
-  }, [post_id]);
+    useEffect(() => {
+        fetchPost();
+    }, [post_id]);
 
-  // ───────── 이미지 관련 핸들러 ─────────
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files).map((f) => {
-      f.previewURL = URL.createObjectURL(f);
-      return f;
-    });
-    setNewFiles(files);
-  };
+    // ───────── 이미지 관련 핸들러 ─────────
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files).map((f) => {
+        f.previewURL = URL.createObjectURL(f);
+        return f;
+        });
+        setNewFiles(files);
+    };
 
-  useEffect(
-    () => () => newFiles.forEach((f) => URL.revokeObjectURL(f.previewURL)),
-    [newFiles]
-  );
-
-  const toggleRemoveExisting = (id) => {
-    setRemovedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    useEffect(
+        () => () => newFiles.forEach((f) => URL.revokeObjectURL(f.previewURL)),
+        [newFiles]
     );
-  };
 
-  // ───────── 게시글 수정 저장 ─────────
-  const handleSave = async () => {
+    const toggleRemoveExisting = (id) => {
+        setRemovedIds((prev) =>
+        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    // ───────── 게시글 수정 저장 ─────────
+    const handleSave = async () => {
+        try {
+        const fd = new FormData();
+        fd.append("title", editedTitle);
+        fd.append("content", editedContent);
+
+        newFiles.forEach((f) => fd.append("images", f));
+        if (removedIds.length)
+            fd.append("removed_ids", JSON.stringify(removedIds));
+
+        await updatePost(post_id, fd);
+        toast("게시글이 수정되었습니다.", { icon: "💜" });
+
+        setIsEditing(false);
+        fetchPost();
+        } catch (err) {
+        console.error("수정 실패:", err);
+        toast("게시글 수정 중 오류가 발생했습니다.", { icon: "⚠️" });
+        }
+    };
+
+    // 게시글 삭제
+    const handleDelete = async () => {
+    if (!window.confirm("정말 게시글을 삭제하시겠습니까?")) return;
     try {
-      const fd = new FormData();
-      fd.append("title", editedTitle);
-      fd.append("content", editedContent);
-
-      newFiles.forEach((f) => fd.append("images", f));
-      if (removedIds.length)
-        fd.append("removed_ids", JSON.stringify(removedIds));
-
-      await updatePost(post_id, fd);
-      toast("게시글이 수정되었습니다.", { icon: "💜" });
-
-      setIsEditing(false);
-      fetchPost();
+        await deletePost(post_id);           // API 호출
+        toast("게시글이 삭제되었습니다.", { icon: "💜" });
+        navigate("/community");              // 목록 페이지로 이동
     } catch (err) {
-      console.error("수정 실패:", err);
-      toast("게시글 수정 중 오류가 발생했습니다.", { icon: "⚠️" });
+        console.error("삭제 실패:", err);
+        toast("게시글 삭제 중 오류가 발생했습니다.", { icon: "⚠️" });
     }
-  };
+    };
 
-  // ───────── 기타 핸들러 생략 (댓글·삭제 등) ─────────
-  /* …기존 댓글 작성/삭제, 게시글 삭제 등 핸들러는 그대로 유지… */
+    // 댓글 등록
+    const handleSubmitComment = async () => {
+        if (!newComment.trim()) {
+            toast("댓글을 입력해주세요.", { icon: "⚠️" });
+            return;
+        }
+        try {
+            setIsSubmitting(true);
+            await createComment(post.post_id, { content: newComment });
+            setNewComment("");
+            fetchPost();                         // 새 댓글 반영
+        } catch (err) {
+            console.error(err);
+            toast("댓글 작성 중 오류 발생", { icon: "⚠️" });
+        } finally {
+            setIsSubmitting(false);
+        }
+        };
 
-  if (!post) return <div className={styles.loading}>불러오는 중...</div>;
-  const commentTree = buildCommentTree(post.Comments || []);
+    
+    if (!post) return <div className={styles.loading}>불러오는 중...</div>;
+    const commentTree = buildCommentTree(post.Comments || []);
 
   return (
     <div className={styles.container}>
@@ -148,7 +178,7 @@ const PostDetail = () => {
                     </button>
                     <button
                       className={styles.deleteBtn}
-                      onClick={() => {/* 삭제 핸들러 */}}
+                      onClick={handleDelete}
                     >
                       삭제
                     </button>
@@ -267,7 +297,7 @@ const PostDetail = () => {
           />
           <button
             className={styles.commentButton}
-            onClick={() => {/* 댓글 등록 */}}
+            onClick={handleSubmitComment}
             disabled={isSubmitting}
           >
             {isSubmitting ? "작성 중..." : "등록"}
