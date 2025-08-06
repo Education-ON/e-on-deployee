@@ -44,6 +44,9 @@ export default function AdminPage() {
                     <Link to="/admin/challenge-requests" className={styles.menuBox}>
                         챌린지 개설 요청 확인하기
                     </Link>
+                    <Link to="/admin/reports" className={styles.menuBox}>
+                        게시글 및 댓글 신고 확인하기
+                    </Link>
                 </div>
                 <AdminPageComponent />
             </div>

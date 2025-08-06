@@ -59,6 +59,8 @@ function AuthProvider({ children }) {
         // console.log('🔍 로그인 요청 발생! 이메일:', email, '비번:', password);
         const res = await api.post("/auth/login", { email, password });
         console.log('🔍 로그인 요청 발생! 이메일:', email, '비번:', password);
+        console.log("💬 로그인 응답:", res.data);
+        console.log("🐛 user:", res.data.user);  
         setUser(res.data.user);
         console.log("🔥 login 실행됨: ", email, password);
 

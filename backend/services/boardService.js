@@ -39,25 +39,32 @@ async function getBoardPost(board_id) {
     }
 };
 
-// 게시글 상세 조회
+// 게시글 상세 조회 (댓글 + 대댓글 포함)
 async function getPostWithComments(post_id) {
-    return await Post.findOne({
-        where: { post_id },
-        include: [{
+  return await Post.findOne({
+    where: { post_id },
+    include: [
+      {
+        model: User,
+        attributes: ['name']
+      },
+      {
+        model: Comment,
+        attributes: ['comment_id', 'post_id', 'user_id', 'content', 'created_at', 'parent_comment_id'],
+        include: [
+          {
             model: User,
-            attributes: ['name']
-            },
-            {
-                model: Comment,
-                attributes: [ 'comment_id', 'content', 'created_at', 'user_id'],
-                include: [{
-                    model: User,
-                    attributes: ['name', 'user_id'],
-                }]
-            }
+            attributes: ['user_id', 'name'],
+          }
         ]
-    });
-};
+      }
+    ],
+    order: [
+      [Comment, 'created_at', 'ASC']
+    ]
+  });
+}
+
 
 
 module.exports = {

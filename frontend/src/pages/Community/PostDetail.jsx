@@ -7,9 +7,10 @@ import {
     updatePost,
     deletePost,
     createComment,
-    updateComment,
-    deleteComment,
 } from "../../api/communityApi";
+import ReportForm from "../../pages/Community/ReportForm";
+import { buildCommentTree } from "../../utils/buildCommentTree";
+import CommentItem from "../../components/Community/CommentItem";
 import styles from "../../styles/Community/PostDetail.module.css";
 import { toast } from "react-toastify";
 
@@ -21,11 +22,10 @@ const PostDetail = () => {
     const [post, setPost] = useState(null);
     const [newComment, setNewComment] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [editingCommentId, setEditingCommentId] = useState(null);
-    const [editedContent, setEditedContent] = useState("");
     const [isEditingPost, setIsEditingPost] = useState(false);
     const [editedPostTitle, setEditedPostTitle] = useState("");
     const [editedPostContent, setEditedPostContent] = useState("");
+    const [showReportPost, setShowReportPost] = useState(false);
 
     const fetchPost = async () => {
         try {
@@ -73,89 +73,6 @@ const PostDetail = () => {
             });
         } finally {
             setIsSubmitting(false);
-        }
-    };
-
-    const handleEditClick = (comment) => {
-        setEditingCommentId(comment.comment_id);
-        setEditedContent(comment.content);
-    };
-
-    const handleCancelEdit = () => {
-        setEditingCommentId(null);
-        setEditedContent("");
-    };
-
-    const handleSaveClick = async () => {
-        if (!editedContent.trim())
-            return toast("내용을 입력해주세요.", {
-                icon: "⚠️",
-                style: {
-                    background: "#fff3f3",
-                    color: "#842029",
-                    borderLeft: "4px solid #ff6b6b",
-                    fontWeight: "bold",
-                },
-                progressClassName: "custom-progress-bar",
-            });
-        try {
-            await updateComment(editingCommentId, { content: editedContent });
-            toast("댓글이 수정되었습니다.", {
-                icon: "💜",
-                style: {
-                    background: "#f7f8fc",
-                    color: "#2d2d2d",
-                    borderLeft: "4px solid #b37bd6",
-                    fontWeight: "bold",
-                },
-                progressClassName: "custom-progress-bar",
-            });
-            setEditingCommentId(null);
-            fetchPost();
-        } catch (err) {
-            console.error("댓글 수정 실패", err);
-            toast("수정 중 오류가 발생했습니다.", {
-                icon: "⚠️",
-                style: {
-                    background: "#fff3f3",
-                    color: "#842029",
-                    borderLeft: "4px solid #ff6b6b",
-                    fontWeight: "bold",
-                },
-                progressClassName: "custom-progress-bar",
-            });
-        }
-    };
-
-    const handleDeleteComment = async (commentId) => {
-        const confirmDelete =
-            window.confirm("정말 이 댓글을 삭제하시겠습니까?");
-        if (!confirmDelete) return;
-        try {
-            await deleteComment(commentId);
-            toast("댓글이 삭제되었습니다.", {
-                icon: "💜",
-                style: {
-                    background: "#f7f8fc",
-                    color: "#2d2d2d",
-                    borderLeft: "4px solid #b37bd6",
-                    fontWeight: "bold",
-                },
-                progressClassName: "custom-progress-bar",
-            });
-            fetchPost();
-        } catch (err) {
-            console.error("댓글 삭제 실패", err);
-            toast("댓글 삭제 중 오류가 발생했습니다.", {
-                icon: "⚠️",
-                style: {
-                    background: "#fff3f3",
-                    color: "#842029",
-                    borderLeft: "4px solid #ff6b6b",
-                    fontWeight: "bold",
-                },
-                progressClassName: "custom-progress-bar",
-            });
         }
     };
 
@@ -237,7 +154,10 @@ const PostDetail = () => {
         }
     };
 
+        // 대댓글 트리구조 위함
     if (!post) return <div className={styles.loading}>불러오는 중...</div>;
+    const commentTree = buildCommentTree(post.Comments || []);
+
 
     return (
         <div className={styles.container}>
@@ -293,6 +213,18 @@ const PostDetail = () => {
                         <span className={styles.date}>
                             {new Date(post.created_at).toLocaleString()}
                         </span>
+                        <span className={styles.reportPostWrapper}>
+                            <button onClick={() => setShowReportPost(true)}>
+                            🚨 게시글 신고
+                            </button>
+                            {showReportPost && (
+                            <ReportForm
+                                targetType="post"
+                                targetId={post.post_id}
+                                onClose={() => setShowReportPost(false)}
+                            />
+                            )}
+                        </span>
                     </div>
                 </div>
 
@@ -306,110 +238,30 @@ const PostDetail = () => {
                             }
                         />
                     ) : (
-                        post.content
+                        <>
+                            {post.content}
+                        </>
                     )}
                 </div>
 
                 <div className={styles.commentsSection}>
                     <h3 className={styles.commentsTitle}>댓글</h3>
-                    {post.Comments && post.Comments.length > 0 ? (
+                    {commentTree.length > 0 ? (
                         <ul className={styles.commentList}>
-                            {post.Comments.map((comment) => (
-                                <li
-                                    key={comment.comment_id}
-                                    className={styles.commentItem}>
-                                    <div className={styles.commentHeader}>
-                                        <div className={styles.commentInfo}>
-                                            <span
-                                                className={
-                                                    styles.commentAuthor
-                                                }>
-                                                {comment.User?.name}
-                                            </span>
-                                            <span
-                                                className={styles.commentDate}>
-                                                {new Date(
-                                                    comment.created_at
-                                                ).toLocaleString()}
-                                            </span>
-                                        </div>
-                                        {(user?.user_id === comment.user_id || user?.type === "admin") &&
-                                            editingCommentId !==
-                                                comment.comment_id && (
-                                                <div
-                                                    className={
-                                                        styles.commentButtons
-                                                    }>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleEditClick(
-                                                                comment
-                                                            )
-                                                        }
-                                                        className={
-                                                            styles.commentEditBtn
-                                                        }>
-                                                        수정
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDeleteComment(
-                                                                comment.comment_id
-                                                            )
-                                                        }
-                                                        className={
-                                                            styles.commentDeleteBtn
-                                                        }>
-                                                        삭제
-                                                    </button>
-                                                </div>
-                                            )}
-                                    </div>
-                                    {editingCommentId === comment.comment_id ? (
-                                        <div className={styles.commentEditBox}>
-                                            <textarea
-                                                value={editedContent}
-                                                onChange={(e) =>
-                                                    setEditedContent(
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className={
-                                                    styles.commentEditTextarea
-                                                }
-                                            />
-                                            <div
-                                                className={
-                                                    styles.commentEditButtons
-                                                }>
-                                                <button
-                                                    onClick={handleSaveClick}
-                                                    className={
-                                                        styles.commentSaveBtn
-                                                    }>
-                                                    저장
-                                                </button>
-                                                <button
-                                                    onClick={handleCancelEdit}
-                                                    className={
-                                                        styles.commentCancelBtn
-                                                    }>
-                                                    취소
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.commentContent}>
-                                            {comment.content}
-                                        </div>
-                                    )}
-                                </li>
-                            ))}
+                        {commentTree.map((comment) => (
+                            <CommentItem
+                            key={comment.comment_id}
+                            comment={comment}
+                            postId={post.post_id}
+                            user={user}
+                            fetchPost={fetchPost}
+                            />
+                        ))}
                         </ul>
                     ) : (
                         <p className={styles.noComments}>댓글이 없습니다.</p>
                     )}
-                </div>
+                 </div>
 
                 <div className={styles.commentForm}>
                     <textarea

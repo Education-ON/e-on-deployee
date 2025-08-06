@@ -5,6 +5,7 @@ const Board = db.Board;
 const Post = db.Post;
 const Comment = db.Comment;
 const BoardRequest = db.BoardRequest;
+const Report = db.Report;
 
 // 게시판 조회 1
 exports.getBoardList = async (req, res) => {
@@ -71,6 +72,7 @@ exports.getBoardPost = async (req, res) => {
     }
 };
 
+// 게시글 상세 조회
 exports.getPost = async (req, res) => {
     const { post_id } = req.params;
 
@@ -187,7 +189,7 @@ exports.deletePost = async (req, res) => {
 exports.createComment = async (req, res) => {
   const { post_id } = req.params;
   const user_id = req.user.user_id;
-  const { content } = req.body;
+  const { content, parent_comment_id } = req.body; // parent_comment_id 추가함
 
   if (!user_id || !content) {
     return res.status(400).json({ error: 'user_id와 content는 필수입니다.' });
@@ -198,6 +200,7 @@ exports.createComment = async (req, res) => {
       post_id,
       user_id,
       content,
+      parent_comment_id: parent_comment_id || null,
     });
 
     res.status(201).json({ message: '댓글 작성 성공', comment: newComment });
@@ -206,6 +209,7 @@ exports.createComment = async (req, res) => {
     res.status(500).json({ error: '댓글 작성 중 오류가 발생했습니다.' });
   }
 };
+
 
 // 댓글 수정
 exports.updateComment = async (req, res) => {
@@ -365,5 +369,77 @@ exports.updateBoardRequestStatus = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: '상태 변경 중 오류가 발생했습니다.' });
+  }
+};
+
+//게시글 댓글 신고 api
+exports.createReport = async (req, res) => {
+  try {
+    const { report_type, post_id, comment_id, reason, reporter_id } = req.body;
+
+    if (!['post', 'comment'].includes(report_type)) {
+      return res.status(400).json({ message: 'Invalid report_type. Must be "post" or "comment".' });
+    }
+
+    if (!reason || !reporter_id || (report_type === 'post' && !post_id) || (report_type === 'comment' && !comment_id)) {
+      return res.status(400).json({ message: 'Missing required fields.' });
+    }
+
+    // 존재 여부 확인
+    // if (report_type === 'post') {
+    //   const post = await Post.findByPk(post_id);
+    //   if (!post) return res.status(404).json({ message: 'Post not found.' });
+    // } else {
+    //   const comment = await Comment.findByPk(comment_id);
+    //   if (!comment) return res.status(404).json({ message: 'Comment not found.' });
+    // }
+
+    // 신고 저장
+    const report = await Report.create({
+      report_type,
+      post_id: report_type === 'post' ? post_id : null,
+      comment_id: report_type === 'comment' ? comment_id : null,
+      reason,
+      reporter_id
+    });
+
+    res.status(201).json({ message: '신고가 접수되었습니다.', report });
+  } catch (err) {
+    console.error('신고 등록 오류:', err);
+    res.status(500).json({ message: '서버 오류로 신고에 실패했습니다.' });
+  }
+};
+
+// 신고 게시글 댓글 조회 api
+exports.getAllReports = async (req, res) => {
+  try {
+    const { report_type } = req.query;
+
+    // 관리자인지 확인
+    if (!req.user || req.user.type !== "admin") {
+      return res.status(403).json({ message: "관리자 권한이 필요합니다." });
+    }
+
+    const whereClause = {};
+    if (report_type === "post") {
+      whereClause.post_id = { [Op.not]: null };
+    } else if (report_type === "comment") {
+      whereClause.comment_id = { [Op.not]: null };
+    }
+
+    const reports = await Report.findAll({
+      where: whereClause,
+      include: [
+        { model: User, attributes: ["user_id", "name"] },
+        { model: Post, attributes: ["post_id", "title", "content"], required: false },
+        { model: Comment, attributes: ["comment_id", "content"], required: false },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+
+    res.json(reports);
+  } catch (error) {
+    console.error("신고 조회 실패:", error);
+    res.status(500).json({ message: "신고 목록 조회 중 오류 발생" });
   }
 };

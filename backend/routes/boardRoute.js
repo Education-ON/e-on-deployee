@@ -41,4 +41,10 @@ router.get('/board-requests', boardController.getAllBoardRequests);
 // 게시판 개설 승인
 router.patch('/board-requests/:request_id', boardController.updateBoardRequestStatus);
 
+// 게시글 댓글 신고
+router.post('/report', boardController.createReport);
+
+// 관리자 게시글 댓글 신고 조회
+router.get('/admin/report', boardController.getAllReports);
+
 module.exports = router;
