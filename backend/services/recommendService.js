@@ -28,6 +28,9 @@ exports.getRecommendedChallenges = async (userId) => {
   const interestNames = interests.map(i => i.Interest?.interest_detail).filter(Boolean);
   const visionNames = visions.map(v => v.Vision?.vision_detail).filter(Boolean);
 
+  const interest = interestNames.length ? interestNames.join(', ') : '정보 없음'; 
+  const vision = visionNames.length ? visionNames.join(', ') : '정보 없음'; 
+
   // 사용자 설명 문장 생성
   const userText = generateUserSummaryText({
     participated: participated.items,
@@ -35,9 +38,11 @@ exports.getRecommendedChallenges = async (userId) => {
     posts: posts.items,
     comments: comments.items,
     boardRequests: boardRequests.items,
-    interest: interestNames,
-    vision: visionNames,
+    interest,
+    vision,
   });
+
+  //console.log('🧪 created:', JSON.stringify(created.items.slice(0, 2), null, 2));
 
   // 챌린지 리스트 불러오기
 const allChallenges = await Challenge.findAll({
@@ -60,7 +65,7 @@ const allChallenges = await Challenge.findAll({
 
   // 챌린지 설명 텍스트 생성
   const challengeTexts = allChallenges.map(ch => ({
-    id: ch.challenge_id, // ✅ 수정됨: ch.id → ch.challenge_id
+    id: ch.challenge_id, // 
     text: `챌린지 제목: ${ch.title}. 설명: ${ch.description}. 관심분야: ${ch.interests.map(i => i.interest_detail).join(', ')}. 진로: ${ch.visions.map(v => v.vision_detail).join(', ')}` // ✅ interest/vision 필드 직접 구성
   }));
 
@@ -70,5 +75,5 @@ console.log('📦 challengeTexts:', challengeTexts);
   // AI 추천 API 호출
   const recommendedIds = await callEmbeddingRecommendation(userText, challengeTexts);
 
-  return allChallenges.filter(c => recommendedIds.includes(c.challenge_id)); // ✅ id → challenge_id
+  return allChallenges.filter(c => recommendedIds.includes(c.challenge_id)); 
 };

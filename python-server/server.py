@@ -31,6 +31,10 @@ def recommend():
         similarities = util.cos_sim(user_emb, challenge_embs)[0]
         top_indices = torch.topk(similarities, k=min(5, len(challenges))).indices.tolist()
         recommended_ids = [challenge_ids[i] for i in top_indices]
+        
+        print("🔥 추천 ID 목록:", recommended_ids)
+        print("📨 user_text:", user_text)
+        print("📨 challenge_texts:", challenge_texts)
 
         return jsonify({'recommended_ids': recommended_ids})
 
