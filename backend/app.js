@@ -13,7 +13,7 @@ const { rawConnection: db, sequelize } = require("./database/db");
 const app = express();
 
 app.set('trust proxy', 1);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(
     cors({

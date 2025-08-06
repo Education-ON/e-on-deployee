@@ -16,6 +16,7 @@
 .history/
 node_modules/
 
+/backend/uploads/
+
 # Python
 python-server/venv/
-

@@ -20,15 +20,34 @@ export const getPost = (postId) => {
   return axiosInstance.get(`/boards/posts/${postId}`);
 };
 
-// 게시글 작성
+// 게시글 작성 (텍스트만 or 이미지 포함 FormData 모두 지원)
 export const createPost = (boardId, postData) => {
-  return axiosInstance.post(`/boards/${boardId}/posts`, postData);
+  const isFormData = postData instanceof FormData;
+
+  return axiosInstance.post(
+    `/boards/${boardId}/posts`,
+    postData,
+    isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } } // FormData일 때
+      : undefined                                               // JSON일 때 기본 헤더
+  );
 };
 
-// 게시글 수정
+
+// 게시글 수정 (이미지 포함 FormData도 처리)
 export const updatePost = (postId, postData) => {
-  return axiosInstance.put(`/boards/posts/${postId}`, postData);
+  // FormData인지 판별
+  const isFormData = postData instanceof FormData;
+
+  return axiosInstance.put(
+    `/boards/posts/${postId}`,
+    postData,
+    isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : undefined
+  );
 };
+
 
 // 게시글 삭제
 export const deletePost = (postId) => {
