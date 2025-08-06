@@ -5,6 +5,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const aiRecommendRoutes = require('./routes/aiRecommendRoutes');
+const adminRouter = require('./routes/adminRouter');
 // 반드시 전략 등록 전에 실행
 require("./config/passport")(passport);
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -54,6 +55,7 @@ app.use(passport.session());
 
 // ───────────────────────────────────────────────
 // 인증 및 API 라우터 설정
+app.use("/admin", adminRouter);
 app.use("/auth", require("./routes/authRouter"));
 app.use("/api/user", require("./routes/userRouter"));
 app.use("/api/interests", require("./routes/interest"));

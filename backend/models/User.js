@@ -53,6 +53,9 @@ module.exports = (sequelize, DataTypes) => {
             state_code: {
                 type: DataTypes.STRING(100),
             },
+            banned_until:{
+                type:DataTypes.DATE,allowNull:true
+            },
             email_notification: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,

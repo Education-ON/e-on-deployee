@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import styles from "../../styles/Community/CommunityWrite.module.css";
 import Header from "../../components/Common/Header";
 import { createPost } from "../../api/communityApi";
+import { useAuth }   from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 
 const CommunityWrite = () => {
@@ -10,6 +11,7 @@ const CommunityWrite = () => {
   const [content, setContent] = useState("");
   const [files, setFiles] = useState([]);            // 이미지 배열
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isBanned, bannedUntil } = useAuth();
 
   const navigate = useNavigate();
   const { board_id } = useParams();
@@ -38,6 +40,10 @@ const CommunityWrite = () => {
   /* ④ 글 등록 */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isBanned) {
+      toast(`정지중입니다. ${bannedUntil} 까지`, { icon: "⚠️" });
+      return;
+    }
     if (!title || !content) {
       toast("제목과 내용을 모두 입력해주세요.", { icon: "⚠️" });
       return;
@@ -122,13 +128,16 @@ const CommunityWrite = () => {
                 ))}
               </div>
             )}
-
             <button
               className={styles.submitButton}
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isBanned}
             >
-              {isSubmitting ? "등록 중..." : "등록하기"}
+              {isBanned
+                ? "정지중"
+                : isSubmitting
+                ? "등록 중..."
+                : "등록하기"}
             </button>
           </form>
         </div>
