@@ -1,6 +1,6 @@
-const db = require('../models');
+const db = require("../models");
 // const regionService = db.regionSearchService;
-const regionService = require('../services/regionSearchService');
+const regionService = require("../services/regionSearchService");
 
 // 1. DB 내 모든 지역 정보 조회 API
 exports.getAllRegions = async (req, res) => {
@@ -95,4 +95,40 @@ exports.getRegionById = async (req, res) => {
             message: error.message,
         });
     }
-}
+};
+
+exports.getAllRegionFromAPI = async (req, res) => {
+    try {
+        const regions = await regionService.getAllRegionFromAPI();
+        res.status(200).json({
+            status: "success",
+            data: {
+                regions,
+            },
+        });
+    } catch (error) {
+        console.error("❌ 전체 지역 조회 실패:", error.message);
+        res.status(500).json({
+            status: "error",
+            message: error.message,
+        });
+    }
+};
+
+exports.updateRegionsFromAPI = async (req, res) => {
+    try {
+        const regions = await regionService.updateRegionsFromAPI();
+        res.status(200).json({
+            status: "success",
+            data: {
+                regions,
+            },
+        });
+    } catch (error) {
+        console.error("❌ 전체 지역 업데이트 실패:", error.message);
+        res.status(500).json({
+            status: "error",
+            message: error.message,
+        });
+    }
+};

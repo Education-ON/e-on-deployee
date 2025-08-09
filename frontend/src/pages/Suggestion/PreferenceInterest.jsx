@@ -1,6 +1,6 @@
 // src/pages/Suggestion/PreferenceInterest.jsx
 import React, { useState, useEffect } from "react";
-import styles from "./Preference.module.css";
+import styles from "../../styles/Pages/Preference.module.css";
 import {
   getInterestCategories,
   getInterestsByCategory
