@@ -275,7 +275,7 @@ const ChallengeDetailContent = ({
     <div
       style={{
         maxWidth: 1040,
-        margin: "44px auto",
+        margin: "20px auto",
         background: "#fff",
         border: "1.5px solid #e5e7eb",
         borderRadius: 14,
