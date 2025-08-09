@@ -12,36 +12,19 @@ import {
   getChallengeReviews,
 } from "../../api/challengeApi";
 
-// 리뷰 하나를 보여줄 때 사용하는 컴포넌트
+// 리뷰 프리뷰
 const ReviewPreview = ({ reviewerName, rating, comment, date }) => {
   const formatted = date ? date.split("T")[0] : "-";
   return (
-    <div
-      style={{
-        borderBottom: "1px solid #e5e7eb",
-        padding: "8px 0",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 4,
-        }}
-      >
+    <div style={{ borderBottom: "1px solid #e5e7eb", padding: "8px 0" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
         <span style={{ fontWeight: 600 }}>{reviewerName}</span>
         <span style={{ color: "#888", fontSize: 12 }}>{formatted}</span>
       </div>
       <div style={{ marginBottom: 4 }}>
-        {rating > 0 ? (
-          <span style={{ color: "#f59e0b", fontSize: 14 }}>
-            {"★".repeat(rating)}
-          </span>
-        ) : null}
+        {rating > 0 ? <span style={{ color: "#f59e0b", fontSize: 14 }}>{"★".repeat(rating)}</span> : null}
       </div>
-      <div style={{ fontSize: 14, color: "#333" }}>
-        {comment || "(리뷰 내용이 없습니다.)"}
-      </div>
+      <div style={{ fontSize: 14, color: "#333" }}>{comment || "(리뷰 내용이 없습니다.)"}</div>
     </div>
   );
 };
@@ -59,17 +42,16 @@ const ChallengeDetailContent = ({
   participationState,
   refresh,
   hideActions = false,
+  hideReviews = false, // ← 추가: 리뷰 숨김 제어
 }) => {
   const navigate = useNavigate();
   const [actionLoading, setActionLoading] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
-  console.log("상세페이지 버튼 상태 확인", isJoined, participationId, participationState);
 
-  // ─────────────────────────────
   // 0) 나이 조건 추출
-  // ─────────────────────────────
-  let minAgeNum = null, maxAgeNum = null;
+  let minAgeNum = null,
+    maxAgeNum = null;
   if (typeof challenge.age_range === "string") {
     const m = challenge.age_range.match(/(\d+)\s*~\s*(\d+)/);
     if (m) {
@@ -84,12 +66,15 @@ const ChallengeDetailContent = ({
     userAge >= minAgeNum &&
     userAge <= maxAgeNum;
 
-  const isOwner = challenge.creator_id === userId || challenge.creator?.user_id === userId; 
+  const isOwner = challenge.creator_id === userId || challenge.creator?.user_id === userId;
 
-  // ─────────────────────────────
-  // 1) 리뷰 가져오기
-  // ─────────────────────────────
+  // 1) 리뷰 가져오기 (hideReviews면 호출도 스킵)
   useEffect(() => {
+    if (hideReviews) {
+      setReviews([]);
+      setReviewsLoading(false);
+      return;
+    }
     const fetchReviews = async () => {
       setReviewsLoading(true);
       try {
@@ -109,13 +94,10 @@ const ChallengeDetailContent = ({
         setReviewsLoading(false);
       }
     };
-
     fetchReviews();
-  }, [challenge.challenge_id]);
+  }, [challenge.challenge_id, hideReviews]);
 
-  // ─────────────────────────────
   // 2) 참여/취소 핸들러
-  // ─────────────────────────────
   const handleCancel = async () => {
     if (actionLoading) return;
     setActionLoading(true);
@@ -140,7 +122,7 @@ const ChallengeDetailContent = ({
     if (actionLoading) return;
     setActionLoading(true);
 
-    // participationState가 '취소'인 경우 재신청 로직
+    // 과거 '취소'에서 재신청
     if (participationId && participationState === "취소") {
       try {
         await cancelParticipation(participationId).catch(() => {});
@@ -161,7 +143,6 @@ const ChallengeDetailContent = ({
       return;
     }
 
-    // 일반 참여/취소 플로우
     try {
       if (isJoined) {
         await handleCancel();
@@ -184,16 +165,9 @@ const ChallengeDetailContent = ({
     setActionLoading(false);
   };
 
-  // ─────────────────────────────
-  // 3) 상태 한글 변환 및 기타 유틸 함수
-  // ─────────────────────────────
-  const statusMap = {
-    ACTIVE: "모집중",
-    CLOSED: "마감",
-    CANCELLED: "취소됨",
-  };
-  const status =
-    statusMap[challenge.challenge_state] || challenge.challenge_state;
+  // 3) 상태/표기 유틸
+  const statusMap = { ACTIVE: "모집중", CLOSED: "마감", CANCELLED: "취소됨" };
+  const status = statusMap[challenge.challenge_state] || challenge.challenge_state;
 
   const formatDate = (iso) => {
     if (!iso) return "-";
@@ -202,12 +176,8 @@ const ChallengeDetailContent = ({
   };
 
   const period =
-    challenge.duration &&
-    challenge.duration.start &&
-    challenge.duration.end
-      ? `${formatDate(challenge.duration.start)} ~ ${formatDate(
-          challenge.duration.end
-        )}`
+    challenge.duration && challenge.duration.start && challenge.duration.end
+      ? `${formatDate(challenge.duration.start)} ~ ${formatDate(challenge.duration.end)}`
       : "-";
 
   const isRegular = challenge.is_recuming ? "정기" : "비정기";
@@ -233,19 +203,13 @@ const ChallengeDetailContent = ({
 
   const allowJoinMid = challenge.intermediate_participation ? "허용" : "비허용";
 
-  // 관심분야/진로분야
-  const interestsList = (challenge.interests || [])
-    .map((i) => i.interest_detail)
-    .filter(Boolean);
-  const visionsList = (challenge.visions || [])
-    .map((v) => v.vision_detail)
-    .filter(Boolean);
+  const interestsList = (challenge.interests || []).map((i) => i.interest_detail).filter(Boolean);
+  const visionsList = (challenge.visions || []).map((v) => v.vision_detail).filter(Boolean);
 
   const fieldView = (
     <>
       <div>
-        <b>관심</b> :{" "}
-        {interestsList.length > 0 ? interestsList.join(", ") : "-"}
+        <b>관심</b> : {interestsList.length > 0 ? interestsList.join(", ") : "-"}
       </div>
       <div>
         <b>진로</b> : {visionsList.length > 0 ? visionsList.join(", ") : "-"}
@@ -253,20 +217,13 @@ const ChallengeDetailContent = ({
     </>
   );
 
-  const phone =
-    (challenge.creator && challenge.creator.phone) ||
-    challenge.creator_contact ||
-    "-";
+  const phone = (challenge.creator && challenge.creator.phone) || challenge.creator_contact || "-";
   const creatorName = challenge.creator?.name || "-";
   const creatorEmail = challenge.creator?.email || "-";
 
-  const deadline = challenge.application_deadline
-    ? formatDate(challenge.application_deadline)
-    : null;
+  const deadline = challenge.application_deadline ? formatDate(challenge.application_deadline) : null;
 
-  // ─────────────────────────────
-  // 4) 첨부파일(TYPE) 분기
-  // ─────────────────────────────
+  // 4) 첨부파일
   const photoObj =
     Array.isArray(challenge.attachments) &&
     challenge.attachments.find((att) => att.attachment_type === "이미지");
@@ -277,9 +234,7 @@ const ChallengeDetailContent = ({
   const BASE_URL = import.meta.env.VITE_BASE_URL || "";
   const STATIC_BASE = BASE_URL.replace(/\/api\/?$/, "");
 
-  // ─────────────────────────────
-  // 5) 삭제 & 북마크 핸들러
-  // ─────────────────────────────
+  // 5) 삭제 & 북마크
   const handleDelete = async () => {
     if (window.confirm("정말로 이 챌린지를 삭제하시겠습니까?")) {
       try {
@@ -315,9 +270,7 @@ const ChallengeDetailContent = ({
     }
   };
 
-  // ─────────────────────────────
-  // 6) JSX 렌더링
-  // ─────────────────────────────
+  // 6) JSX
   return (
     <div
       style={{
@@ -331,21 +284,11 @@ const ChallengeDetailContent = ({
       }}
     >
       {/* 상단 header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 16,
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span
             style={{
-              border:
-                status === "모집중"
-                  ? "1.5px solid #38bdf8"
-                  : "1.5px solid #bbb",
+              border: status === "모집중" ? "1.5px solid #38bdf8" : "1.5px solid #bbb",
               color: status === "모집중" ? "#38bdf8" : "#bbb",
               fontWeight: 600,
               fontSize: 15,
@@ -356,39 +299,19 @@ const ChallengeDetailContent = ({
             {status}
           </span>
           <div>
-            <div style={{ fontWeight: "bold", fontSize: 25 }}>
-              {challenge.title}
-            </div>
+            <div style={{ fontWeight: "bold", fontSize: 25 }}>{challenge.title}</div>
             <div style={{ color: "#666", fontSize: 15, marginTop: 2 }}>
               {period}
               {deadline && <> | 신청 마감 {deadline}</>}
             </div>
           </div>
         </div>
+
         {/* 오른쪽 버튼 영역 */}
-        
-        {/* 1) 액션 버튼 전체를 감싸는 hideActions 조건문 시작 */}
-      {!hideActions && (
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          {/* 출석부 버튼 */}
-          <button
-                style={{
-                  background: "#f9fafb",
-                  color: "#2563eb",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: 8,
-                  padding: "7px 20px",
-                  fontWeight: "bold",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={() => navigate(`/attendance/${challenge.challenge_id}`)}
-              >
-                출석부
-            </button>
-
-
-          {/* {isOwner && (
+        {!hideActions && (
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            {/* 출석부 버튼 (소유자만) */}
+            {isOwner && (
               <button
                 style={{
                   background: "#f9fafb",
@@ -403,126 +326,99 @@ const ChallengeDetailContent = ({
                 onClick={() => navigate(`/attendance/${challenge.challenge_id}`)}
               >
                 출석부
+              </button>
+            )}
+
+            {/* 북마크 버튼 */}
+            <button
+              onClick={toggleBookmark}
+              style={{ background: "none", border: "none", cursor: "pointer", marginRight: 4 }}
+            >
+              <FaBookmark size={25} color={bookmarked ? "#38bdf8" : "#bbb"} />
             </button>
-          )} */}
 
-
-          {/* 북마크 버튼 */}
-          <button
-            onClick={toggleBookmark}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              marginRight: 4,
-            }}
-          >
-            <FaBookmark size={25} color={bookmarked ? "#38bdf8" : "#bbb"} />
-          </button>
-
-          {/* 참여/취소 버튼 */}
-          <button
-            disabled={!canJoinByAge || actionLoading}
-            style={{
-              background: !canJoinByAge
-                ? "#eee"
+            {/* 참여/취소 버튼 */}
+            <button
+              disabled={!canJoinByAge || actionLoading}
+              style={{
+                background: !canJoinByAge ? "#eee" : isJoined ? "#fef2f2" : "#e5e7eb",
+                color: !canJoinByAge ? "#bbb" : isJoined ? "#e11d48" : "#222",
+                border: isJoined ? "1.5px solid #fca5a5" : "none",
+                borderRadius: 8,
+                padding: "9px 28px",
+                fontWeight: "bold",
+                fontSize: 16,
+                cursor: !canJoinByAge ? "not-allowed" : "pointer",
+              }}
+              onClick={
+                !canJoinByAge
+                  ? () => alert(`참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`)
+                  : isJoined
+                  ? handleCancel
+                  : handleJoin
+              }
+            >
+              {!canJoinByAge
+                ? minAgeNum === maxAgeNum
+                  ? `${maxAgeNum}세만 신청 가능`
+                  : `${minAgeNum}~${maxAgeNum}세만 신청 가능`
                 : isJoined
-                ? "#fef2f2" 
-                : "#e5e7eb",
-              color: !canJoinByAge
-                ? "#bbb"
-                : isJoined
-                ? "#e11d48"
-                : "#222",
-              border: isJoined ? "1.5px solid #fca5a5" : "none",
-              borderRadius: 8,
-              padding: "9px 28px",
-              fontWeight: "bold",
-              fontSize: 16,
-              cursor: !canJoinByAge ? "not-allowed" : "pointer",
-            }}
-            onClick={
-              !canJoinByAge
-                ? () => {
-                    alert(
-                      `참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`
-                    );
-                  }
-                : isJoined
-                ? handleCancel
-                : handleJoin
-            }
-          >
-            {!canJoinByAge
-              ? minAgeNum === maxAgeNum
-                ? `${maxAgeNum}세만 신청 가능`
-                : `${minAgeNum}~${maxAgeNum}세만 신청 가능`
-              : isJoined
-              ? "참여 취소"
-              : "신청하기"}
-          </button>
+                ? "참여 취소"
+                : "신청하기"}
+            </button>
 
-          {/* 수정/삭제 버튼 (소유자만) */}
-          {isOwner && (
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <button
-                style={{
-                  background: "#fff",
-                  border: "1.5px solid #2563eb",
-                  color: "#2563eb",
-                  borderRadius: 8,
-                  padding: "8px 22px",
-                  fontWeight: "bold",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={() =>
-                  navigate(`/challenge/${challenge.challenge_id}/edit`)
-                }
-              >
-                수정
-              </button>
-
-              <button
-                style={{
-                  background: "#fff",
-                  border: "1.5px solid #f87171",
-                  color: "#e11d48",
-                  borderRadius: 8,
-                  padding: "8px 22px",
-                  fontWeight: "bold",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={handleDelete}
-              >
-                삭제
-              </button>
-        </div>
-      )}
+            {/* 수정/삭제 (소유자만) */}
+            {isOwner && (
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  style={{
+                    background: "#fff",
+                    border: "1.5px solid #2563eb",
+                    color: "#2563eb",
+                    borderRadius: 8,
+                    padding: "8px 22px",
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate(`/challenge/${challenge.challenge_id}/edit`)}
+                >
+                  수정
+                </button>
+                <button
+                  style={{
+                    background: "#fff",
+                    border: "1.5px solid #f87171",
+                    color: "#e11d48",
+                    borderRadius: 8,
+                    padding: "8px 22px",
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    cursor: "pointer",
+                  }}
+                  onClick={handleDelete}
+                >
+                  삭제
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    )}
-    </div>
 
-      {/* ── 사진 (PHOTO) ── */}
+      {/* 사진 */}
       {photoObj ? (
         <img
           src={`${STATIC_BASE}${photoObj.url}`}
           alt="챌린지 사진"
-          style={{
-            width: "100%",
-            height: "500px",
-            objectFit: "cover",
-            borderRadius: 13,
-            marginBottom: 25,
-          }}
+          style={{ width: "100%", height: "500px", objectFit: "cover", borderRadius: 13, marginBottom: 25 }}
         />
       ) : null}
 
       {/* 2단 영역 */}
       <div style={{ display: "flex", gap: 34, marginBottom: 26 }}>
         {/* 1열(왼쪽): 정보 */}
-        <div style={{ flex: 1.1 }}>
+        <div style={{ flex: hideReviews ? 1 : 1.1 }}>
           <InfoRow
             label="정기여부"
             value={
@@ -532,9 +428,7 @@ const ChallengeDetailContent = ({
                   <span style={{ color: "#444" }}>
                     (
                     {repeatCycle}
-                    {daysKorean.length > 0
-                      ? " | " + daysKorean.join(", ")
-                      : ""}
+                    {daysKorean.length > 0 ? " | " + daysKorean.join(", ") : ""}
                     )
                   </span>
                 </>
@@ -552,97 +446,72 @@ const ChallengeDetailContent = ({
           <InfoRow label="전화번호" value={phone} />
         </div>
 
-        {/* 2열(오른쪽): 리뷰 */}
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 7,
-            }}
-          >
-            <div style={{ fontWeight: "bold", fontSize: 16 }}>리뷰</div>
-            <div>
-              <button
-                style={{
-                  marginRight: 7,
-                  background: "#f3f3f3",
-                  border: "1.5px solid #e5e7eb",
-                  color: "#2563eb",
-                  borderRadius: 7,
-                  fontWeight: "bold",
-                  fontSize: 15,
-                  padding: "7px 18px",
-                  cursor: "pointer",
-                }}
-                onClick={() =>
-                  navigate(
-                    `/challenge/${challenge.challenge_id}/review/create`
-                  )
-                }
-              >
-                리뷰 작성
-              </button>
-              <button
-                style={{
-                  background: "#f3f3f3",
-                  border: "1.5px solid #e5e7eb",
-                  color: "#888",
-                  borderRadius: 7,
-                  fontWeight: "bold",
-                  fontSize: 15,
-                  padding: "7px 18px",
-                  cursor: "pointer",
-                }}
-                onClick={() =>
-                  navigate(`/challenge/${challenge.challenge_id}/reviews`)
-                }
-              >
-                더보기
-              </button>
+        {/* 2열(오른쪽): 리뷰 (hideReviews면 통째로 숨김) */}
+        {!hideReviews && (
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
+              <div style={{ fontWeight: "bold", fontSize: 16 }}>리뷰</div>
+              <div>
+                <button
+                  style={{
+                    marginRight: 7,
+                    background: "#f3f3f3",
+                    border: "1.5px solid #e5e7eb",
+                    color: "#2563eb",
+                    borderRadius: 7,
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    padding: "7px 18px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate(`/challenge/${challenge.challenge_id}/review/create`)}
+                >
+                  리뷰 작성
+                </button>
+                <button
+                  style={{
+                    background: "#f3f3f3",
+                    border: "1.5px solid #e5e7eb",
+                    color: "#888",
+                    borderRadius: 7,
+                    fontWeight: "bold",
+                    fontSize: 15,
+                    padding: "7px 18px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate(`/challenge/${challenge.challenge_id}/reviews`)}
+                >
+                  더보기
+                </button>
+              </div>
+            </div>
+
+            <div
+              style={{
+                border: "1.5px solid #e5e7eb",
+                borderRadius: 8,
+                background: "#fafafa",
+                minHeight: 80,
+                padding: "8px 15px",
+              }}
+            >
+              {reviewsLoading ? (
+                <div style={{ textAlign: "center", color: "#888" }}>리뷰 불러오는 중…</div>
+              ) : reviews.length === 0 ? (
+                <div style={{ color: "#666", fontSize: 14 }}>등록된 리뷰가 없습니다.</div>
+              ) : (
+                reviews.slice(0, 3).map((rv) => (
+                  <ReviewPreview key={rv.id} reviewerName={rv.reviewerName} rating={rv.rating} comment={rv.comment} date={rv.date} />
+                ))
+              )}
             </div>
           </div>
-
-          <div
-            style={{
-              border: "1.5px solid #e5e7eb",
-              borderRadius: 8,
-              background: "#fafafa",
-              minHeight: 80,
-              padding: "8px 15px",
-            }}
-          >
-            {reviewsLoading ? (
-              <div style={{ textAlign: "center", color: "#888" }}>
-                리뷰 불러오는 중…
-              </div>
-            ) : reviews.length === 0 ? (
-              <div style={{ color: "#666", fontSize: 14 }}>
-                등록된 리뷰가 없습니다.
-              </div>
-            ) : (
-              reviews.slice(0, 3).map((rv) => (
-                <ReviewPreview
-                  key={rv.id}
-                  reviewerName={rv.reviewerName}
-                  rating={rv.rating}
-                  comment={rv.comment}
-                  date={rv.date}
-                />
-              ))
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* 상세설명 */}
       <div>
-        <div
-          style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}
-        >
-          상세정보
-        </div>
+        <div style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}>상세정보</div>
         <div
           style={{
             border: "1.5px solid #e5e7eb",
@@ -657,18 +526,10 @@ const ChallengeDetailContent = ({
         </div>
       </div>
 
-      {/* ── 보호자 동의서 (CONSENT) ── */}
+      {/* 동의서 */}
       {consentObj ? (
         <div style={{ marginTop: 30 }}>
-          <div
-            style={{
-              fontWeight: "bold",
-              fontSize: 16,
-              marginBottom: 8,
-            }}
-          >
-            보호자 동의서
-          </div>
+          <div style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>보호자 동의서</div>
           <div>
             <a
               href={`${STATIC_BASE}${consentObj.url}`}
@@ -695,9 +556,7 @@ const ChallengeDetailContent = ({
 
 const InfoRow = ({ label, value }) => (
   <div style={{ display: "flex", marginBottom: 8 }}>
-    <div style={{ width: 90, color: "#444", fontWeight: 500 }}>
-      {label}
-    </div>
+    <div style={{ width: 90, color: "#444", fontWeight: 500 }}>{label}</div>
     <div>{value}</div>
   </div>
 );
