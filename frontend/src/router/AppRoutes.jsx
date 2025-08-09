@@ -44,12 +44,15 @@ import MyBoardRequest from "../pages/MyPage/MyBoardRequest";
 import ActivityHistory from "../pages/MyPage/ActivityHistory";
 import MyParticipatedChallenges from "../pages/MyPage/MyParticipatedChallenges";
 import MyCreatedChallenges from "../pages/MyPage/MyCreatedChallenges";
+import PreferencesAndVisions from "../pages/MyPage/PreferencesAndVisions";
+import ChooseInterest from "../pages/MyPage/ChooseInterest";
+import ChooseVision from "../pages/MyPage/ChooseVision";
 
 // Admin
 import AdminPage from "../pages/Admin/AdminPage";
 import UserManagement from "../pages/Admin/UserManagement";
 import BoardRequestList from "../pages/Admin/BoardRequestList";
-import ChallengeRequests from "../pages/MyPage/ChallengeRequests";
+import ChallengeRequests from "../pages/Admin/ChallengeRequests";
 import AdminChallengeDetail from "../pages/MyPage/AdminChallengeDetail";
 import ReportList from "../pages/Community/ReportList";
 
@@ -76,16 +79,37 @@ const AppRoutes = () => {
             <Route path="/attendance/:challengeId" element={<Attendance />} />
             <Route path="/challenge/:id" element={<ChallengeDetail />} />
             <Route path="/challenge/:id/edit" element={<ChallengeEdit />} />
-            <Route path="/challenge/:challengeId/reviews" element={<ReviewList />} />
-            <Route path="/challenge/:challengeId/review/create" element={<ReviewCreate />} />
-            <Route path="/challenge/:challengeId/review/:reviewId/edit" element={<ReviewEdit />} />
+            <Route
+                path="/challenge/:challengeId/reviews"
+                element={<ReviewList />}
+            />
+            <Route
+                path="/challenge/:challengeId/review/create"
+                element={<ReviewCreate />}
+            />
+            <Route
+                path="/challenge/:challengeId/review/:reviewId/edit"
+                element={<ReviewEdit />}
+            />
 
             {/* Suggestion */}
             <Route path="/suggestion" element={<Suggestion />} />
-            <Route path="/recommendation/time" element={<TimeRecommendation />} />
-            <Route path="/suggestion/preferences" element={<PreferenceInterest />} />
-            <Route path="/suggestion/preferences/vision" element={<PreferenceVision />} />
-            <Route path="/suggestion/recommendation" element={<RecommendationResult />} />
+            <Route
+                path="/recommendation/time"
+                element={<TimeRecommendation />}
+            />
+            <Route
+                path="/suggestion/preferences"
+                element={<PreferenceInterest />}
+            />
+            <Route
+                path="/suggestion/preferences/vision"
+                element={<PreferenceVision />}
+            />
+            <Route
+                path="/suggestion/recommendation"
+                element={<RecommendationResult />}
+            />
 
             {/* Community */}
             <Route path="/community" element={<CommunityList />} />
@@ -101,8 +125,7 @@ const AppRoutes = () => {
                     <PrivateRoutes>
                         <MyPage />
                     </PrivateRoutes>
-                }
-            >
+                }>
                 <Route index element={<Navigate to="info" replace />} />
                 <Route path="info" element={<MyInfoPage />} />
                 <Route path="my-school" element={<MySchoolManagementPage />} />
@@ -110,8 +133,20 @@ const AppRoutes = () => {
                 <Route path="deactivate" element={<DeactivateAccountPage />} />
                 <Route path="boardrequest" element={<MyBoardRequest />} />
                 <Route path="activity-history" element={<ActivityHistory />} />
-                <Route path="my-challenges" element={<MyParticipatedChallenges />} />
-                <Route path="created-challenges" element={<MyCreatedChallenges />} />
+                <Route
+                    path="my-challenges"
+                    element={<MyParticipatedChallenges />}
+                />
+                <Route
+                    path="created-challenges"
+                    element={<MyCreatedChallenges />}
+                />
+                <Route
+                    path="preferences-visions"
+                    element={<PreferencesAndVisions />}
+                />
+                <Route path="choose-interests" element={<ChooseInterest />} />
+                <Route path="choose-visions" element={<ChooseVision />} />
             </Route>
 
             {/* Admin (중첩 라우트) */}
@@ -121,13 +156,21 @@ const AppRoutes = () => {
                     <PrivateRoutes>
                         <AdminPage />
                     </PrivateRoutes>
-                }
-            >
-                <Route index element={<Navigate to="user-management" replace />} />
+                }>
+                <Route
+                    index
+                    element={<Navigate to="user-management" replace />}
+                />
                 <Route path="user-management" element={<UserManagement />} />
                 <Route path="board-requests" element={<BoardRequestList />} />
-                <Route path="challenge-requests" element={<ChallengeRequests />} />
-                <Route path="challenge-requests/:id" element={<AdminChallengeDetail />} />
+                <Route
+                    path="challenge-requests"
+                    element={<ChallengeRequests />}
+                />
+                <Route
+                    path="challenge-requests/:id"
+                    element={<AdminChallengeDetail />}
+                />
                 <Route path="reports" element={<ReportList />} />
             </Route>
         </Routes>
