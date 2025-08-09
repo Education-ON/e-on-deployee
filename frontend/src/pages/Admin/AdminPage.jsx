@@ -31,23 +31,7 @@ export default function AdminPage() {
                 <Header />
             </div>
 
-            {/* 필요에 따라 메뉴 직접 구성 또는 AdminPageComponent 사용 */}
             <div className={styles.content}>
-                {/* 메뉴형 UI */}
-                <div className={styles.menuGrid}>
-                    <Link to="/admin/user-management" className={styles.menuBox}>
-                        사용자 관리
-                    </Link>
-                    <Link to="/admin/board-requests" className={styles.menuBox}>
-                        게시판 개설 요청 확인하기
-                    </Link>
-                    <Link to="/admin/challenge-requests" className={styles.menuBox}>
-                        챌린지 개설 요청 확인하기
-                    </Link>
-                    <Link to="/admin/reports" className={styles.menuBox}>
-                        게시글 및 댓글 신고 확인하기
-                    </Link>
-                </div>
                 <AdminPageComponent />
             </div>
         </div>

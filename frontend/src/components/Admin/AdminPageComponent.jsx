@@ -21,17 +21,17 @@ const AdminPageComponent = () => {
 
     return (
         <div className={styles.container}>
-            <div className={styles.menuGrid}>
-                <Link
-                    to="/admin/user-management"
-                    className={`${styles.menuItem} ${
-                        location.pathname === "/admin/user-management"
-                            ? styles.active
-                            : ""
-                    }`}>
-                    사용자 관리
-                </Link>
-                {user.type === "admin" && (
+            <div className={styles.sidebar2}>
+                <div className={styles.menuList}>
+                    <Link
+                        to="/admin/user-management"
+                        className={`${styles.menuItem} ${
+                            location.pathname === "/admin/user-management"
+                                ? styles.active
+                                : ""
+                        }`}>
+                        사용자 관리
+                    </Link>
                     <Link
                         to="/admin/board-requests"
                         className={`${styles.menuItem} ${
@@ -39,11 +39,29 @@ const AdminPageComponent = () => {
                                 ? styles.active
                                 : ""
                         }`}>
-                        게시판 개설 요청 확인하기
+                        게시판 개설 요청
                     </Link>
-                )}
+                    <Link
+                        to="/admin/challenge-requests"
+                        className={`${styles.menuItem} ${
+                            location.pathname === "/admin/challenge-requests"
+                                ? styles.active
+                                : ""
+                        }`}>
+                        챌린지 개설 요청
+                    </Link>
+                    <Link
+                        to="/admin/reports"
+                        className={`${styles.menuItem} ${
+                            location.pathname === "/admin/reports"
+                                ? styles.active
+                                : ""
+                        }`}>
+                        게시글 및 댓글 신고
+                    </Link>
+                </div>
             </div>
-            <div className={styles.contentArea}>
+            <div className={styles.contentArea2}>
                 {/* 하위 페이지 컴포넌트 로딩 */}
                 <Outlet />
             </div>
