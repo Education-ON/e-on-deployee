@@ -19,7 +19,7 @@ export default function Header() {
         }
     };
 
-    console.log("location: ", location);
+    // console.log("location: ", location);
 
     return (
         <header className={styles.header}>

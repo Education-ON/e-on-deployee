@@ -44,6 +44,9 @@ import MyBoardRequest from "../pages/MyPage/MyBoardRequest";
 import ActivityHistory from "../pages/MyPage/ActivityHistory";
 import MyParticipatedChallenges from "../pages/MyPage/MyParticipatedChallenges";
 import MyCreatedChallenges from "../pages/MyPage/MyCreatedChallenges";
+import PreferencesAndVisions from "../pages/MyPage/PreferencesAndVisions";
+import ChooseInterest from "../pages/MyPage/ChooseInterest";
+import ChooseVision from "../pages/MyPage/ChooseVision";
 
 // Admin
 import AdminPage from "../pages/Admin/AdminPage";
@@ -76,23 +79,53 @@ const AppRoutes = () => {
             <Route path="/attendance/:challengeId" element={<Attendance />} />
             <Route path="/challenge/:id" element={<ChallengeDetail />} />
             <Route path="/challenge/:id/edit" element={<ChallengeEdit />} />
-            <Route path="/challenge/:challengeId/reviews" element={<ReviewList />} />
-            <Route path="/challenge/:challengeId/review/create" element={<ReviewCreate />} />
-            <Route path="/challenge/:challengeId/review/:reviewId/edit" element={<ReviewEdit />} />
+            <Route
+                path="/challenge/:challengeId/reviews"
+                element={<ReviewList />}
+            />
+            <Route
+                path="/challenge/:challengeId/review/create"
+                element={<ReviewCreate />}
+            />
+            <Route
+                path="/challenge/:challengeId/review/:reviewId/edit"
+                element={<ReviewEdit />}
+            />
 
             {/* Suggestion */}
             <Route path="/suggestion" element={<Suggestion />} />
-            <Route path="/recommendation/time" element={<TimeRecommendation />} />
-            <Route path="/suggestion/preferences" element={<PreferenceInterest />} />
-            <Route path="/suggestion/preferences/vision" element={<PreferenceVision />} />
-            <Route path="/suggestion/recommendation" element={<RecommendationResult />} />
+            <Route
+                path="/recommendation/time"
+                element={<TimeRecommendation />}
+            />
+            <Route
+                path="/suggestion/preferences"
+                element={<PreferenceInterest />}
+            />
+            <Route
+                path="/suggestion/preferences/vision"
+                element={<PreferenceVision />}
+            />
+            <Route
+                path="/suggestion/recommendation"
+                element={<RecommendationResult />}
+            />
 
             {/* Community */}
             <Route path="/community" element={<CommunityList />} />
-            <Route path="/community/:board_id/write" element={<CommunityWrite />} />
-            <Route path="/community/:board_id/edit" element={<CommunityEdit />} />
+            <Route
+                path="/community/:board_id/write"
+                element={<CommunityWrite />}
+            />
+            <Route
+                path="/community/:board_id/edit"
+                element={<CommunityEdit />}
+            />
             <Route path="/posts/:post_id" element={<PostDetail />} />
-            <Route path="/community/board-requests" element={<BoardRequestPage />} />
+            <Route
+                path="/community/board-requests"
+                element={<BoardRequestPage />}
+            />
 
             {/* MyPage (중첩 라우트) */}
             <Route
@@ -101,8 +134,7 @@ const AppRoutes = () => {
                     <PrivateRoutes>
                         <MyPage />
                     </PrivateRoutes>
-                }
-            >
+                }>
                 <Route index element={<Navigate to="info" replace />} />
                 <Route path="info" element={<MyInfoPage />} />
                 <Route path="my-school" element={<MySchoolManagementPage />} />
@@ -110,8 +142,20 @@ const AppRoutes = () => {
                 <Route path="deactivate" element={<DeactivateAccountPage />} />
                 <Route path="boardrequest" element={<MyBoardRequest />} />
                 <Route path="activity-history" element={<ActivityHistory />} />
-                <Route path="my-challenges" element={<MyParticipatedChallenges />} />
-                <Route path="created-challenges" element={<MyCreatedChallenges />} />
+                <Route
+                    path="my-challenges"
+                    element={<MyParticipatedChallenges />}
+                />
+                <Route
+                    path="created-challenges"
+                    element={<MyCreatedChallenges />}
+                />
+                <Route
+                    path="preferences-visions"
+                    element={<PreferencesAndVisions />}
+                />
+                <Route path="choose-interests" element={<ChooseInterest />} />
+                <Route path="choose-visions" element={<ChooseVision />} />
             </Route>
 
             {/* Admin (중첩 라우트) */}
@@ -121,13 +165,21 @@ const AppRoutes = () => {
                     <PrivateRoutes>
                         <AdminPage />
                     </PrivateRoutes>
-                }
-            >
-                <Route index element={<Navigate to="user-management" replace />} />
+                }>
+                <Route
+                    index
+                    element={<Navigate to="user-management" replace />}
+                />
                 <Route path="user-management" element={<UserManagement />} />
                 <Route path="board-requests" element={<BoardRequestList />} />
-                <Route path="challenge-requests" element={<ChallengeRequests />} />
-                <Route path="challenge-requests/:id" element={<AdminChallengeDetail />} />
+                <Route
+                    path="challenge-requests"
+                    element={<ChallengeRequests />}
+                />
+                <Route
+                    path="challenge-requests/:id"
+                    element={<AdminChallengeDetail />}
+                />
                 <Route path="reports" element={<ReportList />} />
             </Route>
         </Routes>

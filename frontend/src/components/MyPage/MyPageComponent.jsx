@@ -33,6 +33,24 @@ const MyPageComponent = () => {
                         나의 학교 관리
                     </Link>
                     <Link
+                        to="/mypage/activity-history"
+                        className={`${styles.menuItem} ${
+                            location.pathname === "/mypage/activity-history"
+                                ? styles.active
+                                : ""
+                        }`}>
+                        활동 이력 조회
+                    </Link>
+                    <Link
+                        to="/mypage/preferences-visions"
+                        className={`${styles.menuItem} ${
+                            location.pathname === "/mypage/preferences-visions"
+                                ? styles.active
+                                : ""
+                        }`}>
+                        관심분야 및 진로희망
+                    </Link>
+                    <Link
                         to="/mypage/boardrequest"
                         className={`${styles.menuItem} ${
                             location.pathname === "/mypage/boardrequest"
@@ -41,19 +59,6 @@ const MyPageComponent = () => {
                         }`}>
                         게시판 개설 신청 현황
                     </Link>
-
-                    {/* ✅ 활동 이력 조회 (비관리자만 표시) */}
-                    {user.type !== "admin" && (
-                        <Link
-                            to="/mypage/activity-history"
-                            className={`${styles.menuItem} ${
-                                location.pathname === "/mypage/activity-history"
-                                    ? styles.active
-                                    : ""
-                            }`}>
-                            활동 이력 조회
-                        </Link>
-                    )}
                     <Link
                         to="/mypage/my-challenges"
                         className={`${styles.menuItem} ${
