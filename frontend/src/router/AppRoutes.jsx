@@ -52,7 +52,7 @@ import ChooseVision from "../pages/MyPage/ChooseVision";
 import AdminPage from "../pages/Admin/AdminPage";
 import UserManagement from "../pages/Admin/UserManagement";
 import BoardRequestList from "../pages/Admin/BoardRequestList";
-import ChallengeRequests from "../pages/MyPage/ChallengeRequests";
+import ChallengeRequests from "../pages/Admin/ChallengeRequests";
 import AdminChallengeDetail from "../pages/MyPage/AdminChallengeDetail";
 import ReportList from "../pages/Community/ReportList";
 
