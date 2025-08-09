@@ -16,6 +16,10 @@ import TimeRecommendation from "../pages/Suggestion/TimeRecommendation";
 import PreferenceInterest from "../pages/Suggestion/PreferenceInterest";
 import PreferenceVision from "../pages/Suggestion/PreferenceVision";
 import RecommendationResult from "../pages/Suggestion/RecommendationResult";
+import RecommendEntry from "../pages/Suggestion/RecommendEntry";
+import RecommendSelect from "../pages/Suggestion/RecommendSelect";
+import HistoryRecommendation from "../pages/Suggestion/HistoryRecommendation";
+
 
 // Challenge
 import Challenge from "../pages/Challenge/Challenge";
@@ -92,24 +96,25 @@ const AppRoutes = () => {
                 element={<ReviewEdit />}
             />
 
-            {/* Suggestion */}
-            <Route path="/suggestion" element={<Suggestion />} />
-            <Route
-                path="/recommendation/time"
-                element={<TimeRecommendation />}
-            />
-            <Route
-                path="/suggestion/preferences"
-                element={<PreferenceInterest />}
-            />
-            <Route
-                path="/suggestion/preferences/vision"
-                element={<PreferenceVision />}
-            />
-            <Route
-                path="/suggestion/recommendation"
-                element={<RecommendationResult />}
-            />
+            
+            {/* Recommend (새 흐름) */}
+            <Route path="/recommend" element={<RecommendEntry />} />
+            <Route path="/recommend/select" element={<RecommendSelect />} />
+            <Route path="/recommend/time" element={<TimeRecommendation />} />
+            <Route path="/recommend/profile" element={<RecommendationResult />} />
+            <Route path="/recommend/history" element={<HistoryRecommendation />} />
+
+            {/* Onboarding (이전 suggestion 경로 정리) */}
+            <Route path="/onboarding/preferences" element={<PreferenceInterest />} />
+            <Route path="/onboarding/preferences/vision" element={<PreferenceVision />} />
+
+            {/* 구 경로 호환 리다이렉트  */}
+            <Route path="/suggestion" element={<Navigate to="/recommend/select" replace />} />
+            <Route path="/recommendation/time" element={<Navigate to="/recommend/time" replace />} />
+            <Route path="/suggestion/preferences" element={<Navigate to="/onboarding/preferences" replace />} />
+            <Route path="/suggestion/preferences/vision" element={<Navigate to="/onboarding/preferences/vision" replace />} />
+            <Route path="/suggestion/recommendation" element={<Navigate to="/recommend/profile" replace />} />
+
 
             {/* Community */}
             <Route path="/community" element={<CommunityList />} />

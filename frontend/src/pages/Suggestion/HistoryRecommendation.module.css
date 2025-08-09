@@ -1,11 +1,11 @@
-/* 페이지 래퍼 (time 페이지와 동일) */
+/* 페이지 래퍼 — 전체 공통 */
 .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 2rem 2rem 2rem;
 }
 
-/* ✅ select/time와 동일 폭/여백 */
+/* 섹션 래퍼 — select/time/profile과 동일한 폭/여백 */
 .wrapper {
   max-width: 960px;
   margin: 24px auto;
@@ -13,7 +13,7 @@
   box-sizing: border-box;
 }
 
-/* 상단 추천 유형 카드 영역 (time과 동일) */
+/* 상단 추천 유형 카드 — 동일 스타일 */
 .tabGrid {
   display: grid;
   gap: 12px;
@@ -37,7 +37,6 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
-/* 현재 페이지 강조 */
 .activeTab {
   background: #f0f9ff;
   border: 1px solid #38bdf8;
@@ -54,14 +53,28 @@
   line-height: 1.4;
 }
 
-/* 섹션 제목 */
+/* 본문 */
 .sectionTitle {
   font-size: 20px;
   font-weight: 700;
   margin: 8px 0 12px;
 }
 
-/* 카드 리스트: 가로 반응형 */
+.infoText {
+  margin: 20px 0 8px;
+  font-size: 15px;
+  color: #566;
+  text-align: center;
+}
+
+.errorText {
+  margin: 20px 0 8px;
+  font-size: 15px;
+  color: crimson;
+  text-align: center;
+}
+
+/* 추천 카드 리스트 — 가로 반응형 */
 .cardList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -69,9 +82,24 @@
   margin-top: 12px;
 }
 
-.emptyMessage {
-  margin: 24px 0 8px;
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.04);
+}
+
+.cardTitle {
+  margin: 0;
   font-size: 16px;
-  color: #666;
-  text-align: center;
+  font-weight: 700;
+  color: #111827;
+}
+
+.cardDesc {
+  margin-top: 6px;
+  color: #444;
+  font-size: 14px;
+  line-height: 1.5;
 }

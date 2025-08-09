@@ -56,13 +56,12 @@ export default function Header() {
                     </li>
                     <li
                         className={`${styles.navItem} ${
-                            location.pathname === "/recommendation/time" ||
-                            location.pathname === "/suggestion/recommendation"
+                            location.pathname.startsWith("/recommend")
                                 ? styles.active
                                 : ""
                         }`}>
                         <Link
-                            to="/recommendation/time"
+                            to="/recommend"
                             className={styles.navLink}>
                             AI 맞춤 추천
                         </Link>
