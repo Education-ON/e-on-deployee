@@ -68,7 +68,7 @@ app.use("/regions", require("./routes/regionRouter"));
 app.use("/mySchool", require("./routes/mySchoolRouter"));
 app.use("/boards", require("./routes/boardRoute"));
 
-app.use('/api', aiRecommendRoutes);
+app.use('/api/ai', aiRecommendRoutes);
 app.use("/api/recommendations", require("./routes/recommendations"));
 app.use("/api/preferences", require("./routes/preferencesRoutes"));
 app.use("/api/select", require("./routes/select"));

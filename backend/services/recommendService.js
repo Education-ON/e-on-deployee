@@ -1,3 +1,4 @@
+//services/recommendService.js
 const generateUserSummaryText = require('../utils/generateUserSummary');
 const mypageService = require('./mypageService');
 const { User, Challenge, SelectInterests, SelectVisions, Interests, Visions } = require('../models');
@@ -75,5 +76,11 @@ console.log('📦 challengeTexts:', challengeTexts);
   // AI 추천 API 호출
   const recommendedIds = await callEmbeddingRecommendation(userText, challengeTexts);
 
-  return allChallenges.filter(c => recommendedIds.includes(c.challenge_id)); 
+  const idOrder = new Map(recommendedIds.map((id, idx) => [String(id), idx]));
+const ordered = allChallenges
+  .filter(c => recommendedIds.includes(c.challenge_id))
+  .sort((a, b) => idOrder.get(String(a.challenge_id)) - idOrder.get(String(b.challenge_id)));
+
+return ordered;
+
 };
