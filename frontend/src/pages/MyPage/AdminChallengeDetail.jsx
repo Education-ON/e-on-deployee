@@ -40,7 +40,7 @@ export default function AdminChallengeDetail() {
         challenge={challenge}
         // 아래 props가 true 이면 하단 액션 버튼(참여/수정/삭제/북마크)을 숨기하도록 컴포넌트 수정 필요
         hideActions={true}
-        // 기본 필요 props
+        hideReviews={true} 
         bookmarked={false}
         setBookmarked={() => {}}
         userId={userId}

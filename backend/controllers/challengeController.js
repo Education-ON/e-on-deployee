@@ -299,7 +299,7 @@ exports.list = async (req, res, next) => {
     const { count, rows } = await Challenge.findAndCountAll({
       where, include, distinct: true,
       limit: Number(limit), offset: Number(offset),
-      order: [['challenge_id','DESC']]
+      order: [['challenge_id','ASC']]
     });
 
     // 참여 정보 매핑
