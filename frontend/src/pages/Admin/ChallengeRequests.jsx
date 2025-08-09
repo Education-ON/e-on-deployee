@@ -8,7 +8,7 @@ import {
     rejectChallengeRequest,
 } from "../../api/myPageApi";
 // import Header from '../../components/Common/Header';
-import styles from "../../styles/MyPage/AdminChallengeRequests.module.css";
+import styles from "../../styles/Admin/AdminChallengeRequests.module.css";
 
 const ChallengeRequests = () => {
     const [requests, setRequests] = useState([]);
@@ -83,16 +83,18 @@ const ChallengeRequests = () => {
                             <div className={styles.actions}>
                                 <button
                                     className={styles.approveBtn}
-                                    onClick={() =>
-                                        handleApprove(req.challenge_id)
-                                    }>
+                                    onClick={(e) => {
+                                        e.preventDefault(); // 링크 이동 방지
+                                        handleApprove(req.challenge_id);
+                                    }}>
                                     승인
                                 </button>
                                 <button
                                     className={styles.rejectBtn}
-                                    onClick={() =>
-                                        handleReject(req.challenge_id)
-                                    }>
+                                    onClick={(e) => {
+                                        e.preventDefault(); // 링크 이동 방지
+                                        handleReject(req.challenge_id);
+                                    }}>
                                     거절
                                 </button>
                             </div>

@@ -45,7 +45,8 @@ export default function Header() {
                     </li>
                     <li
                         className={`${styles.navItem} ${
-                            location.pathname === "/challenge"
+                            location.pathname.startsWith("/challenge") ||
+                            location.pathname.startsWith("/attendance")
                                 ? styles.active
                                 : ""
                         }`}>
