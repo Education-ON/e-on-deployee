@@ -4,6 +4,8 @@ const path = require("path");
 const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
+const aiRecommendRoutes = require('./routes/aiRecommendRoutes');
+const adminRouter = require('./routes/adminRouter');
 // 반드시 전략 등록 전에 실행
 require("./config/passport")(passport);
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -12,7 +14,7 @@ const { rawConnection: db, sequelize } = require("./database/db");
 const app = express();
 
 app.set('trust proxy', 1);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(
     cors({
@@ -53,6 +55,7 @@ app.use(passport.session());
 
 // ───────────────────────────────────────────────
 // 인증 및 API 라우터 설정
+app.use("/admin", adminRouter);
 app.use("/auth", require("./routes/authRouter"));
 app.use("/api/user", require("./routes/userRouter"));
 app.use("/api/interests", require("./routes/interest"));
@@ -65,6 +68,7 @@ app.use("/regions", require("./routes/regionRouter"));
 app.use("/mySchool", require("./routes/mySchoolRouter"));
 app.use("/boards", require("./routes/boardRoute"));
 
+app.use('/api', aiRecommendRoutes);
 app.use("/api/recommendations", require("./routes/recommendations"));
 app.use("/api/preferences", require("./routes/preferencesRoutes"));
 app.use("/api/select", require("./routes/select"));

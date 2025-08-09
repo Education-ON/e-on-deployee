@@ -45,6 +45,11 @@ async function getPostWithComments(post_id) {
     where: { post_id },
     include: [
       {
+        model: db.PostImage,
+        as:   "images",
+        attributes: ["image_id", "image_url"],
+      },
+      {
         model: User,
         attributes: ['name']
       },

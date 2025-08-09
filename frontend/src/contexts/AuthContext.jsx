@@ -9,6 +9,7 @@ export const AuthContext = createContext();
 function AuthProvider({ children }) {
     const [user, setUser] = useState(undefined); //
     const [loading, setLoading] = useState(true);
+    const [bannedUntil, setBannedUntil] = useState(null);
 
     const signup = async ({
         name,
@@ -114,9 +115,31 @@ function AuthProvider({ children }) {
         fetchMe();
     }, []);
 
+    // 1. 403(정지) 이벤트 수신
+    useEffect(() => {
+        function listener(e) {
+            setBannedUntil(e.detail.bannedUntil);   // 날짜 문자열 또는 null
+        }
+        window.addEventListener("ban-update", listener);
+        return () => window.removeEventListener("ban-update", listener);
+    }, []);
+
+    // 2. 정지 만료 자동 해제
+    useEffect(() => {
+        if (!bannedUntil) return;
+        const timer = setInterval(() => {
+            if (new Date(bannedUntil) <= new Date()) {
+            setBannedUntil(null);
+            }
+        }, 60 * 1000);           // 1분마다 체크
+        return () => clearInterval(timer);
+    }, [bannedUntil]);
+
+    const isBanned = bannedUntil && new Date(bannedUntil) > new Date();
+
     return (
         <AuthContext.Provider
-            value={{ user, loading, signup, login, logout, setUser }}>
+            value={{ user, loading, signup, login, logout, setUser, bannedUntil, isBanned }}>
             {children}
         </AuthContext.Provider>
     );

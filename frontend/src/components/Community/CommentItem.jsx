@@ -7,6 +7,7 @@ import {
   updateComment,
   deleteComment,
 } from "../../api/communityApi";
+import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 
 const CommentItem = ({ comment, user, fetchPost, depth = 0, postId }) => {
@@ -16,6 +17,7 @@ const CommentItem = ({ comment, user, fetchPost, depth = 0, postId }) => {
   const [replyContent, setReplyContent] = useState("");
   const [showReport, setShowReport] = useState(false);
   const [showChildren, setShowChildren] = useState(true);
+  const { isBanned, bannedUntil } = useAuth();
 
   const isOwner =
     user?.user_id === comment.user_id || user?.type === "admin";
@@ -44,6 +46,10 @@ const CommentItem = ({ comment, user, fetchPost, depth = 0, postId }) => {
   };
 
   const handleReply = async () => {
+    if (isBanned) {                               // ⭐ 추가
+      toast(`정지중입니다. ${bannedUntil} 까지`, { icon: "⚠️" });
+      return;
+    }
     if (!replyContent.trim()) return;
     try {
       await createComment(postId, {
@@ -102,9 +108,16 @@ const CommentItem = ({ comment, user, fetchPost, depth = 0, postId }) => {
       <div className={styles.footer}>
         <button
           className={styles.tagBtn}
-          onClick={() => setShowReply((p) => !p)}
+          disabled={isBanned}
+          onClick={() => {
+            if (isBanned) {
+              toast(`정지중입니다. ${bannedUntil} 까지`, { icon: "⚠️" });
+            } else {
+              setShowReply((p) => !p);
+            }
+          }}
         >
-          💬 답글
+          {isBanned ? "정지중" : "💬 답글"}
         </button>
         <button
           className={styles.tagBtn}
@@ -133,14 +146,16 @@ const CommentItem = ({ comment, user, fetchPost, depth = 0, postId }) => {
 
       {/* 답글 작성 */}
       {showReply && (
-        <div className={styles.replyBox}>
-          <textarea
-            placeholder="답글 내용"
-            value={replyContent}
-            onChange={(e) => setReplyContent(e.target.value)}
-          />
-          <button onClick={handleReply}>등록</button>
-        </div>
+        !isBanned && (
+          <div className={styles.replyBox}>
+            <textarea
+              placeholder="답글 내용"
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+            />
+            <button onClick={handleReply}>등록</button>
+          </div>
+        )
       )}
 
       {/* 자식 댓글 */}
