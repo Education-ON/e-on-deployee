@@ -371,7 +371,7 @@ const ChallengeDetailContent = ({
       {!hideActions && (
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           {/* 출석부 버튼 */}
-          <button
+          {/* <button
                 style={{
                   background: "#f9fafb",
                   color: "#2563eb",
@@ -385,10 +385,10 @@ const ChallengeDetailContent = ({
                 onClick={() => navigate(`/attendance/${challenge.challenge_id}`)}
               >
                 출석부
-            </button>
+            </button> */}
 
 
-          {/* {isOwner && (
+          {isOwner && (
               <button
                 style={{
                   background: "#f9fafb",
@@ -404,7 +404,7 @@ const ChallengeDetailContent = ({
               >
                 출석부
             </button>
-          )} */}
+          )}
 
 
           {/* 북마크 버튼 */}

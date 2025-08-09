@@ -18,6 +18,114 @@ const {
 
 
 /** ---------------- 챌린지 개설 ---------------- **/
+// exports.create = async (req, res, next) => {
+//   const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
+//   const filesObj = req.files ?? {};
+//   const photosArr = filesObj.photos || [];
+//   const consentsArr = filesObj.consents || [];
+
+//   try {
+//     const {
+//       title,
+//       description,
+//       minimum_age,
+//       maximum_age,
+//       maximum_people,
+//       application_deadline,
+//       start_date,
+//       end_date,
+//       is_recuming = false,
+//       repeat_type = null,
+//       intermediate_participation = false,
+//       creator_contact,
+//       user_id,
+//       days = [],
+//       interestIds = [],
+//       visionIds = []
+//     } = body;
+
+//     if (!title || !description || !creator_contact || !user_id) {
+//       return res.status(400).json({ error: '필수 필드 누락' });
+//     }
+    
+
+//     // 7일 내 결석 체크
+//     const sevenDaysAgo = new Date();
+//     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+//     const hasAbsence = await ParticipatingAttendance.findOne({
+//       include: [{
+//         model: ParticipatingChallenge,
+//         as: 'participant',
+//         where: { user_id }
+//       }],
+//       where: {
+//         attendance_state: '결석',
+//         attendance_date: { [Op.gte]: sevenDaysAgo }
+//       }
+//     });
+//     if (hasAbsence) {
+//       return res.status(403).json({ error: '최근 7일 이내 결석 기록이 있어 챌린지 개설이 제한됩니다.' });
+//     }
+
+//     const challenge = await Challenge.sequelize.transaction(async (t) => {
+//       const ch = await Challenge.create({
+//         title,
+//         description,
+//         minimum_age,
+//         maximum_age,
+//         maximum_people,
+//         application_deadline,
+//         start_date,
+//         end_date,
+//         is_recuming,
+//         repeat_type,
+//         intermediate_participation,
+//         creator_contact,
+//         user_id,
+//         // PENDING 상태로 생성 (모델 기본값 사용 가능)
+//         status: 'PENDING'
+//       }, { transaction: t });
+
+//       // 요일 삽입
+//       if (is_recuming && days.length) {
+//         const bulkDays = days.map(d => ({ challenge_id: ch.challenge_id, day_of_week: d }));
+//         await ChallengeDay.bulkCreate(bulkDays, { transaction: t });
+//       }
+
+//       // 관심/비전 매핑
+//       if (interestIds.length) await ch.addInterests(interestIds, { transaction: t });
+//       if (visionIds.length)   await ch.addVisions(visionIds,   { transaction: t });
+
+//       // 첨부파일
+//       const attachRows = [];
+//       photosArr.forEach(f => attachRows.push({
+//         challenge_id: ch.challenge_id,
+//         attachment_name: f.originalname,
+//         url: `/uploads/${f.filename}`,
+//         attachment_type: '이미지'
+//       }));
+//       consentsArr.forEach(f => attachRows.push({
+//         challenge_id: ch.challenge_id,
+//         attachment_name: f.originalname,
+//         url: `/uploads/${f.filename}`,
+//         attachment_type: '문서'
+//       }));
+//       if (attachRows.length) await Attachment.bulkCreate(attachRows, { transaction: t });
+
+//       return ch;
+//     });
+
+//     res.status(201).json({
+//       message: '챌린지 개설이 신청되었습니다. 관리자 승인 후 공개됩니다.',
+//       challenge_id: challenge.challenge_id
+//     });
+//   } catch (err) {
+//     console.error('▶ SQL Error:', err);
+//     next(err);
+//   }
+// };
+
+/** ---------------- 챌린지 개설 ---------------- **/
 exports.create = async (req, res, next) => {
   const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
   const filesObj = req.files ?? {};
@@ -48,22 +156,31 @@ exports.create = async (req, res, next) => {
       return res.status(400).json({ error: '필수 필드 누락' });
     }
 
-    // 7일 내 결석 체크
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const hasAbsence = await ParticipatingAttendance.findOne({
-      include: [{
-        model: ParticipatingChallenge,
-        as: 'participant',
-        where: { user_id }
-      }],
-      where: {
-        attendance_state: '결석',
-        attendance_date: { [Op.gte]: sevenDaysAgo }
+    // 서버에서 사용자 조회하여 지자체 여부 판단
+    const creator = await User.findByPk(user_id);
+    if (!creator) {
+      return res.status(404).json({ error: '사용자 없음' });
+    }
+    const isMunicipality = creator.type === 'municipality';
+
+    // 7일 내 결석 체크 (지자체는 면제)
+    if (!isMunicipality) {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const hasAbsence = await ParticipatingAttendance.findOne({
+        include: [{
+          model: ParticipatingChallenge,
+          as: 'participant',
+          where: { user_id }
+        }],
+        where: {
+          attendance_state: '결석',
+          attendance_date: { [Op.gte]: sevenDaysAgo }
+        }
+      });
+      if (hasAbsence) {
+        return res.status(403).json({ error: '최근 7일 이내 결석 기록이 있어 챌린지 개설이 제한됩니다.' });
       }
-    });
-    if (hasAbsence) {
-      return res.status(403).json({ error: '최근 7일 이내 결석 기록이 있어 챌린지 개설이 제한됩니다.' });
     }
 
     const challenge = await Challenge.sequelize.transaction(async (t) => {
@@ -81,8 +198,8 @@ exports.create = async (req, res, next) => {
         intermediate_participation,
         creator_contact,
         user_id,
-        // PENDING 상태로 생성 (모델 기본값 사용 가능)
-        status: 'PENDING'
+        // 지자체면 즉시 공개, 그 외는 보류
+        status: isMunicipality ? 'APPROVED' : 'PENDING'
       }, { transaction: t });
 
       // 요일 삽입
@@ -115,7 +232,9 @@ exports.create = async (req, res, next) => {
     });
 
     res.status(201).json({
-      message: '챌린지 개설이 신청되었습니다. 관리자 승인 후 공개됩니다.',
+      message: isMunicipality
+        ? '챌린지가 개설되어 즉시 공개되었습니다.'
+        : '챌린지 개설이 신청되었습니다. 관리자 승인 후 공개됩니다.',
       challenge_id: challenge.challenge_id
     });
   } catch (err) {
@@ -123,6 +242,7 @@ exports.create = async (req, res, next) => {
     next(err);
   }
 };
+
 
 /** ---------------- 챌린지 목록 조회 ---------------- **/
 exports.list = async (req, res, next) => {
