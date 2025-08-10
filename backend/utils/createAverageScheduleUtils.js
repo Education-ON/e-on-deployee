@@ -1,17 +1,20 @@
 const {
     searchSchools,
     getSchoolSchedule,
+    searchAllSchools,
+    getAllSchoolSchedule,
 } = require("../services/schoolScheduleService");
 const { groupSchoolsByType } = require("./groupedSchoolByTypeUtils");
 const { groupSimilarEvents } = require("./stringSimilarity");
-const extractDistrict = require("./addressUtils").extractDistrict;
-const db = require('../models');
+const { extractDistrict } = require("./addressUtils");
+const db = require("../models");
 const { Region, AverageAcademicSchedule } = db;
 
 // 1. 지역별 학교 조회
 async function getSchoolByRegion(region) {
     // 모든 학교 조회
-    const allSchools = await searchSchools();
+    // const allSchools = await searchSchools();
+    const allSchools = await searchAllSchools();
 
     // allSchools.forEach((school) => {
     //     const district = extractDistrict(school.address);
@@ -42,7 +45,12 @@ async function getScheduleBySchools(groupedSchools) {
     for (const [schoolType, schoolList] of Object.entries(groupedSchools)) {
         // 학사일정 가져오기
         for (const school of schoolList) {
-            const events = await getSchoolSchedule(school.schoolCode);
+            // const events = await getSchoolSchedule(school.schoolCode);
+            // 서울 하드코딩 제거: 학교별 atptCode 사용
+            const events = await getAllSchoolSchedule(
+                school.schoolCode,
+                school.atptCode
+            );
             all.push(...events.map((e) => ({ ...e, schoolType })));
         }
     }

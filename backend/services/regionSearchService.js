@@ -33,27 +33,13 @@ async function getRegionById(region_id) {
 // 4. 외부 API 사용해서 전국 지역명 조회
 async function getAllRegionFromAPI() {
     const url = "http://apis.data.go.kr/1741000/StanReginCd/getStanReginCdList";
-    const allRegions = [];
-
+    const all = [];
     let pageNo = 1;
     const numOfRows = 1000;
     let totalCount = 0;
 
     try {
-        // const firstPageParams = {
-        //     ServiceKey: apiKey,
-        //     pageNo: 0,
-        //     numOfRows: 1000,
-        //     type: "json",
-        // };
-
-        // const res = await axios.get(url, {
-        //     params: firstPageParams,
-        // });
-        // console.log("1페이지 응답:", res.data);
-        // return res.data;
-
-        do {
+        while (true) {
             const params = {
                 ServiceKey: apiKey,
                 pageNo,
@@ -61,121 +47,168 @@ async function getAllRegionFromAPI() {
                 type: "json",
             };
 
-            const res = await axios.get(url, {
-                params,
-            });
-            const resData = res.data;
-            const stanReginCd = resData.StanReginCd;
+            const { data } = await axios.get(url, { params });
+            const pack = data?.StanReginCd;
+            if (!Array.isArray(pack) || !pack[1]?.row) {
+                throw new Error("Unexpected API shape");
+            }
 
-            // 헤더에서 totalCount 읽기
-            const head = stanReginCd[0].head[0];
-            totalCount = parseInt(head.totalCount, 10);
+            const head = pack[0]?.head?.[0];
+            totalCount = parseInt(head?.totalCount ?? "0", 10);
 
-            // 실질 데이터
-            const regions = stanReginCd[1].row;
+            const rows = pack[1].row;
+            all.push(...rows);
 
-            // 데이터 저장
-            allRegions.push(...regions);
-
-            // console.log(pageNo);
+            // 다음 페이지
+            if (all.length >= totalCount) break;
             pageNo++;
-        } while (allRegions.length < totalCount);
-        // console.log("전체 조회 완료");
-        // console.log("데이터 출력 중");
-        return allRegions;
-    } catch (error) {
-        console.error("전체 지역 조회 API 호출 실패");
+        }
+
+        // 안전하게 정렬(숫자 오름차순)
+        all.sort((a, b) => Number(a.region_cd) - Number(b.region_cd));
+        return all;
+    } catch (e) {
+        console.error("전체 지역 조회 API 호출 실패:", e.message);
         throw new Error("전체 지역 조회 API 호출 실패");
     }
 }
 
-// 5. API에서 시군구만 추출하기
+// 코드 정규화 유틸
+const norm10 = (v) => String(v).trim().padStart(10, "0");
+const norm3 = (v) => String(v).trim().padStart(3, "0");
+
+// 화이트리스트: '구가 없는 시' (옛 구 레코드는 제거, 시 레벨은 반드시 포함)
+const NO_GU_CITIES = new Set(["경기도 부천시", "세종특별자치시"]);
+
+// "경기도 부천시 원미구" -> "경기도 부천시"
+const baseCityNameFromGu = (fullName = "") => {
+    const parts = String(fullName).trim().split(/\s+/);
+    if (parts.length >= 2 && parts[parts.length - 1].endsWith("구")) {
+        parts.pop();
+        return parts.join(" ");
+    }
+    return null;
+};
+
 function extractSigungu(regions) {
-    const guParentSet = new Set();
-
-    // 1. 구 단위가 있는 지역의 상위 코드(시)를 모은다
-    regions.forEach((region) => {
-        const isGu =
-            region.sgg_cd !== "000" &&
-            region.umd_cd === "000" &&
-            region.locatadd_nm.includes("구");
-
-        if (isGu) {
-            guParentSet.add(region.locathigh_cd); // '구'의 상위 시 코드 저장
-        }
-    });
-
-    return regions.filter((region) => {
-        const isSigunguLevel =
-            region.sgg_cd !== "000" && region.umd_cd === "000";
-
-        const isGu = region.locatadd_nm.includes("구");
-        const isParentOfGu = guParentSet.has(region.region_cd); // 이 지역이 '구'를 자식으로 가진 시인가?
-
-        // 조건:
-        // - 구는 포함
-        // - 하위에 구가 없는 시만 포함
-        return isSigunguLevel && (isGu || !isParentOfGu);
-    });
-}
-
-// function extractSigungu(regions) {
-//     const guParentSet = new Set();
-
-//     // 5-1. 구 단위가 있는 경우 → 그 상위 시 코드 기록
-//     regions.forEach((region) => {
-//         if (
-//             region.sgg_cd !== "000" &&
-//             region.umd_cd === "000" &&
-//             region.locatadd_nm.includes("구")
-//         ) {
-//             guParentSet.add(region.locathigh_cd); // 구의 상위 시 코드
-//         }
-//     });
-
-//     // 5-2. 필터링 조건 적용
-//     return regions.filter((region) => {
-//         const isSigunguLevel =
-//             region.sgg_cd !== "000" && region.umd_cd === "000";
-//         const hasGu = guParentSet.has(region.region_cd);
-//         const isGuOfCity =
-//             guParentSet.has(region.locathigh_cd) &&
-//             region.locatadd_nm.includes("구");
-
-//         // 시군구 단위면서,
-//         return isSigunguLevel && (!hasGu || isGuOfCity);
-//     });
-// }
-
-// 6. 시군구까지만 필터링해서 반환하는 함수
-async function saveSigungusToDB(allRegions) {
-    // 6-1. 시군구만 필터링
-    const sigungus = extractSigungu(allRegions);
-
-    // 6-2. bulkInsert용 배열 생성
-    const regionData = sigungus.map((region) => ({
-        region_id: parseInt(region.region_cd, 10),
-        region_name: region.locatadd_nm,
+    const rows = regions.map((r) => ({
+        ...r,
+        region_cd: norm10(r.region_cd),
+        locathigh_cd: norm10(r.locathigh_cd),
+        sgg_cd: norm3(r.sgg_cd),
+        umd_cd: norm3(r.umd_cd),
+        locatadd_nm: String(r.locatadd_nm || "").trim(),
     }));
 
-    console.log(regionData);
-    return regionData;
+    // 1) ‘구’ 존재 도시 판정용 집합(코드/이름 기준)
+    const cityWithGuByCode = new Set();
+    const cityWithGuByName = new Set();
 
+    rows.forEach((r) => {
+        const name = r.locatadd_nm;
+        const isGu =
+            r.umd_cd === "000" && r.sgg_cd !== "000" && name.endsWith("구");
+
+        if (!isGu) return;
+
+        // 부천/세종 등 구 없는 시의 옛 구 레코드는 무시
+        const base = baseCityNameFromGu(name);
+        if (base && NO_GU_CITIES.has(base)) {
+            return; // ‘구가 있는 도시’ 판정에 사용하지 않음
+        }
+
+        // 일반 케이스는 ‘구가 있는 도시’로 판정
+        cityWithGuByCode.add(r.locathigh_cd);
+        if (base) cityWithGuByName.add(base);
+    });
+
+    // 2) 시·군·구 레벨만 남기고 규칙 적용
+    const out = rows.filter((r) => {
+        const isSigunguLevel = r.sgg_cd !== "000" && r.umd_cd === "000";
+        if (!isSigunguLevel) return false;
+
+        const name = r.locatadd_nm;
+        const isGu = name.endsWith("구");
+
+        // 2-1) 부천/세종의 ‘구’ 레벨은 반드시 제외 (옛 구 제거)
+        if (isGu) {
+            const base = baseCityNameFromGu(name);
+            if (base && NO_GU_CITIES.has(base)) {
+                return false;
+            }
+        }
+
+        // 2-2) 부천/세종의 ‘시’ 레벨은 반드시 포함
+        if (NO_GU_CITIES.has(name)) {
+            return true;
+        }
+
+        // 2-3) 일반 규칙
+        const isCityWithGuByCode = cityWithGuByCode.has(r.region_cd);
+        const isCityWithGuByName = cityWithGuByName.has(name);
+        // 구는 포함 / 구가 있는 ‘시’는 제외 / 구가 없는 시·군은 포함
+        return isGu || (!isCityWithGuByCode && !isCityWithGuByName);
+    });
+
+    // 3) 정렬 + 필드 축소
+    out.sort((a, b) => Number(a.region_cd) - Number(b.region_cd));
+    return out.map((r) => ({
+        region_cd: r.region_cd,
+        locatadd_nm: r.locatadd_nm,
+    }));
+}
+
+// 6. 시군구까지만 필터링해서 전체 로그 출력
+// async function logAllSigungus(allRegions) {
+//     // 1) 시군구만 추출
+//     const sigungus = extractSigungu(allRegions).map((r) => ({
+//         region_id: parseInt(String(r.region_cd), 10),
+//         region_name: String(r.locatadd_nm),
+//     }));
+
+//     // 2) 전체 개수 및 샘플 출력
+//     console.log("📌 전국 시군구 개수:", sigungus.length);
+//     console.log("📌 전국 시군구 샘플 20개:", sigungus.slice(0, 20));
+
+//     // 3) 시도별 카운트
+//     const bySido = sigungus.reduce((acc, cur) => {
+//         const sido = cur.region_name.split(" ")[0]; // 첫 단어를 시도명으로
+//         acc[sido] = (acc[sido] || 0) + 1;
+//         return acc;
+//     }, {});
+
+//     console.log("📌 시도별 시군구 개수:", bySido);
+
+//     // 필요하면 전체 목록까지
+//     // console.log("📌 전국 시군구 전체 목록:", sigungus);
+
+//     // ▶ 풀출력으로 교체
+//     console.log("📌 전국 시군구 전체 목록(전체 표시):");
+//     console.dir(sigungus, { depth: null, maxArrayLength: null });
+// }
+
+// 7. 전체 실행
+async function updateRegionsFromAPI() {
+    const allRegions = await getAllRegionFromAPI();
+
+    // 1) 시군구만 추출
+    const sigungus = extractSigungu(allRegions).map((r) => ({
+        region_id: parseInt(String(r.region_cd), 10),
+        region_name: String(r.locatadd_nm),
+    }));
+
+    // 2) DB 저장
     try {
-        await Region.bulkCreate(regionData, {
+        await Region.bulkCreate(sigungus, {
             ignoreDuplicates: true, // 이미 있는 값은 무시
         });
-        console.log("시군구 지역 DB 저장 완료");
+        console.log(`✅ ${sigungus.length}개 시군구 저장 완료`);
+
+        return sigungus;
     } catch (error) {
         console.error("❌ DB 저장 실패:", error);
         throw error;
     }
-}
-
-// 7. 전체 통합 실행 함수
-async function updateRegionsFromAPI() {
-    const allRegions = await getAllRegionFromAPI(); // API에서 전체 데이터 가져오기
-    await saveSigungusToDB(allRegions); // DB 저장
 }
 
 module.exports = {
