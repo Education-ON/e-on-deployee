@@ -118,11 +118,11 @@ exports.getAllRegionFromAPI = async (req, res) => {
 exports.updateRegionsFromAPI = async (req, res) => {
     try {
         const regions = await regionService.updateRegionsFromAPI();
-        res.status(200).json({
+        res.status(201).json({
+            // 생성/갱신 → 201 Created
             status: "success",
-            data: {
-                regions,
-            },
+            count: regions.length,
+            data: regions,
         });
     } catch (error) {
         console.error("❌ 전체 지역 업데이트 실패:", error.message);

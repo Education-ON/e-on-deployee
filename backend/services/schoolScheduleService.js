@@ -1,4 +1,4 @@
-7// neis에서 학사 일정을 받아오는 api
+7; // neis에서 학사 일정을 받아오는 api
 const axios = require("axios");
 const apiKey = process.env.NEIS_API_KEY; // 환경변수에서 API 키 가져오기
 if (!apiKey) {
@@ -217,9 +217,95 @@ function filterByGrade(scheduleData, grade) {
     return scheduleData.filter((item) => item[key] === "Y"); // *은 미존재!?
 }
 
+/* 전체 스케줄 수집용 */
+// 시도교육청 코드 목록 (NEIS 공식)
+const atptCodes = [
+    "B10",
+    "C10",
+    "D10",
+    "E10",
+    "F10",
+    "G10",
+    "H10",
+    "I10",
+    "J10",
+    "K10",
+    "M10",
+    "N10",
+    "P10",
+    "Q10",
+    "R10",
+    "S10",
+    "T10",
+];
+
+async function fetchSchoolsByEduOffice(code) {
+    const url = "https://open.neis.go.kr/hub/schoolInfo";
+    const pSize = 1000;
+    let pIndex = 1;
+    const out = [];
+
+    while (true) {
+        const params = {
+            KEY: apiKey,
+            Type: "json",
+            pIndex,
+            pSize,
+            ATPT_OFCDC_SC_CODE: code,
+        };
+        const { data } = await axios.get(url, { params });
+        const pack = data?.schoolInfo;
+        if (!Array.isArray(pack) || !pack[1]?.row) break;
+
+        const head = pack[0]?.head?.[0];
+        const total = Number(head?.list_total_count ?? 0);
+
+        for (const s of pack[1].row) {
+            const kind = s.SCHUL_KND_SC_NM || ""; // ✅ null-safe
+            if (
+                kind.includes("고등") ||
+                kind.includes("각종학교(고)") ||
+                kind.includes("평생학교(고)-3년6학기") ||
+                kind.includes("평생학교(고)-2년6학기")
+            )
+                continue;
+
+            out.push({
+                schoolCode: s.SD_SCHUL_CODE,
+                name: s.SCHUL_NM || "",
+                address: s.ORG_RDNMA || "", // ✅ null-safe
+                schoolType: kind,
+                atptCode: s.ATPT_OFCDC_SC_CODE || "",
+            });
+        }
+
+        if (pIndex * pSize >= total) break;
+        pIndex++;
+    }
+
+    return out;
+}
+
+async function searchAllSchools(concurrency = 4) {
+    const chunks = [];
+    for (let i = 0; i < atptCodes.length; i += concurrency) {
+        chunks.push(atptCodes.slice(i, i + concurrency));
+    }
+
+    const results = [];
+    for (const batch of chunks) {
+        const part = await Promise.all(
+            batch.map((code) => fetchSchoolsByEduOffice(code))
+        );
+        for (const arr of part) results.push(...arr);
+    }
+    return results;
+}
+
 module.exports = {
     searchSchools,
     searchSchoolBySchoolCode,
     getSchoolSchedule,
     getAllSchoolSchedule,
+    searchAllSchools,
 };

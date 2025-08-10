@@ -9,3 +9,7 @@ app.listen(PORT, () => {
 
 const selectRouter = require('./routes/select');
 app.use('/api/select', selectRouter);
+
+// Cron Job 실행 (2월 28일과 8월 31일에 자동으로 지역별 평균 학사일정 재생성)
+const { startAverageScheduleJob } = require('./scripts/averageScheduleCron');
+startAverageScheduleJob();
