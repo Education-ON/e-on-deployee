@@ -13,45 +13,50 @@ const PreferenceVision = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryCode, setSelectedCategoryCode] = useState(null);
   const [visions, setVisions] = useState([]);
+  // 선택을 { vision_id, vision_detail } 형태로 관리
   const [selectedVisions, setSelectedVisions] = useState([]);
 
   // ✅ 로그인 사용자 ID 불러오기
   const userId = JSON.parse(localStorage.getItem("user"))?.user_id;
 
   useEffect(() => {
-    getVisionCategories().then(setCategories);
+    getVisionCategories().then((data) => {
+      setCategories(data || []);
+      // 필요 시 첫 카테고리 자동 선택
+      // if (data?.length) setSelectedCategoryCode(data[0].category_code);
+    });
   }, []);
 
   useEffect(() => {
     if (selectedCategoryCode) {
-      getVisionsByCategory(selectedCategoryCode).then(setVisions);
+      getVisionsByCategory(selectedCategoryCode).then((data) =>
+        setVisions(data || [])
+      );
+    } else {
+      setVisions([]);
     }
   }, [selectedCategoryCode]);
 
   const toggleVision = (vision) => {
-    setSelectedVisions((prev) =>
-      prev.includes(vision)
-        ? prev.filter((item) => item !== vision)
-        : [...prev, vision]
-    );
+    // vision = { vision_id, vision_detail, ... }
+    setSelectedVisions((prev) => {
+      const exists = prev.some((v) => v.vision_id === vision.vision_id);
+      return exists
+        ? prev.filter((v) => v.vision_id !== vision.vision_id)
+        : [...prev, { vision_id: vision.vision_id, vision_detail: vision.vision_detail }];
+    });
   };
 
   const handleNext = async () => {
-
-     // ✅ 예외 처리 추가: 선택하지 않은 경우 경고창 표시
+    // ✅ 예외 처리: 선택하지 않은 경우 경고창 표시
     if (selectedVisions.length === 0) {
       alert("진로 희망을 최소 1개 이상 선택해주세요.");
       return;
     }
-    
+
     try {
-      // ✅ 선택된 vision_detail 값을 vision_id로 매핑
-      const visionIds = selectedVisions
-        .map((detail) => {
-          const match = visions.find((v) => v.vision_detail === detail);
-          return match?.vision_id;
-        })
-        .filter(Boolean);
+      // ✅ 이미 id를 들고 있으므로 카테고리와 무관하게 안전
+      const visionIds = selectedVisions.map((v) => v.vision_id);
 
       // ✅ 백엔드에 POST
       await axios.post("/api/preferences/visions", {
@@ -79,6 +84,7 @@ const PreferenceVision = () => {
                 cat.category_code === selectedCategoryCode ? styles.active : ""
               }`}
               onClick={() => setSelectedCategoryCode(cat.category_code)}
+              type="button"
             >
               {cat.category_name}
             </button>
@@ -88,13 +94,14 @@ const PreferenceVision = () => {
         <div className={styles.column}>
           {visions.map((vision) => (
             <button
-              key={vision.vision_detail}
+              key={vision.vision_id}
               className={`${styles.detailBtn} ${
-                selectedVisions.includes(vision.vision_detail)
+                selectedVisions.some((v) => v.vision_id === vision.vision_id)
                   ? styles.selected
                   : ""
               }`}
-              onClick={() => toggleVision(vision.vision_detail)}
+              onClick={() => toggleVision(vision)}
+              type="button"
             >
               {vision.vision_detail}
             </button>
@@ -102,7 +109,7 @@ const PreferenceVision = () => {
         </div>
       </div>
 
-      <button className={styles.submitBtn} onClick={handleNext}>
+      <button className={styles.submitBtn} onClick={handleNext} type="button">
         선택 완료
       </button>
     </div>

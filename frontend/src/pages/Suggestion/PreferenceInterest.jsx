@@ -13,45 +13,50 @@ const PreferenceInterest = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryCode, setSelectedCategoryCode] = useState(null);
   const [interests, setInterests] = useState([]);
+  // 선택을 { interest_id, interest_detail } 객체로 저장
   const [selectedInterests, setSelectedInterests] = useState([]);
 
   // ✅ localStorage에서 로그인된 사용자 ID 가져오기
   const userId = JSON.parse(localStorage.getItem("user"))?.user_id;
 
   useEffect(() => {
-    getInterestCategories().then(setCategories);
+    getInterestCategories().then((data) => {
+      setCategories(data || []);
+      // 처음 진입 시 첫 카테고리를 자동 선택하고 싶다면 주석 해제
+      // if (data?.length) setSelectedCategoryCode(data[0].category_code);
+    });
   }, []);
 
   useEffect(() => {
     if (selectedCategoryCode) {
-      getInterestsByCategory(selectedCategoryCode).then(setInterests);
+      getInterestsByCategory(selectedCategoryCode).then((data) =>
+        setInterests(data || [])
+      );
+    } else {
+      setInterests([]);
     }
   }, [selectedCategoryCode]);
 
   const toggleInterest = (interest) => {
-    setSelectedInterests((prev) =>
-      prev.includes(interest)
-        ? prev.filter((item) => item !== interest)
-        : [...prev, interest]
-    );
+    // interest = { interest_id, interest_detail, ... }
+    setSelectedInterests((prev) => {
+      const exists = prev.some((i) => i.interest_id === interest.interest_id);
+      return exists
+        ? prev.filter((i) => i.interest_id !== interest.interest_id)
+        : [...prev, { interest_id: interest.interest_id, interest_detail: interest.interest_detail }];
+    });
   };
 
   const handleNext = async () => {
-// ✅ 예외 처리 추가: 선택 항목이 없으면 경고 후 return
+    // ✅ 예외 처리: 선택 항목 없는 경우
     if (selectedInterests.length === 0) {
       alert("관심 분야를 최소 1개 이상 선택해주세요.");
       return;
     }
 
-
     try {
-      // ✅ 서버가 기대하는 건 interest_id 배열이므로 변환
-      const interestIds = selectedInterests
-        .map((detail) => {
-          const match = interests.find((i) => i.interest_detail === detail);
-          return match?.interest_id;
-        })
-        .filter(Boolean);
+      // ✅ 이미 id를 들고 있으므로 카테고리 변경과 무관하게 안전
+      const interestIds = selectedInterests.map((i) => i.interest_id);
 
       await axios.post("/api/preferences/interests", {
         userId,
@@ -78,6 +83,7 @@ const PreferenceInterest = () => {
                 cat.category_code === selectedCategoryCode ? styles.active : ""
               }`}
               onClick={() => setSelectedCategoryCode(cat.category_code)}
+              type="button"
             >
               {cat.category_name}
             </button>
@@ -87,13 +93,16 @@ const PreferenceInterest = () => {
         <div className={styles.column}>
           {interests.map((interest) => (
             <button
-              key={interest.interest_detail}
+              key={interest.interest_id}
               className={`${styles.detailBtn} ${
-                selectedInterests.includes(interest.interest_detail)
+                selectedInterests.some(
+                  (i) => i.interest_id === interest.interest_id
+                )
                   ? styles.selected
                   : ""
               }`}
-              onClick={() => toggleInterest(interest.interest_detail)}
+              onClick={() => toggleInterest(interest)}
+              type="button"
             >
               {interest.interest_detail}
             </button>
@@ -101,7 +110,7 @@ const PreferenceInterest = () => {
         </div>
       </div>
 
-      <button className={styles.submitBtn} onClick={handleNext}>
+      <button className={styles.submitBtn} onClick={handleNext} type="button">
         선택 완료
       </button>
     </div>
