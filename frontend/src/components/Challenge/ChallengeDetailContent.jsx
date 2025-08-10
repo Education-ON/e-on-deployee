@@ -411,9 +411,31 @@ const ChallengeDetailContent = ({
         <img
           src={`${STATIC_BASE}${photoObj.url}`}
           alt="챌린지 사진"
-          style={{ width: "100%", height: "500px", objectFit: "cover", borderRadius: 13, marginBottom: 25 }}
+          onError={(e) => {
+            e.target.src = "/no_img.png"; // public 폴더의 noimg.png
+          }}
+          style={{
+            width: "100%",
+            height: "500px",
+            objectFit: "cover",
+            borderRadius: 13,
+            marginBottom: 25
+          }}
         />
-      ) : null}
+      ) : (
+        <img
+          src="/no_img.png"
+          alt="기본 이미지"
+          style={{
+            width: "100%",
+            height: "500px",
+            objectFit: "cover",
+            borderRadius: 13,
+            marginBottom: 25
+          }}
+        />
+      )}
+
 
       {/* 2단 영역 */}
       <div style={{ display: "flex", gap: 34, marginBottom: 26 }}>
