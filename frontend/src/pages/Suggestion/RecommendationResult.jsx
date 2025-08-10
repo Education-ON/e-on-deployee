@@ -17,7 +17,7 @@ export default function RecommendationResult() {
       return;
     }
     fetchRecommendationsByPreference(userId)
-      .then((data) => setRecommendations(Array.isArray(data) ? data : []))
+      .then((data) => setRecommendations(Array.isArray(data?.items) ? data.items : []))
       .catch((err) => console.error("추천 로딩 실패:", err));
   }, []);
 
@@ -68,7 +68,7 @@ export default function RecommendationResult() {
 
       {/* 헤딩 */}
       <div className={styles.wrapper}>
-        <h2 className={styles.sectionTitle}>추천 챌린지</h2>
+        <h2 className={styles.sectionTitle}>추천 결과</h2>
 
         {/* 추천 카드 리스트 */}
         {recommendations.length === 0 ? (
