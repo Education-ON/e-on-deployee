@@ -44,10 +44,10 @@ module.exports = (sequelize, DataTypes) => {
                 field: "pw",
             },
             type: {
-                type: DataTypes.ENUM("student", "parent", "admin"),
+                type: DataTypes.ENUM("student", "parent", "admin","municipality"),
                 allowNull: false,
                 validate: {
-                    isIn: [["student", "parent", "admin"]],
+                    isIn: [["student", "parent", "admin","municipality"]],
                 },
             },
             state_code: {

@@ -1,4 +1,4 @@
-const VALID_USER_TYPES = ["student", "parent"];
+const VALID_USER_TYPES = ["student", "parent", "municipality"];
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const transporter = require("../config/mail");
@@ -8,7 +8,8 @@ const { Op } = require("sequelize");
 
 // 1단계: 회원 구분 저장
 exports.signupStep1 = (req, res) => {
-    const { userType } = req.body;
+    //const { userType } = req.body;
+    const userType = req.body.userType ?? req.body.type;
     if (userType === "admin") {
         return res.status(403).json({ message: "권한이 없습니다." });
     }

@@ -27,7 +27,7 @@ module.exports = {
         allowNull: false,
       },
       type: {
-        type: Sequelize.ENUM('student', 'parent', 'admin'),
+        type: Sequelize.ENUM('student', 'parent', 'admin','municipality'),
         allowNull: false,
       },
       state_code: {

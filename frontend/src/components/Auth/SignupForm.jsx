@@ -108,6 +108,7 @@ export default function SignupForm({ onFinish }) {
                             }>
                             <option value="student">학생</option>
                             <option value="parent">부모</option>
+                            <option value="municipality">지자체</option>
                         </select>
                     </div>
                     <div className={styles.buttonGroup}>
