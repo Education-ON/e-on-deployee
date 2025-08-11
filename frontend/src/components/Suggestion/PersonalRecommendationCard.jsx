@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom"; 
 import styles from "./RecommendationCard.module.css";
 
@@ -16,7 +15,7 @@ const PersonalRecommendationCard = ({ challenge }) => {
 const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/challenge/${challenge_id}`); // ✅ 상세 페이지로 이동
+    navigate(`/challenge/${challenge_id}`);
   };
   
   return (
@@ -34,7 +33,7 @@ const navigate = useNavigate();
         )}
       </div>
       <div className={styles.cardFooter}>
-        <p>시작일: {new Date(start_date).toLocaleDateString("ko-KR")}</p>
+        <p className={styles.firstOne}>시작일: {new Date(start_date).toLocaleDateString("ko-KR")}</p>
         <p>마감일: {new Date(application_deadline).toLocaleDateString("ko-KR")}</p>
         <p>종료일: {new Date(end_date).toLocaleDateString("ko-KR")}</p>
       </div>

@@ -61,7 +61,7 @@ export default function Header() {
                                 : ""
                         }`}>
                         <Link
-                            to="/recommend"
+                            to="/recommend/select"
                             className={styles.navLink}>
                             AI 맞춤 추천
                         </Link>

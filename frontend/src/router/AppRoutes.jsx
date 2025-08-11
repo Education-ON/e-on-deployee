@@ -20,7 +20,6 @@ import RecommendEntry from "../pages/Suggestion/RecommendEntry";
 import RecommendSelect from "../pages/Suggestion/RecommendSelect";
 import HistoryRecommendation from "../pages/Suggestion/HistoryRecommendation";
 
-
 // Challenge
 import Challenge from "../pages/Challenge/Challenge";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
@@ -96,32 +95,72 @@ const AppRoutes = () => {
                 element={<ReviewEdit />}
             />
 
-            
             {/* Recommend (새 흐름) */}
-            <Route path="/recommend" element={<RecommendEntry />} />
+            {/* <Route path="/recommend" element={<RecommendEntry />} />
             <Route path="/recommend/select" element={<RecommendSelect />} />
             <Route path="/recommend/time" element={<TimeRecommendation />} />
             <Route path="/recommend/profile" element={<RecommendationResult />} />
-            <Route path="/recommend/history" element={<HistoryRecommendation />} />
+            <Route path="/recommend/history" element={<HistoryRecommendation />} /> */}
+
+            {/* Recommend (새 흐름) */}
+            <Route path="/recommend" element={<RecommendEntry />} />
+
+            {/* Recommend Select 내부 라우팅 */}
+            <Route path="/recommend/select" element={<RecommendSelect />}>
+                <Route path="time" element={<TimeRecommendation />} />
+                <Route path="profile" element={<RecommendationResult />} />
+                <Route path="history" element={<HistoryRecommendation />} />
+            </Route>
 
             {/* Onboarding (이전 suggestion 경로 정리) */}
-            <Route path="/onboarding/preferences" element={<PreferenceInterest />} />
-            <Route path="/onboarding/preferences/vision" element={<PreferenceVision />} />
+            <Route
+                path="/onboarding/preferences"
+                element={<PreferenceInterest />}
+            />
+            <Route
+                path="/onboarding/preferences/vision"
+                element={<PreferenceVision />}
+            />
 
             {/* 구 경로 호환 리다이렉트  */}
-            <Route path="/suggestion" element={<Navigate to="/recommend/select" replace />} />
-            <Route path="/recommendation/time" element={<Navigate to="/recommend/time" replace />} />
-            <Route path="/suggestion/preferences" element={<Navigate to="/onboarding/preferences" replace />} />
-            <Route path="/suggestion/preferences/vision" element={<Navigate to="/onboarding/preferences/vision" replace />} />
-            <Route path="/suggestion/recommendation" element={<Navigate to="/recommend/profile" replace />} />
-
+            <Route
+                path="/suggestion"
+                element={<Navigate to="/recommend/select" replace />}
+            />
+            <Route
+                path="/recommendation/time"
+                element={<Navigate to="/recommend/time" replace />}
+            />
+            <Route
+                path="/suggestion/preferences"
+                element={<Navigate to="/onboarding/preferences" replace />}
+            />
+            <Route
+                path="/suggestion/preferences/vision"
+                element={
+                    <Navigate to="/onboarding/preferences/vision" replace />
+                }
+            />
+            <Route
+                path="/suggestion/recommendation"
+                element={<Navigate to="/recommend/profile" replace />}
+            />
 
             {/* Community */}
             <Route path="/community" element={<CommunityList />} />
-            <Route path="/community/:board_id/write" element={<CommunityWrite />} />
-            <Route path="/community/:board_id/edit" element={<CommunityEdit />} />
+            <Route
+                path="/community/:board_id/write"
+                element={<CommunityWrite />}
+            />
+            <Route
+                path="/community/:board_id/edit"
+                element={<CommunityEdit />}
+            />
             <Route path="community/posts/:post_id" element={<PostDetail />} />
-            <Route path="/community/board-requests" element={<BoardRequestPage />} />
+            <Route
+                path="/community/board-requests"
+                element={<BoardRequestPage />}
+            />
 
             {/* MyPage (중첩 라우트) */}
             <Route

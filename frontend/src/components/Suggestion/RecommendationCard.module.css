@@ -2,8 +2,8 @@
   border: 1px solid #ccc;
   border-radius: 12px;
   background-color: #fff;
-  padding: 20px;
-  width: 300px;
+  padding: 20px 20px 15px 20px;
+  width: 250px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
   margin: 12px;
 }
@@ -43,5 +43,9 @@
 .cardFooter p {
   font-size: 13px;
   color: #444;
-  margin: 4px 0;
+  margin: 3px 0;
+}
+
+.firstOne {
+  margin-top: 9px !important;
 }
