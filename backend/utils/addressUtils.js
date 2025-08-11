@@ -1,15 +1,13 @@
-// // 주소에서 서울특별시 자치구를 추출하는 유틸 함수
-// function extractDistrict(address) {
-//     // 구까지만 추출
-//     const districtRegex = /서울특별시 ([가-힣]+구)/; // 한글 글자 1개 이상 + 구
-//     const match = address.match(districtRegex);
-
-//     // 매치된 경우 자치구를 반환, 없으면 null 반환
-//     return match ? match[0] : null;
-// }
+const { normalizeRegionName } = require("./regionNameNormalizer");
 
 // 전체 지역에서 시군구까지 추출하는 함수
 function extractDistrict(address) {
+    // 비어있을 경우 처리
+    if (!address) return null;
+
+    // 명칭 정규화
+    address = normalizeRegionName(address);
+
     // 1. 세종특별자치시 단독 처리
     if (address.startsWith("세종특별자치시")) {
         return "세종특별자치시";
