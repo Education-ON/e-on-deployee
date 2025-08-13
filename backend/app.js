@@ -58,7 +58,7 @@ app.use(passport.session());
 app.use("/admin", adminRouter);
 app.use("/auth", require("./routes/authRouter"));
 app.use("/api/user", require("./routes/userRouter"));
-app.use("/api/interests", require("./routes/interest"));
+app.use("/api/interests", require("./routes/interestRouter"));
 app.use("/api/activity", require("./routes/activity"));
 app.use("/api/notification", require("./routes/notification"));
 
@@ -73,13 +73,13 @@ app.use("/api/recommendations", require("./routes/recommendations"));
 app.use("/api/preferences", require("./routes/preferencesRoutes"));
 app.use("/api/select", require("./routes/select"));
 app.use("/api/time-recommendations", require("./routes/timeRecommendations"));
-app.use("/api/challenges", require("./routes/challengeRoutes"));
-app.use("/api/participations", require("./routes/participationRoutes"));
-app.use("/api/attendances", require("./routes/attendance"));
-app.use("/api/reviews", require("./routes/reviewRoutes"));
-app.use("/api/attachments", require("./routes/attachmentRoutes"));
-app.use("/api/visions", require("./routes/visions"));
-app.use("/api/admin/challenges", require("./routes/adminChallengeRoutes"));
+app.use("/api/challenges", require("./routes/challengeRouter"));
+app.use("/api/participations", require("./routes/participationRouter"));
+app.use("/api/attendances", require("./routes/attendanceRouter"));
+app.use("/api/reviews", require("./routes/reviewRouter"));
+app.use("/api/attachments", require("./routes/attachmentRouter"));
+app.use("/api/visions", require("./routes/visionRouter"));
+app.use("/api/admin/challenges", require("./routes/adminChallengeRouter"));
 
 app.use((err, req, res, next) => {
     console.error(err);

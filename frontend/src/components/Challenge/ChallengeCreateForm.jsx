@@ -636,7 +636,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {}, user_id }) => 
 
           {/* ── 새 사진 업로드 (multiple) ── */}
           <div className={styles.field} style={{ marginTop: 18 }}>
-            <label className={styles.label}>사진 업로드 (여러 개)</label>
+            <label className={styles.label}>사진 업로드</label>
             <input
               type="file"
               accept="image/*"
@@ -655,7 +655,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {}, user_id }) => 
           {/* ── 새 동의서 업로드 (multiple) ── */}
           <div className={styles.field} style={{ marginTop: 18 }}>
             <label className={styles.label}>
-              보호자 동의서 업로드 (문서·이미지 혼합 가능)
+              보호자 동의서 업로드
             </label>
             <input
               type="file"
