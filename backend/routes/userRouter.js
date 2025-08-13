@@ -11,16 +11,15 @@ const {
     getAllUserState,
     updateUserState,
     requestProfileUpdateCode,
+    verifyCode,
 } = require("../controllers/userController");
-
-
 
 const { getActivityHistory } = require("../controllers/mypageController");
 const { isLoggedIn } = require("../middleware/auth");
 
 const router = express.Router();
 
-// 활동 이력 조회 라우터 
+// 활동 이력 조회 라우터
 router.get("/activity-history", isLoggedIn, getActivityHistory);
 
 // 내 정보 조회
@@ -52,5 +51,8 @@ router.get("/state", isLoggedIn, getAllUserState);
 
 // 사용자 계정 상태 업데이트 (관리자용)
 router.patch("/state", isLoggedIn, updateUserState);
+
+// 이메일 인증 코드 검증
+router.post("/verify-code", isLoggedIn, verifyCode);
 
 module.exports = router;
