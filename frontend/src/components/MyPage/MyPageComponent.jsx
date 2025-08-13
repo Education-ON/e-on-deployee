@@ -10,6 +10,10 @@ const MyPageComponent = () => {
     if (loading) return <p>로딩 중...</p>;
     if (!user) return <Navigate to="/login" />;
 
+    const isSocial = ["kakao", "naver", "google"].includes(
+        user?.provider || ""
+    );
+
     return (
         <div className={styles.container}>
             <div className={styles.sidebar}>
@@ -77,15 +81,17 @@ const MyPageComponent = () => {
                         }`}>
                         내가 개설한 챌린지
                     </Link>
-                    <Link
-                        to="/mypage/password"
-                        className={`${styles.menuItem} ${
-                            location.pathname === "/mypage/password"
-                                ? styles.active
-                                : ""
-                        }`}>
-                        비밀번호 변경
-                    </Link>
+                    {isSocial ? null : (
+                        <Link
+                            to="/mypage/password"
+                            className={`${styles.menuItem} ${
+                                location.pathname === "/mypage/password"
+                                    ? styles.active
+                                    : ""
+                            }`}>
+                            비밀번호 변경
+                        </Link>
+                    )}
                     <Link
                         to="/mypage/deactivate"
                         className={`${styles.menuItem} ${

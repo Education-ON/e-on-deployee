@@ -94,7 +94,7 @@ const DeactivateAccount = () => {
             {step === 1 && (
                 <form onSubmit={handleVerify} className={styles.form}>
                     <h3 className={styles.sectionTitle}>
-                        계정 {action === "deactivate" ? "비활성화" : "탈퇴"}
+                        계정 탈퇴 / 비활성화
                     </h3>
                     <div className={styles.formGroup}>
                         <label>현재 비밀번호 입력</label>
