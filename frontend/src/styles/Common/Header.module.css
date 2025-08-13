@@ -82,3 +82,7 @@ button.navLink {
 .active {
     font-weight: 700;
 }
+
+.bellItem {
+  margin-right: -12px;  /* 필요시 조절, 레이아웃에 맞게 미세 튜닝 */
+}

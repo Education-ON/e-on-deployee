@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 // import notification from "../../assets/notification.svg";
 import { useAuth } from "../../hooks/useAuth";
+import NotificationBell from "./NotificationBell"; 
 
 export default function Header() {
     const { user, logout } = useAuth();
@@ -115,7 +116,12 @@ export default function Header() {
                                 로그인/회원가입
                             </Link>
                         </li>
+                        
                     )}
+
+                    <li className={`${styles.navItem} ${styles.bellItem}`}>
+                                <NotificationBell />
+                    </li>
 
                     {/* <li className={styles.navItem}>
                         <img

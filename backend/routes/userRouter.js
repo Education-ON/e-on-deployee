@@ -10,6 +10,7 @@ const {
     getMyBoardRequests,
     getAllUserState,
     updateUserState,
+    requestProfileUpdateCode,
 } = require("../controllers/userController");
 
 
@@ -27,6 +28,9 @@ router.get("/me", isLoggedIn, getMyInfo);
 
 // 내 정보 수정
 router.put("/me", isLoggedIn, updateMyInfo);
+
+// 소셜 계정: 회원정보 수정 전 이메일 인증코드 요청
+router.post("/me/profile-verify/request", isLoggedIn, requestProfileUpdateCode);
 
 // 비밀번호 인증
 router.post("/verify-password", isLoggedIn, verifyPassword);

@@ -1,18 +1,16 @@
-// backend/index.js
+// server.js
 require("dotenv").config();
 const http = require("http");
 const { Server } = require("socket.io");
-
-// app.js는 { app, sessionMiddleware } 형태로 export 되어 있어야 함
-const { app, sessionMiddleware } = require("./app");
+const { app, sessionMiddleware } = require("./app"); // 방금 export한 것
 const { init } = require("./services/notificationService");
 
 const PORT = process.env.PORT || 4000;
 
-// 1) HTTP 서버 래핑
+// 1) http 서버 래핑
 const server = http.createServer(app);
 
-// 2) Socket.IO 초기화 (프론트 주소 허용)
+// 2) socket.io 생성 (CORS는 프론트 주소와 동일하게)
 const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -20,10 +18,10 @@ const io = new Server(server, {
   },
 });
 
-// 3) 세션 공유 (app.js에서 만든 express-session 인스턴스 재사용)
+// 3) 세션 공유
 io.use((socket, next) => sessionMiddleware(socket.request, {}, next));
 
-// 4) 연결 시 유저 고유 방으로 join
+// 4) 유저-방 join
 io.on("connection", (socket) => {
   const userId = socket.request?.session?.passport?.user;
   if (!userId) return socket.disconnect();
@@ -37,7 +35,3 @@ init(io);
 server.listen(PORT, () => {
   console.log(`✅ Server & Socket.IO listening on :${PORT}`);
 });
-
-// Cron Job 
-const { startAverageScheduleJob } = require("./scripts/averageScheduleCron");
-startAverageScheduleJob();

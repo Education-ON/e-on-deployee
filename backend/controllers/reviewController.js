@@ -2,6 +2,8 @@ const db = require('../models');
 const Review    = db.Review;
 const Challenge = db.Challenge;
 const User = db.User;
+const { notify } = require("../services/notificationService"); // ✨ 추가
+
 
 /* 13) 리뷰 작성 ----------------------------------------------- */
 exports.create = async (req, res, next) => {
@@ -92,4 +94,38 @@ exports.remove = async (req, res, next) => {
     res.status(500).json({ error: '리뷰 삭제 중 서버 오류가 발생했습니다.' });
   }
 };
+
+// 리뷰 작성 후 알림(이메일X)
+exports.create = async (req, res, next) => {
+  try {
+    const challengeId = req.params.id;
+    const userId      = req.body.user_id; // 실제로는 req.user.user_id 사용 권장
+    const { rating_stars, text } = req.body;
+
+    const dup = await Review.findOne({ where:{ challenge_id:challengeId, user_id:userId } });
+    if (dup) return res.status(409).json({ error:'이미 리뷰를 작성했습니다.' });
+
+    const row = await Review.create({ challenge_id: challengeId, user_id: userId, rating_stars, text });
+
+    // ✨ 알림: 챌린지 개설자에게(자기 자신 제외, 이메일 X)
+    try {
+      const ch = await Challenge.findByPk(challengeId, { attributes: ["challenge_id","title","user_id"] });
+      if (ch && ch.user_id !== userId) {
+        const writer = await User.findByPk(userId, { attributes: ["name"] });
+        await notify(ch.user_id, {
+          type: "challenge",
+          title: "내 챌린지에 후기가 달렸어요",
+          body: `${writer?.name || "누군가"}: 평점 ${rating_stars}점 · ${String(text || "").slice(0, 60)}`,
+          link: `/challenges/${ch.challenge_id}#reviews`,
+          eventKey: "challenge_participation_approved",
+        });
+      }
+    } catch (e) {
+      console.warn("[notify] review create:", e.message);
+    }
+
+    res.status(201).json(row);
+  } catch (err) { next(err); }
+};
+
 

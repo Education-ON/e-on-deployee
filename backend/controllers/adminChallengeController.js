@@ -6,6 +6,8 @@ const {
   Visions,
   User
 } = require('../models');
+const { notify } = require("../services/notificationService"); // ✨ 추가
+
 
 // PENDING 상태 챌린지 조회
 exports.listPending = async (req, res, next) => {
@@ -91,3 +93,34 @@ exports.detail = async (req, res, next) => {
     next(err);
   }
 };
+
+// 챌린지 승인 처리
+// 승인 시 알림(+이메일)
+exports.approve = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const ch = await Challenge.findByPk(id, { attributes: ["challenge_id","title","user_id"] });
+    await Challenge.update({ status: 'APPROVED' }, { where: { challenge_id: id } });
+
+    // ✨ 알림: 개설자에게 (이메일 허용)
+    if (ch) {
+      try {
+        await notify(ch.user_id, {
+          type: "challenge",
+          title: "챌린지 개설이 승인되었습니다",
+          body: ch.title,
+          link: `/challenges/${ch.challenge_id}`,
+          eventKey: "challenge_creation_approved",
+        });
+      } catch (e) {
+        console.warn("[notify] challenge approve:", e.message);
+      }
+    }
+
+    res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
+};
+

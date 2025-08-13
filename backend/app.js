@@ -35,8 +35,7 @@ const sessionStore = new SequelizeStore({
 });
 sessionStore.sync();
 
-app.use(
-  session({
+const sessionMiddleware = session({
     secret: process.env.SESSION_SECRET,
     resave: false,              // 꼭 false
     saveUninitialized: false,
@@ -47,8 +46,8 @@ app.use(
       maxAge: 24 * 60 * 60 * 1000, // ★ 쿠키 만료(1일) - store.expiration과 맞추기
     },
     // rolling: false,           // 기본값이 false (명시해도 무방)
-  })
-);
+  });
+app.use(sessionMiddleware);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -60,7 +59,8 @@ app.use("/auth", require("./routes/authRouter"));
 app.use("/api/user", require("./routes/userRouter"));
 app.use("/api/interests", require("./routes/interest"));
 app.use("/api/activity", require("./routes/activity"));
-app.use("/api/notification", require("./routes/notification"));
+app.use("/api/notification", require("./routes/notificationRouter"));  
+app.use("/api/notifications", require("./routes/notificationRouter")); 
 
 app.use("/schoolSchedule", require("./routes/schoolScheduleRouter"));
 app.use("/averageSchedule", require("./routes/averageScheduleRouter"));
@@ -93,4 +93,4 @@ app.use((req, res, next) => {
     next();
 });
 
-module.exports = app;
+module.exports = { app, sessionMiddleware };

@@ -156,7 +156,7 @@ const AppRoutes = () => {
                 path="/community/:board_id/edit"
                 element={<CommunityEdit />}
             />
-            <Route path="community/posts/:post_id" element={<PostDetail />} />
+            <Route path="/community/posts/:post_id" element={<PostDetail />} />
             <Route
                 path="/community/board-requests"
                 element={<BoardRequestPage />}

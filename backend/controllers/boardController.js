@@ -7,6 +7,8 @@ const Comment = db.Comment;
 const PostImage = db.PostImage; 
 const BoardRequest = db.BoardRequest;
 const Report = db.Report;
+const { notify } = require("../services/notificationService"); // ✨ 추가
+
 
 // 게시판 조회 1
 exports.getBoardList = async (req, res) => {
@@ -490,3 +492,85 @@ exports.getAllReports = async (req, res) => {
     res.status(500).json({ message: "신고 목록 조회 중 오류 발생" });
   }
 };
+
+// 댓글 작성 - 댓글 작성 후 알림
+exports.createComment = async (req, res) => {
+  const { post_id } = req.params;
+  const user_id = req.user.user_id;
+  const { content, parent_comment_id } = req.body;
+
+  if (!user_id || !content) {
+    return res.status(400).json({ error: 'user_id와 content는 필수입니다.' });
+  }
+
+  try {
+    const newComment = await Comment.create({
+      post_id, user_id, content, parent_comment_id: parent_comment_id || null,
+    });
+
+    // ✨ 알림: 원글 작성자에게 (자기 자신 제외, 이메일 X)
+    try {
+      const post = await Post.findByPk(post_id);
+      if (post && post.user_id !== user_id) {
+        await notify(post.user_id, {
+          type: "comment",
+          title: "내 게시글에 새 댓글이 달렸어요",
+          body: `${req.user.name || "누군가"}: ${String(content || "").slice(0, 80)}`,
+          link: `/boards/${post.board_id}/posts/${post.post_id}`,
+        });
+      }
+    } catch (e) {
+      console.warn("[notify] createComment:", e.message);
+    }
+
+    res.status(201).json({ message: '댓글 작성 성공', comment: newComment });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '댓글 작성 중 오류가 발생했습니다.' });
+  }
+};
+
+// 게시판 개설 승인 시 알림
+// 게시판 개설 승인
+exports.updateBoardRequestStatus = async (req, res) => {
+  const { request_id } = req.params;
+  const { request_status } = req.body;
+
+  try {
+    const request = await BoardRequest.findOne({ where: { request_id } });
+    if (!request) return res.status(404).json({ error: '해당 신청 내역을 찾을 수 없습니다.' });
+
+    await BoardRequest.update({ request_status }, { where: { request_id } });
+
+    let createdBoard = null;
+    if (request_status == 'approved') {
+      const { requested_board_name, requested_board_type, board_audience } = request;
+      createdBoard = await Board.create({
+        board_name: requested_board_name,
+        board_type: requested_board_type,
+        board_audience,
+        created_at: new Date(),
+      });
+
+      // ✨ 알림: 신청자에게 (이메일 허용)
+      try {
+        await notify(request.user_id, {
+          type: "board",
+          title: "커뮤니티 게시판 개설이 승인되었습니다",
+          body: requested_board_name,
+          link: createdBoard ? `/boards/${createdBoard.board_id}` : undefined,
+          eventKey: "board_creation_approved", // 이메일 전송 허용
+        });
+      } catch (e) {
+        console.warn("[notify] board approve:", e.message);
+      }
+    }
+
+    res.status(200).json({ message: `게시판 신청이 '${request_status}' 처리되었습니다.` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '상태 변경 중 오류가 발생했습니다.' });
+  }
+};
+
+
