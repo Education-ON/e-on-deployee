@@ -54,7 +54,7 @@ const ChallengeRequests = () => {
 
             <div className={styles.tableContainer}>
                 <div className={styles.tableHeader}>
-                    <div>ID</div>
+                    {/* <div>ID</div> */}
                     <div>제목</div>
                     <div>연락처</div>
                     <div>마감일</div>
@@ -72,7 +72,7 @@ const ChallengeRequests = () => {
                             key={req.challenge_id}
                             to={`/admin/challenge-requests/${req.challenge_id}`}
                             className={`${styles.tableRow} ${styles.tooltip}`}>
-                            <div>{req.challenge_id}</div>
+                            {/* <div>{req.challenge_id}</div> */}
                             <div>{req.title}</div>
                             <div>{req.creator_contact}</div>
                             <div>

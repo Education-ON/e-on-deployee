@@ -18,3 +18,7 @@
 .custom-progress-bar {
     background: #b37bd6 !important; /* 연보라 포인트 컬러 */
 }
+
+textarea {
+    font-family: 'Pretendard', sans-serif !important;
+}

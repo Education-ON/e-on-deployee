@@ -25,7 +25,7 @@
 .tableHeader,
 .tableRow {
     display: grid;
-    grid-template-columns: 1fr 3fr 2fr 2fr 2fr; /* 기존 비율 유지 */
+    grid-template-columns: 3fr 2fr 2fr 2fr; /* 기존 비율 유지 */
     padding: 1rem;
     align-items: center;
     text-align: center;
