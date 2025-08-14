@@ -16,114 +16,26 @@ const {
   Visions
 } = db;
 
+/** ---------------- 공용 헬퍼: KST 기준 현재시각 & 자동 마감 ---------------- **/
+function nowKST() {
+  // 서버 타임존과 무관하게 KST 기준으로 Date 생성
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+}
 
-/** ---------------- 챌린지 개설 ---------------- **/
-// exports.create = async (req, res, next) => {
-//   const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
-//   const filesObj = req.files ?? {};
-//   const photosArr = filesObj.photos || [];
-//   const consentsArr = filesObj.consents || [];
+// 모집 마감일(application_deadline)이 지났는데 still ACTIVE인 챌린지를 CLOSED로 일괄 변경
+async function closeExpiredRecruiting() {
+  const now = nowKST();
+  await Challenge.update(
+    { challenge_state: 'CLOSED' },
+    {
+      where: {
+        challenge_state: 'ACTIVE',
+        application_deadline: { [Op.lt]: now }
+      }
+    }
+  );
+}
 
-//   try {
-//     const {
-//       title,
-//       description,
-//       minimum_age,
-//       maximum_age,
-//       maximum_people,
-//       application_deadline,
-//       start_date,
-//       end_date,
-//       is_recuming = false,
-//       repeat_type = null,
-//       intermediate_participation = false,
-//       creator_contact,
-//       user_id,
-//       days = [],
-//       interestIds = [],
-//       visionIds = []
-//     } = body;
-
-//     if (!title || !description || !creator_contact || !user_id) {
-//       return res.status(400).json({ error: '필수 필드 누락' });
-//     }
-    
-
-//     // 7일 내 결석 체크
-//     const sevenDaysAgo = new Date();
-//     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-//     const hasAbsence = await ParticipatingAttendance.findOne({
-//       include: [{
-//         model: ParticipatingChallenge,
-//         as: 'participant',
-//         where: { user_id }
-//       }],
-//       where: {
-//         attendance_state: '결석',
-//         attendance_date: { [Op.gte]: sevenDaysAgo }
-//       }
-//     });
-//     if (hasAbsence) {
-//       return res.status(403).json({ error: '최근 7일 이내 결석 기록이 있어 챌린지 개설이 제한됩니다.' });
-//     }
-
-//     const challenge = await Challenge.sequelize.transaction(async (t) => {
-//       const ch = await Challenge.create({
-//         title,
-//         description,
-//         minimum_age,
-//         maximum_age,
-//         maximum_people,
-//         application_deadline,
-//         start_date,
-//         end_date,
-//         is_recuming,
-//         repeat_type,
-//         intermediate_participation,
-//         creator_contact,
-//         user_id,
-//         // PENDING 상태로 생성 (모델 기본값 사용 가능)
-//         status: 'PENDING'
-//       }, { transaction: t });
-
-//       // 요일 삽입
-//       if (is_recuming && days.length) {
-//         const bulkDays = days.map(d => ({ challenge_id: ch.challenge_id, day_of_week: d }));
-//         await ChallengeDay.bulkCreate(bulkDays, { transaction: t });
-//       }
-
-//       // 관심/비전 매핑
-//       if (interestIds.length) await ch.addInterests(interestIds, { transaction: t });
-//       if (visionIds.length)   await ch.addVisions(visionIds,   { transaction: t });
-
-//       // 첨부파일
-//       const attachRows = [];
-//       photosArr.forEach(f => attachRows.push({
-//         challenge_id: ch.challenge_id,
-//         attachment_name: f.originalname,
-//         url: `/uploads/${f.filename}`,
-//         attachment_type: '이미지'
-//       }));
-//       consentsArr.forEach(f => attachRows.push({
-//         challenge_id: ch.challenge_id,
-//         attachment_name: f.originalname,
-//         url: `/uploads/${f.filename}`,
-//         attachment_type: '문서'
-//       }));
-//       if (attachRows.length) await Attachment.bulkCreate(attachRows, { transaction: t });
-
-//       return ch;
-//     });
-
-//     res.status(201).json({
-//       message: '챌린지 개설이 신청되었습니다. 관리자 승인 후 공개됩니다.',
-//       challenge_id: challenge.challenge_id
-//     });
-//   } catch (err) {
-//     console.error('▶ SQL Error:', err);
-//     next(err);
-//   }
-// };
 
 /** ---------------- 챌린지 개설 ---------------- **/
 exports.create = async (req, res, next) => {
@@ -247,6 +159,9 @@ exports.create = async (req, res, next) => {
 /** ---------------- 챌린지 목록 조회 ---------------- **/
 exports.list = async (req, res, next) => {
   try {
+    // ✅ 목록 요청 시 자동 마감 정리
+    await closeExpiredRecruiting();
+
     const {
       q: keyword = '',
       state,
@@ -321,6 +236,9 @@ exports.list = async (req, res, next) => {
 /** ---------------- 챌린지 상세 조회 ---------------- **/
 exports.detail = async (req, res, next) => {
   try {
+    // ✅ 상세 요청 시에도 자동 마감 정리(선택 적용, 여기선 적용)
+    await closeExpiredRecruiting();
+
     const id = req.params.id;
     const userId = req.query.user_id;
 

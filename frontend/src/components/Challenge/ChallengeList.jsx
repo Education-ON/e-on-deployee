@@ -2,7 +2,7 @@
 
 import ChallengeListItem from "./ChallengeListItem";
 
-const ChallengeList = ({ challenges, onApply, userAge }) => {
+const ChallengeList = ({ challenges, onApply, userAge, userId }) => {
   if (!challenges || challenges.length === 0) {
     return (
       <div
@@ -37,6 +37,7 @@ const ChallengeList = ({ challenges, onApply, userAge }) => {
             })
           }
           userAge={userAge}
+          userId={userId}
         />
       ))}
     </div>

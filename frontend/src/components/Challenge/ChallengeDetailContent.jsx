@@ -169,6 +169,9 @@ const ChallengeDetailContent = ({
   const statusMap = { ACTIVE: "모집중", CLOSED: "마감", CANCELLED: "취소됨" };
   const status = statusMap[challenge.challenge_state] || challenge.challenge_state;
 
+  // ✅ 추가: 마감 여부 플래그 (CLOSED면 신청 버튼 비활성화)
+  const isClosed = challenge.challenge_state === "CLOSED";
+
   const formatDate = (iso) => {
     if (!iso) return "-";
     const d = new Date(iso);
@@ -337,35 +340,47 @@ const ChallengeDetailContent = ({
               <FaBookmark size={25} color={bookmarked ? "#38bdf8" : "#bbb"} />
             </button>
 
-            {/* 참여/취소 버튼 */}
-            <button
-              disabled={!canJoinByAge || actionLoading}
-              style={{
-                background: !canJoinByAge ? "#eee" : isJoined ? "#fef2f2" : "#e5e7eb",
-                color: !canJoinByAge ? "#bbb" : isJoined ? "#e11d48" : "#222",
-                border: isJoined ? "1.5px solid #fca5a5" : "none",
-                borderRadius: 8,
-                padding: "9px 28px",
-                fontWeight: "bold",
-                fontSize: 16,
-                cursor: !canJoinByAge ? "not-allowed" : "pointer",
-              }}
-              onClick={
-                !canJoinByAge
-                  ? () => alert(`참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`)
-                  : isJoined
-                  ? handleCancel
-                  : handleJoin
-              }
-            >
-              {!canJoinByAge
-                ? minAgeNum === maxAgeNum
-                  ? `${maxAgeNum}세만 신청 가능`
-                  : `${minAgeNum}~${maxAgeNum}세만 신청 가능`
-                : isJoined
-                ? "참여 취소"
-                : "신청하기"}
-            </button>
+            {/* 참여/취소 버튼 (마감이면 회색 비활성) */}
+            {/* 참여/취소 버튼 (마감이면 회색 비활성, 개설자는 숨김) */}
+            {!isOwner && (
+              <button
+                disabled={!canJoinByAge || actionLoading || isClosed}
+                style={{
+                  background: (!canJoinByAge || isClosed) ? "#eee" : isJoined ? "#fef2f2" : "#e5e7eb",
+                  color: (!canJoinByAge || isClosed) ? "#bbb" : isJoined ? "#e11d48" : "#222",
+                  border: isJoined ? "1.5px solid #fca5a5" : "none",
+                  borderRadius: 8,
+                  padding: "9px 28px",
+                  fontWeight: "bold",
+                  fontSize: 16,
+                  cursor: (!canJoinByAge || isClosed) ? "not-allowed" : "pointer",
+                }}
+                onClick={
+                  (!canJoinByAge || isClosed)
+                    ? () => {
+                        if (isClosed) {
+                          alert("모집이 마감된 챌린지입니다.");
+                        } else {
+                          alert(`참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`);
+                        }
+                      }
+                    : isJoined
+                    ? handleCancel
+                    : handleJoin
+                }
+              >
+                {isClosed
+                  ? "모집 마감"
+                  : !canJoinByAge
+                    ? minAgeNum === maxAgeNum
+                      ? `${maxAgeNum}세만 신청 가능`
+                      : `${minAgeNum}~${maxAgeNum}세만 신청 가능`
+                    : isJoined
+                      ? "참여 취소"
+                      : "신청하기"}
+              </button>
+            )}
+
 
             {/* 수정/삭제 (소유자만) */}
             {isOwner && (
@@ -435,7 +450,6 @@ const ChallengeDetailContent = ({
           }}
         />
       )}
-
 
       {/* 2단 영역 */}
       <div style={{ display: "flex", gap: 34, marginBottom: 26 }}>

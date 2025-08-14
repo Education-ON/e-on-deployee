@@ -158,9 +158,20 @@ const ChallengeComponent = () => {
         isJoined,
         participationId,
         participationState,
+        isOwner,
+        isClosed,
     }) => {
         if (actionLoading) return;
         setActionLoading(true);
+
+        if (isOwner || isClosed) {
+            toast("신청할 수 없는 챌린지입니다.", {
+            icon: "💜",
+            className: "my-toast",
+            progressClassName: "custom-progress-bar",
+            });
+            return;
+        }
 
         try {
             if (isJoined) {
@@ -243,6 +254,8 @@ const ChallengeComponent = () => {
                             challenges={challenges}
                             onApply={handleApply}
                             userAge={user?.age}
+                            userId={user?.user_id}
+                            actionLoading={actionLoading}
                         />
                         <Pagination
                             currentPage={currentPage}
