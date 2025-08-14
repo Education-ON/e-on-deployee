@@ -53,7 +53,7 @@ const MyParticipatedChallenges = () => {
                                 {/* 챌린지 승인 상태 */}
                                 {item.status === "PENDING" && "승인 대기"}
                                 {item.status === "APPROVED" && "승인됨"}
-                                {item.status === "REJECTED" && "거부됨"}
+                                {item.status === "REJECTED" && "거절됨"}
                             </div>
                             <div>
                                 {/* 내가 신청한 상태 */}

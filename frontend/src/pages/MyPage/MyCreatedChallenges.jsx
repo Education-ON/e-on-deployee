@@ -36,7 +36,7 @@ const MyCreatedChallenges = () => {
                 <div className={styles.tableHeader}>
                     <div>챌린지명</div>
                     <div>기간</div>
-                    <div>승인/거부</div>
+                    <div>승인/거절</div>
                     <div>진행 상태</div>
                     <div>신청자 수</div>
                 </div>
@@ -56,7 +56,7 @@ const MyCreatedChallenges = () => {
                                 {/* 승인/거부/대기 */}
                                 {item.status === "PENDING" && "승인 대기"}
                                 {item.status === "APPROVED" && "승인됨"}
-                                {item.status === "REJECTED" && "거부됨"}
+                                {item.status === "REJECTED" && "거절됨"}
                             </div>
                             <div>
                                 {/* 진행 상태 */}
