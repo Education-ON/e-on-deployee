@@ -9,10 +9,10 @@ const naverStrategy = require("./naverStrategy");
 module.exports = (passport) => {
     passport.serializeUser((user, done) => {
         if (user.isNewSocialUser) {
-            console.log("🟡 serializeUser skipped for new social user");
+            // console.log("🟡 serializeUser skipped for new social user");
             return done(null, null);
         }
-        console.log("✅ serializeUser: user_id =", user.user_id);
+        // console.log("✅ serializeUser: user_id =", user.user_id);
         done(null, user.user_id);
     });
 
@@ -35,7 +35,7 @@ module.exports = (passport) => {
             });
 
             if (user) {
-                console.log("✅ deserializeUser: 유저 정보 불러옴");
+                // console.log("✅ deserializeUser: 유저 정보 불러옴");
                 return done(null, user);
             } else {
                 return done(null, false);
