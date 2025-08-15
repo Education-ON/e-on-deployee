@@ -52,3 +52,12 @@ frontend/
 ├── vite.config.js         # Vite 설정 파일
 └── .env                   # 환경 변수 (VITE_API_URL 등)
 ```
+
+#### 📦 `python-server/`
+
+```text
+python-server/
+├── venv
+├── requirements.txt
+└── server.py
+```
