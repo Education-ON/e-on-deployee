@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../api/axiosInstance";
 import styles from "./HistoryRecommendation.module.css";
 
 export default function HistoryRecommendation() {
@@ -28,17 +29,11 @@ export default function HistoryRecommendation() {
             try {
                 setLoading(true);
                 setErr("");
-                const res = await fetch(API, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({}), // 로그인 유저 기준
-                    credentials: "include", // 세션 쿠키 전송(중요)
-                });
-                const data = await res.json();
-                if (!res.ok)
-                    throw new Error(
-                        data?.message || data?.error || `HTTP ${res.status}`
-                    );
+                const { data } = await axiosInstance.post(
+                    "/api/ai/recommend/history", // Node.js 라우터
+                    {}, // 로그인 유저 기준
+                    { withCredentials: true }
+                );
 
                 const list = Array.isArray(data) ? data : data.items || [];
                 setItems(list.map(normalize).filter((it) => it.id)); // id 없는 건 제외
@@ -50,7 +45,7 @@ export default function HistoryRecommendation() {
             }
         };
         run();
-    }, [API]);
+    }, []);
 
     const goDetail = (id) => navigate(`/challenge/${id}`);
 
