@@ -7,21 +7,32 @@ import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 
 const DeactivateAccount = () => {
+    const { user, logout } = useAuth();
+
+    // 모달 상태 관리
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
+
+    // 로컬/소셜 분기 인증 상태 관리
     const [verifyPassword, setVerifyPassword] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
-    const [action, setAction] = useState("deactivate"); // deactivate | delete
-    const [msg, setMsg] = useState({ type: "", text: "" });
-    const { logout } = useAuth();
-    const navigate = useNavigate();
+    const [code, setCode] = useState(""); // 소셜 전용
+    const [codeRequested, setCodeRequested] = useState(false); // 소셜 전용
 
-    const handleVerify = async (e) => {
+    const [action, setAction] = useState("deactivate"); // deactivate | delete
+    const [message, setMessage] = useState({ type: "", text: "" });
+    const navigate = useNavigate();
+    const isSocial = ["kakao", "naver", "google"].includes(
+        user?.provider || ""
+    );
+
+    // [로컬] 현재 비밀번호 검증
+    const handleVerifyPassword = async (e) => {
         e.preventDefault();
-        setMsg({ type: "", text: "" });
+        setMessage({ type: "", text: "" });
 
         if (!verifyPassword) {
-            setMsg({ type: "error", text: "비밀번호를 입력해주세요." });
+            setMessage({ type: "error", text: "비밀번호를 입력해주세요." });
             return;
         }
 
@@ -36,11 +47,52 @@ const DeactivateAccount = () => {
                 setStep(2);
             }
         } catch (err) {
-            setMsg({
+            setMessage({
                 type: "error",
                 text:
                     err.response?.data?.message ||
                     "비밀번호가 일치하지 않습니다.",
+            });
+        }
+    };
+
+    // [소셜] 이메일 인증 코드 검증
+    const handleVerifyCode = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post("/api/user/verify-code", { code });
+            if (res.data.success) {
+                toast(res.data.message, {
+                    icon: "✅",
+                    className: "my-toast",
+                    progressClassName: "custom-progress-bar",
+                });
+                setStep(2);
+            }
+        } catch (err) {
+            setMessage({
+                type: "error",
+                text: err.response?.data?.message || "인증 실패",
+            });
+        }
+    };
+
+    // [소셜] 회원정보 수정용 인증코드 요청
+    const handleRequestCode = async () => {
+        setMessage({ type: "", text: "" });
+        try {
+            await api.post("/api/user/me/profile-verify/request", {});
+            setCodeRequested(true);
+            toast("인증 코드를 이메일로 전송했어요. 5분 내에 입력해주세요.", {
+                icon: "✉️",
+                className: "my-toast",
+                progressClassName: "custom-progress-bar",
+            });
+        } catch (err) {
+            setMessage({
+                type: "error",
+                text:
+                    err.response?.data?.message || "코드 요청에 실패했습니다.",
             });
         }
     };
@@ -52,26 +104,41 @@ const DeactivateAccount = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMsg({ type: "", text: "" });
+        setMessage({ type: "", text: "" });
 
         try {
-            if (action === "deactivate") {
-                const res = await api.patch("/api/user/me/deactivate", {
-                    currentPassword,
+            // ✅ 소셜/로컬 분기: payload 구성
+            const payload = isSocial
+                ? code
+                    ? { code }
+                    : null
+                : currentPassword
+                ? { currentPassword }
+                : null;
+
+            if (!payload) {
+                setMessage({
+                    type: "error",
+                    text: isSocial
+                        ? "이메일 인증 코드를 입력하세요."
+                        : "현재 비밀번호를 입력하세요.",
                 });
-                setMsg({ type: "success", text: res.data.message });
-            } else {
-                const res = await api.delete("/api/user/me", {
-                    data: { currentPassword },
-                });
-                setMsg({ type: "success", text: res.data.message });
+                return;
             }
 
+            if (action === "deactivate") {
+                const res = await api.patch("/api/user/me/deactivate", payload);
+                setMessage({ type: "success", text: res.data.message });
+            } else {
+                const res = await api.delete("/api/user/me", { data: payload });
+                setMessage({ type: "success", text: res.data.message });
+            }
+
+            // 성공 후 로그아웃 및 홈 이동
             await logout();
             navigate("/");
-            // setTimeout(() => navigate("/"), 500);
         } catch (err) {
-            setMsg({
+            setMessage({
                 type: "error",
                 text: err.response?.data?.message || "처리에 실패했습니다.",
             });
@@ -80,43 +147,78 @@ const DeactivateAccount = () => {
 
     return (
         <div className={styles.myInfoContainer}>
-            {msg.text && (
+            {message.text && (
                 <p
                     className={
-                        msg.type === "error"
+                        message.type === "error"
                             ? styles.errorMessage
                             : styles.successMessage
                     }>
-                    {msg.text}
+                    {message.text}
                 </p>
             )}
 
             {step === 1 && (
-                <form onSubmit={handleVerify} className={styles.form}>
+                <form
+                    onSubmit={
+                        isSocial ? handleVerifyCode : handleVerifyPassword
+                    }
+                    className={styles.form}>
                     <h3 className={styles.sectionTitle}>
                         계정 탈퇴 / 비활성화
                     </h3>
-                    <div className={styles.formGroup}>
-                        <label>현재 비밀번호 입력</label>
-                        <input
-                            className={styles.input}
-                            type="password"
-                            value={verifyPassword}
-                            onChange={(e) => setVerifyPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+                    {!isSocial ? (
+                        <div className={styles.formGroup}>
+                            <label>현재 비밀번호 입력</label>
+                            <input
+                                className={styles.input}
+                                type="password"
+                                value={verifyPassword}
+                                onChange={(e) =>
+                                    setVerifyPassword(e.target.value)
+                                }
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <div className={styles.formGroup}>
+                                <label>이메일 인증 (소셜 계정)</label>
+                                <div className={styles.emailAuth}>
+                                    <input
+                                        className={styles.input2}
+                                        placeholder="6자리 코드"
+                                        value={code}
+                                        onChange={(e) =>
+                                            setCode(e.target.value)
+                                        }
+                                    />
+                                    <button
+                                        type="button"
+                                        className={styles.secondaryButton}
+                                        onClick={handleRequestCode}
+                                        disabled={codeRequested}>
+                                        {codeRequested
+                                            ? "코드 재요청"
+                                            : "인증코드 받기"}
+                                    </button>
+                                </div>
+                                <small>코드는 5분간 유효합니다.</small>
+                            </div>
+                        </>
+                    )}
+
                     <button type="submit" className={styles.submitButton}>
                         확인
                     </button>
                 </form>
             )}
 
+            {/* 2단계: 탈퇴, 비활성화 단계 */}
             {step === 2 && (
                 <form onSubmit={handlePreSubmit} className={styles.form}>
                     <div className={styles.formGroup}>
-                        <label>처리 선택</label>
-                        <div style={{ display: "flex", gap: "1rem" }}>
+                        <h3 className={styles.sectionTitle}>처리 선택</h3>
+                        <div  className={styles.deactiveSelect}>
                             <label>
                                 <input
                                     type="radio"
