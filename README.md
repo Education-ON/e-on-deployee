@@ -53,6 +53,8 @@ frontend/
 └── .env                   # 환경 변수 (VITE_API_URL 등)
 ```
 
+---
+
 #### 📦 `python-server/`
 
 ```text
