@@ -101,3 +101,10 @@
     border: 1px solid #ccc;
     border-radius: 6px;
 }
+
+.deactiveSelect {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    align-content: center;
+}
